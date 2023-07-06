@@ -1,6 +1,6 @@
 apiVersion: v2
-description: description-of-project-goes-here
-name: ffc-template-node
+description: Track payments and publish notifications
+name: ffc-pay-tracking
 # this version is automatically updated in the build pipeline
 version: 1.0.0
 dependencies:

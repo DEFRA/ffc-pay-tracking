@@ -2,14 +2,14 @@
 # to provide dependencies and expose ports for local testing
 
 services:
-  ffc-template-node:
+  ffc-pay-tracking:
     build:
       target: development
-    image: ffc-template-node-development
-    container_name: ffc-template-node-development
+    image: ffc-pay-tracking-development
+    container_name: ffc-pay-tracking-development
     ports:
-      - "3000:3000"
-      - "9229:9229"
+      - "3002:3002"
+      - "9299:9229"
     volumes:
       - ./app:/home/node/app
       - ./package.json:/home/node/package.json
