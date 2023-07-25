@@ -30,7 +30,7 @@ const start = async () => {
   const processingAction = message => processProcessingMessage(message, processingReceiver)
   processingReceiver = new MessageReceiver(messageConfig.processingSubscription, processingAction)
   await processingReceiver.subscribe()
-  
+
   const submitAction = message => processSubmitMessage(message, submitReceiver)
   submitReceiver = new MessageReceiver(messageConfig.submitSubscription, submitAction)
   await submitReceiver.subscribe()
