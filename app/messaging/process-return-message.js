@@ -1,5 +1,5 @@
 const processReturnMessage = async (message, receiver) => {
-    console.log('Message received:', message)
+  console.log('Message received:', message)
 }
 
 module.exports = {
