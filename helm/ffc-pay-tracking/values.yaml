@@ -26,6 +26,17 @@ container:
   limitMemory: 100Mi
   limitCpu: 100m
   port: 3002
+  messageQueueHost: namespace.servicebus.windows.net
+  requestResponseTopicAddress: ffc-pay-request-response
+  requestResponseSubscriptionAddress: ffc-pay-tracking
+  processingTopicAddress: ffc-pay-processing
+  processingSubscriptionAddress: ffc-pay-tracking
+  submitTopicAddress: ffc-pay-submit
+  submitSubscriptionAddress: ffc-pay-tracking
+  returnTopicAddress: ffc-pay-return
+  returnSubscriptionAddress: ffc-pay-tracking
+  acknowledgementTopicAddress: ffc-pay-acknowledgement
+  acknowledgementSubscriptionAddress: ffc-pay-tracking
 
 livenessProbe:
   path: /healthz

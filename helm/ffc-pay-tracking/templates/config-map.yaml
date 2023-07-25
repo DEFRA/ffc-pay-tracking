@@ -4,4 +4,23 @@ data:
   NODE_ENV: {{ quote .Values.environment }}
   PORT: {{ quote .Values.container.port }}
   APPINSIGHTS_CLOUDROLE: {{ quote .Values.name }}
+  MESSAGE_QUEUE_HOST: {{ quote .Values.container.messageQueueHost }}
+  {{- if and (.Values.environmentCode) (not .Values.pr) }}
+  REQUEST_RESPONSE_TOPIC_ADDRESS: {{ .Values.container.requestResponseTopicAddress }}-{{ .Values.environmentCode }}
+  PROCESSING_TOPIC_ADDRESS: {{ .Values.container.processingTopicAddress }}-{{ .Values.environmentCode }}
+  SUBMIT_TOPIC_ADDRESS: {{ .Values.container.submitTopicAddress }}-{{ .Values.environmentCode }}
+  RETURN_TOPIC_ADDRESS: {{ .Values.container.returnTopicAddress }}-{{ .Values.environmentCode }}
+  ACKNOWLEDGEMENT_TOPIC_ADDRESS: {{ .Values.container.acknowledgementTopicAddress }}-{{ .Values.environmentCode }}
+  {{ else }}
+  REQUEST_RESPONSE_TOPIC_ADDRESS: {{ .Values.container.requestResponseTopicAddress }}
+  PROCESSING_TOPIC_ADDRESS: {{ .Values.container.processingTopicAddress }}
+  SUBMIT_TOPIC_ADDRESS: {{ .Values.container.submitTopicAddress }}
+  RETURN_TOPIC_ADDRESS: {{ .Values.container.returnTopicAddress }}
+  ACKNOWLEDGEMENT_TOPIC_ADDRESS: {{ .Values.container.acknowledgementTopicAddress }}
+  {{- end }}
+  REQUEST_RESPONSE_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.requestResponseSubscriptionAddress }}
+  PROCESSING_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.processingSubscriptionAddress }}
+  SUBMIT_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.submitSubscriptionAddress }}
+  RETURN_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.returnSubscriptionAddress }}
+  ACKNOWLEDGEMENT_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.acknowledgementSubscriptionAddress }}
 {{- end -}}
