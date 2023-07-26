@@ -1,0 +1,21 @@
+module.exports = {
+  correlationId: 'f9721145-e52f-4e8d-be8e-e6c219286a72',
+  schemeId: 1,
+  sourceSystem: 'SFI',
+  batch: 'SITISFI0001_AP_202303291200101234.dat',
+  deliveryBody: 'RP00',
+  invoiceNumber: 'S12345678C1234567V001',
+  frn: 1234567890,
+  sbi: 123456789,
+  paymentRequestNumber: 1,
+  agreementNumber: 'SIP00000000001',
+  contractNumber: '00000001',
+  paymentType: 2,
+  marketingYear: 2022,
+  currency: 'GBP',
+  schedule: 'Q4',
+  dueDate: '01/04/2023',
+  value: 100,
+  ledger: 'AP',
+  invoiceLines: []
+}

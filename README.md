@@ -1,13 +1,38 @@
 # Payment Hub Tracking
 
 ## Prerequisites
-
-- Docker
-- Docker Compose
+### Software required
+- [Azure Service Bus](https://docs.microsoft.com/en-us/azure/service-bus-messaging/)
+- [Docker](https://www.docker.com/)
+- Either:
+  - [Docker Compose](https://docs.docker.com/compose/install/linux/#install-the-plugin-manually)
+  - [Docker-Compose (standalone)](https://docs.docker.com/compose/install/other/)
 
 Optional:
-- Kubernetes
-- Helm
+- [Kubernetes](https://kubernetes.io/)
+- [Helm](https://helm.sh/)
+
+### Configuration
+#### Azure Service Bus
+
+This service publishes responses as messages to Azure Service Bus topics.
+
+| Name | Description |
+| ---| --- |
+| `MESSAGE_QUEUE_HOST` | Azure Service Bus hostname, e.g. `myservicebus.servicebus.windows.net` |
+| `MESSAGE_QUEUE_USER` | Azure Service Bus SAS policy name, e.g. `RootManageSharedAccessKey` |
+| `MESSAGE_QUEUE_PASSWORD` | Azure Service Bus SAS policy key |
+| `MESSAGE_QUEUE_SUFFIX` | Developer initials, optional, will be automatically added to topic names, e.g. `-jw` |
+| `REQUEST_RESPONSE_TOPIC_ADDRESS` | Azure Service Bus topic name for request response messages, e.g. `ffc-pay-request-response` |
+| `REQUEST_RESPONSE_SUBSCRIPTION_ADDRESS` | Azure Service Bus subscription name for `REQUEST_RESPONSE_TOPIC_ADDRESS` |
+| `PROCESSING_TOPIC_ADDRESS` | Azure Service Bus topic name for processing messages, e.g. `ffc-pay-processing` |
+| `PROCESSING_SUBSCRIPTION_ADDRESS` | Azure Service Bus subscription for `PROCESSING_TOPIC_ADDRESS` |
+| `SUBMIT_TOPIC_ADDRESS` | Azure Service Bus topic name for submission messages, e.g. `ffc-pay-submit` |
+| `SUBMIT_SUBSCRIPTION_ADDRESS` | Azure Service Bus subscription for `SUBMIT_TOPIC_ADDRESS` |
+| `RETURN_TOPIC_ADDRESS` | Azure Service Bus topic name for return messages, e.g. `ffc-pay-return` |
+| `RETURN_SUBSCRIPTION_ADDRESS` | Azure Service Bus subscription for `RETURN_TOPIC_ADDRESS` |
+| `ACKNOWLEDGEMENT_TOPIC_ADDRESS` | Azure Service Bus topic name for acknowledgement messages, e.g. `ffc-pay-acknowledgement` |
+| `ACKNOWLEDGEMENT_SUBSCRIPTION_ADDRESS` | Azure Service Bus subscription for `ACKNOWLEDGEMENT_TOPIC_ADDRESS` |
 
 ## Running the application
 
