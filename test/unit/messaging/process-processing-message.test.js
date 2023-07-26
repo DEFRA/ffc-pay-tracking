@@ -25,6 +25,6 @@ describe('process payment message', () => {
   test('console log should have been called with message', async () => {
     await processProcessingMessage(message, receiver)
 
-    expect(logSpy).toHaveBeenCalledWith('Processing message received: ', message)
+    expect(logSpy).toHaveBeenCalledWith('Processing message received: ', message.body)
   })
 })
