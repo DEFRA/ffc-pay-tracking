@@ -1,5 +1,5 @@
 const processSubmitMessage = async (message, receiver) => {
-  console.log('Message received:', message)
+  console.log('Submit message received: ', message)
 }
 
 module.exports = {

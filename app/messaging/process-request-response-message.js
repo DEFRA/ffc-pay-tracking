@@ -1,5 +1,5 @@
 const processRequestResponseMessage = async (message, receiver) => {
-  console.log('Message received:', message)
+  console.log('Request response message received: ', message)
 }
 
 module.exports = {
