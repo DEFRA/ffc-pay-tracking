@@ -20,7 +20,7 @@
   ],
   "license": "OGL-UK-3.0",
   "dependencies": {
-    "@hapi/hapi": "20.2.2",
+    "@hapi/hapi": "20.3.0",
     "applicationinsights": "2.7.0",
     "ffc-messaging": "2.6.5"
   },
