@@ -22,7 +22,7 @@
   "dependencies": {
     "@hapi/hapi": "20.2.2",
     "applicationinsights": "2.7.0",
-    "ffc-messaging": "2.6.5"
+    "ffc-messaging": "2.7.0"
   },
   "devDependencies": {
     "jest": "29.2.2",
