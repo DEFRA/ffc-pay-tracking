@@ -7,6 +7,8 @@ services:
       target: production
     image: ffc-pay-tracking
     container_name: ffc-pay-tracking
+    depends_on:
+      - ffc-pay-tracking-postgres
     environment:
       APPINSIGHTS_CLOUDROLE: ffc-pay-tracking-local
       APPINSIGHTS_CONNECTIONSTRING: ${APPINSIGHTS_CONNECTIONSTRING}
@@ -23,3 +25,16 @@ services:
       RETURN_SUBSCRIPTION_ADDRESS: ${RETURN_SUBSCRIPTION_ADDRESS:-ffc-pay-tracking}${MESSAGE_QUEUE_SUFFIX}
       ACKNOWLEDGEMENT_TOPIC_ADDRESS: ${ACKNOWLEDGEMENT_TOPIC_ADDRESS:-ffc-pay-acknowledgement}${MESSAGE_QUEUE_SUFFIX}
       ACKNOWLEDGEMENT_SUBSCRIPTION_ADDRESS: ${ACKNOWLEDGEMENT_SUBSCRIPTION_ADDRESS:-ffc-pay-tracking}${MESSAGE_QUEUE_SUFFIX}
+      POSTGRES_DB: ffc_pay_tracking
+      POSTGRES_HOST: ${POSTGRES_HOST:-ffc-pay-tracking-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_SCHEMA_PASSWORD:-ppp}
+      POSTGRES_PORT: 5432
+      POSTGRES_SCHEMA_NAME: ${POSTGRES_SCHEMA_NAME:-public}
+      POSTGRES_USERNAME: ${POSTGRES_SCHEMA_USERNAME:-postgres}
+  
+  ffc-pay-tracking-postgres:
+    image: postgres:11.4-alpine
+    environment:
+      POSTGRES_DB: ffc_pay_tracking
+      POSTGRES_PASSWORD: ppp
+      POSTGRES_USERNAME: postgres
