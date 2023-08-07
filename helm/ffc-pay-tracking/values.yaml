@@ -39,11 +39,11 @@ container:
   acknowledgementSubscriptionAddress: ffc-pay-tracking
 
   postgresService:
-  postgresDb: ffc_pay_tracking
-  postgresqlHost: ffc-pay-tracking-postgres
-  postgresPort: 5432
-  postgresSchema: public
-  postgresUser: postgres
+    postgresDb: ffc_pay_tracking
+    postgresqlHost: ffc-pay-tracking-postgres
+    postgresPort: 5432
+    postgresSchema: public
+    postgresUser: postgres
 
 livenessProbe:
   path: /healthz
