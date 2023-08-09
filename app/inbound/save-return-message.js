@@ -12,7 +12,6 @@ const saveReturnMessage = async (returnMessage) => {
     // await transaction.rollback()
     // } else {
     const scheme = getSchemeId(returnMessage.sourceSystem)
-    console.log(scheme)
     await db.returns.create({ ...returnMessage, schemeId: scheme }, { transaction })
     await transaction.commit()
     // }

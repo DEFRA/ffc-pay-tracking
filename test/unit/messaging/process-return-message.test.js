@@ -1,30 +1,39 @@
+jest.mock('../../../app/inbound')
+const { saveReturnMessage: mockSaveReturnMessage } = require('../../../app/inbound')
+
 const receiver = require('../../mocks/messaging/receiver')
 const message = require('../../mocks/messaging/message')
 
 const { processReturnMessage } = require('../../../app/messaging/process-return-message')
 
-const logSpy = jest.spyOn(global.console, 'log')
+const errorSpy = jest.spyOn(global.console, 'error')
 
 describe('process payment message', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
-  test('console log should have been called', async () => {
+  test('should save return message', async () => {
     await processReturnMessage(message, receiver)
-
-    expect(logSpy).toHaveBeenCalled()
+    expect(mockSaveReturnMessage).toHaveBeenCalledWith(message.body)
   })
 
-  test('console log should have been called once', async () => {
+  test('should complete message if successfully processed', async () => {
     await processReturnMessage(message, receiver)
-
-    expect(logSpy).toHaveBeenCalledTimes(1)
+    expect(receiver.completeMessage).toHaveBeenCalledWith(message)
   })
 
-  test('console log should have been called with message', async () => {
+  test('should send processing error event if unable to process payment request', async () => {
+    const error = new Error('Test error')
+    mockSaveReturnMessage.mockRejectedValue(error)
     await processReturnMessage(message, receiver)
+    expect(errorSpy).toHaveBeenCalledWith('Unable to process return message:', error)
+  })
 
-    expect(logSpy).toHaveBeenCalledWith('Return message received: ', message.body)
+  test('should not complete message if unable to process payment request', async () => {
+    const error = new Error('Test error')
+    mockSaveReturnMessage.mockRejectedValue(error)
+    await processReturnMessage(message, receiver)
+    expect(receiver.completeMessage).not.toHaveBeenCalled()
   })
 })

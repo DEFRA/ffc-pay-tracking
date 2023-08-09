@@ -1,6 +1,5 @@
 const util = require('util')
 const { saveReturnMessage } = require('../inbound')
-// const { sendProcessingErrorEvent } = require('../event')
 
 const processReturnMessage = async (message, receiver) => {
   try {
@@ -8,7 +7,6 @@ const processReturnMessage = async (message, receiver) => {
     await saveReturnMessage(message.body)
     await receiver.completeMessage(message)
   } catch (err) {
-    // await sendProcessingErrorEvent(message.body, err)
     console.error('Unable to process return message:', err)
   }
 }

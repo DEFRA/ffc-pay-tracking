@@ -25,7 +25,7 @@
       <column name="claimNumber" type="VARCHAR(50)" />
       <column name="currency" type="VARCHAR(3)" />
       <column name="value" type="DECIMAL" />
-      <column name="settlementDate" type="VARCHAR(10)" />
+      <column name="settlementDate" type="TIMESTAMP WITH TIME ZONE" />
       <column name="paymentType" type="VARCHAR(1)" />
       <column name="reference" type="VARCHAR(50)" />
       <column name="bankAccount" type="VARCHAR(50)" />

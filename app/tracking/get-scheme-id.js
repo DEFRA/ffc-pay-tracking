@@ -1,10 +1,9 @@
 const schemes = require('../constants/schemes')
 
 const getSchemeId = (sourceSystem) => {
-  console.log(sourceSystem)
   let scheme
   switch (sourceSystem) {
-    case 'SFI':
+    case 'SITI_SFI':
       scheme = schemes.SFI
       break
     case 'SFIP':
@@ -36,6 +35,9 @@ const getSchemeId = (sourceSystem) => {
       break
     case 'IMPS':
       scheme = schemes.IMPS
+      break
+    default:
+      scheme = undefined
       break
   }
   return scheme
