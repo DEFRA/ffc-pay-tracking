@@ -1,14 +1,14 @@
 module.exports = {
-  sourceSystem: 'SFI',
-  invoiceNumber: 'S12345678C1234567V001',
-  frn: 1234567890,
+  sourceSystem: 'SITI_SFI',
+  invoiceNumber: 'S000000200000002V001',
+  frn: 1000000002,
   currency: 'GBP',
-  value: 100,
-  settlementDate: '01/04/2023',
+  value: 25000,
+  settlementDate: '2022-11-09T00:00:00.000Z',
   reference: 'PY1711007',
-  referenceId: 'Hashed value',
   settled: true,
   detail: '',
   ledger: 'AP',
+  referenceId: 'e5b9c22cebbec7d174408dea1d0fed0f',
   filename: 'FFCSITI_SFI Return File.csv'
 }
