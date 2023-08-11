@@ -6,6 +6,7 @@ module.exports = {
   value: 100,
   settlementDate: '01/04/2023',
   reference: 'PY1711007',
+  referenceId: 'Hashed value',
   settled: true,
   detail: '',
   ledger: 'AP',

@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     settlementDate: DataTypes.STRING,
     paymentType: DataTypes.STRING,
     reference: DataTypes.STRING,
+    referenceId: DataTypes.STRING,
     bankAccount: DataTypes.STRING,
     batchNumber: DataTypes.STRING,
     settled: DataTypes.BOOLEAN,
