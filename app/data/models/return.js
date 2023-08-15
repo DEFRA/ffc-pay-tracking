@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
-  const returns = sequelize.define('returns', {
-    returnsId: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  return sequelize.define('return', {
+    returnId: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     schemeId: DataTypes.INTEGER,
     sourceSystem: DataTypes.STRING,
     paymentId: DataTypes.STRING,
@@ -29,9 +29,8 @@ module.exports = (sequelize, DataTypes) => {
     filename: DataTypes.STRING
   },
   {
-    tableName: 'returns',
+    tableName: 'return',
     freezeTableName: true,
     timestamps: false
   })
-  return returns
 }

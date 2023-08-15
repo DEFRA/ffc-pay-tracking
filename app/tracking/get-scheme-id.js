@@ -1,40 +1,42 @@
-const schemes = require('../constants/schemes')
+const { SFI, SFI_PILOT, LUMP_SUMS, VET_VISITS, CS, BPS, FDMR, MANUAL, ES, FC, IMPS } = require('../constants/schemes')
+const { sfi, sfip, lses, ahwr, cs, bps, fdmr, manual, genesis, glos, imps } = require('../constants/source-systems')
 
-const getSchemeId = (sourceSystem) => {
+const getSchemeId = (sourceSystem, invoiceNumber) => {
   let scheme
   switch (sourceSystem) {
-    case 'SITI_SFI':
-      scheme = schemes.SFI
+    case sfi:
+      scheme = SFI
       break
-    case 'SFIP':
-      scheme = schemes.SFI_PILOT
+    case sfip:
+      scheme = SFI_PILOT
       break
-    case 'LSES':
-      scheme = schemes.LUMP_SUMS
+    case lses:
+      scheme = LUMP_SUMS
       break
-    case 'AHWR':
-      scheme = schemes.VET_VISITS
+    case ahwr:
+      scheme = VET_VISITS
       break
-    case 'SITI AGRI CS SYS':
-      scheme = schemes.CS
+    case cs:
+      scheme = CS
       break
-    case 'SITI AGRI SYS':
-      scheme = schemes.BPS
+    case bps || fdmr:
+      if (invoiceNumber.startsWith('F')) {
+        scheme = FDMR
+      } else {
+        scheme = BPS
+      }
       break
-    case 'FDMR':
-      scheme = schemes.FDMR
+    case manual:
+      scheme = MANUAL
       break
-    case 'Manual':
-      scheme = schemes.MANUAL
+    case genesis:
+      scheme = ES
       break
-    case 'Genesis':
-      scheme = schemes.ES
+    case glos:
+      scheme = FC
       break
-    case 'GLOS':
-      scheme = schemes.FC
-      break
-    case 'IMPS':
-      scheme = schemes.IMPS
+    case imps:
+      scheme = IMPS
       break
     default:
       scheme = undefined

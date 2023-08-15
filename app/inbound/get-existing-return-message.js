@@ -1,7 +1,7 @@
 const db = require('../data')
 
 const getExistingReturnMessage = async (referenceId, transaction) => {
-  return db.returns.findOne({
+  return db.return.findOne({
     transaction,
     lock: true,
     where: {

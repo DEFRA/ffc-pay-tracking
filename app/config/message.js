@@ -35,6 +35,7 @@ const schema = Joi.object({
     type: Joi.string().default('subscription')
   }
 })
+
 const config = {
   messageQueue: {
     host: process.env.MESSAGE_QUEUE_HOST,

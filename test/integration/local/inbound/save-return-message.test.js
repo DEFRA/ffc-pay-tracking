@@ -25,14 +25,14 @@ describe('save payment request', () => {
 
   test('should save return message if not already exists', async () => {
     await saveReturnMessage(returnMessage)
-    const savedReturnMessage = await db.returns.findOne({ where: { referenceId: returnMessage.referenceId } })
+    const savedReturnMessage = await db.return.findOne({ where: { referenceId: returnMessage.referenceId } })
     expect(savedReturnMessage.referenceId).toBe(returnMessage.referenceId)
   })
 
   test('should not save return message if already exists', async () => {
     mockGetExistingReturnMessage.mockResolvedValue(returnMessage)
     await saveReturnMessage(returnMessage)
-    const savedReturnMessage = await db.returns.findOne({ where: { referenceId: returnMessage.referenceId } })
+    const savedReturnMessage = await db.return.findOne({ where: { referenceId: returnMessage.referenceId } })
     expect(savedReturnMessage).toBeNull()
   })
 
@@ -44,7 +44,7 @@ describe('save payment request', () => {
   test('should rollback transaction if error', async () => {
     mockGetExistingReturnMessage.mockRejectedValue(new Error('Test error'))
     await expect(saveReturnMessage(returnMessage)).rejects.toThrow('Test error')
-    const savedReturnMessage = await db.returns.findOne({ where: { referenceId: returnMessage.referenceId } })
+    const savedReturnMessage = await db.return.findOne({ where: { referenceId: returnMessage.referenceId } })
     expect(savedReturnMessage).toBeNull()
   })
 

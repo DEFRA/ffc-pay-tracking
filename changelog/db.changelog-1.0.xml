@@ -7,9 +7,9 @@
     <tagDatabase tag="v1.0.0" />
   </changeSet>
   <changeSet author="Kirsten Williamson" id="3">
-    <createTable tableName="returns">
-      <column autoIncrement="true" name="returnsId" type="INTEGER">
-        <constraints nullable="false" primaryKey="true" primaryKeyName="returnsId_pkey" />
+    <createTable tableName="return">
+      <column autoIncrement="true" name="returnId" type="INTEGER">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="returnId_pkey" />
       </column>
       <column name="schemeId" type="INTEGER" />
       <column name="sourceSystem" type="VARCHAR(50)" />
@@ -24,7 +24,7 @@
       <column name="agreementNumber" type="VARCHAR(20)" />
       <column name="claimNumber" type="VARCHAR(50)" />
       <column name="currency" type="VARCHAR(3)" />
-      <column name="value" type="DECIMAL" />
+      <column name="value" type="INTEGER" />
       <column name="settlementDate" type="TIMESTAMP WITH TIME ZONE" />
       <column name="paymentType" type="VARCHAR(1)" />
       <column name="reference" type="VARCHAR(50)" />
@@ -32,11 +32,11 @@
       <column name="bankAccount" type="VARCHAR(50)" />
       <column name="batchNumber" type="VARCHAR(50)" />
       <column name="settled" type="BOOLEAN" defaultValueBoolean="false" />
-      <column name="valueEUR" type="DECIMAL" />
+      <column name="valueEUR" type="INTEGER" />
       <column name="exchangeRate" type="VARCHAR(10)" />
       <column name="detail" type="VARCHAR(255)" />
       <column name="ledger" type="VARCHAR(2)" />
-      <column name="filename" type="VARCHAR(50)" />
+      <column name="filename" type="VARCHAR(255)" />
     </createTable>
   </changeSet>
 </databaseChangeLog>

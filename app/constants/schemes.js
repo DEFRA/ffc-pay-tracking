@@ -9,5 +9,6 @@ module.exports = {
   MANUAL: 8,
   ES: 9,
   FC: 10,
-  IMPS: 11
+  IMPS: 11,
+  SFI23: 12
 }

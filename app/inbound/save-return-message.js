@@ -10,8 +10,8 @@ const saveReturnMessage = async (returnMessage) => {
       console.info(`Duplicate return message received, skipping ${existingReturnMessage.referenceId}`)
       await transaction.rollback()
     } else {
-      const scheme = getSchemeId(returnMessage.sourceSystem)
-      await db.returns.create({ ...returnMessage, schemeId: scheme }, { transaction })
+      const scheme = getSchemeId(returnMessage.sourceSystem, returnMessage.invoiceNumber)
+      await db.return.create({ ...returnMessage, schemeId: scheme }, { transaction })
       await transaction.commit()
     }
   } catch (error) {
