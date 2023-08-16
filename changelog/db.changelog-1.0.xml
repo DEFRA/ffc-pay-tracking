@@ -7,7 +7,7 @@
     <tagDatabase tag="v1.0.0" />
   </changeSet>
   <changeSet author="Kirsten Williamson" id="3">
-    <createTable tableName="return">
+    <createTable tableName="returns">
       <column autoIncrement="true" name="returnId" type="INTEGER">
         <constraints nullable="false" primaryKey="true" primaryKeyName="returnId_pkey" />
       </column>

@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
     filename: DataTypes.STRING
   },
   {
-    tableName: 'return',
+    tableName: 'returns',
     freezeTableName: true,
     timestamps: false
   })
