@@ -1,5 +1,5 @@
-const paymentRequest = require('../payment-requests/payment-request')
+const returnMessage = require('../payment-requests/return-message')
 
 module.exports = {
-  body: paymentRequest
+  body: returnMessage
 }

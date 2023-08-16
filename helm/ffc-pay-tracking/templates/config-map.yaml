@@ -23,4 +23,8 @@ data:
   SUBMIT_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.submitSubscriptionAddress }}
   RETURN_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.returnSubscriptionAddress }}
   ACKNOWLEDGEMENT_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.acknowledgementSubscriptionAddress }}
+  POSTGRES_DB: {{ quote .Values.postgresService.postgresDb }}
+  POSTGRES_HOST: {{ quote .Values.postgresService.postgresqlHost }}
+  POSTGRES_PORT: {{ quote .Values.postgresService.postgresPort }}
+  POSTGRES_SCHEMA_NAME: {{ quote .Values.postgresService.postgresSchema }}
 {{- end -}}
