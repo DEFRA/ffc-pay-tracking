@@ -10,7 +10,6 @@ services:
     image: ffc-pay-tracking-development
     container_name: ffc-pay-tracking-development
     ports:
-      - "3002:3002"
       - "9299:9229"
     volumes:
       - ./app:/home/node/app

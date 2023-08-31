@@ -23,9 +23,8 @@ deployment: {}
 container:
   requestMemory: 100Mi
   requestCpu: 100m
-  limitMemory: 100Mi
-  limitCpu: 100m
-  port: 3002
+  limitMemory: 150Mi
+  limitCpu: 150m
   messageQueueHost: namespace.servicebus.windows.net
   requestResponseTopicAddress: ffc-pay-request-response
   requestResponseSubscriptionAddress: ffc-pay-tracking
@@ -44,22 +43,6 @@ postgresService:
   postgresPort: 5432
   postgresSchema: public
   postgresUser: postgres
-
-livenessProbe:
-  path: /healthz
-  port: 3002
-  initialDelaySeconds: 20
-  periodSeconds: 10
-  failureThreshold: 3
-  timeoutSeconds: 5
-
-readinessProbe:
-  path: /healthy
-  port: 3002
-  initialDelaySeconds: 30
-  periodSeconds: 10
-  failureThreshold: 3
-  timeoutSeconds: 5
 
 aadPodIdentity: true
 

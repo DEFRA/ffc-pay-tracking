@@ -20,7 +20,6 @@
   ],
   "license": "OGL-UK-3.0",
   "dependencies": {
-    "@hapi/hapi": "20.2.2",
     "applicationinsights": "2.7.0",
     "ffc-messaging": "2.6.5",
     "log-timestamp": "0.3.0",
