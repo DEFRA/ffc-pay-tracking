@@ -23,6 +23,7 @@
     "@hapi/hapi": "20.2.2",
     "applicationinsights": "2.7.0",
     "ffc-messaging": "2.6.5",
+    "log-timestamp": "0.3.0",
     "pg": "8.7.3",
     "pg-hstore": "2.3.4",
     "sequelize": "6.32.0",
