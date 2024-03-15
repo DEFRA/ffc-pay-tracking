@@ -1,7 +1,7 @@
 const receiver = require('../../mocks/messaging/receiver')
 const message = require('../../mocks/messaging/message')
 
-const { processProcessingMessage } = require('../../../app/messaging/process-processing-message')
+const { processProcessingMessage } = require('../../../app/messaging/process-message')
 
 const logSpy = jest.spyOn(global.console, 'log')
 
