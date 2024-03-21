@@ -12,6 +12,7 @@ const { getRevenue } = require('./get-revenue')
 const { getSettledValue } = require('./get-settled-value')
 const { getStatus } = require('./get-status')
 const { getValue } = require('./get-value')
+const { getWarningStatus } = require('./get-warning-status')
 const { getYear } = require('./get-year')
 const { isImported } = require('./is-imported')
 const { routedToRequestEditor } = require('./routed-to-request-editor')
@@ -31,6 +32,7 @@ module.exports = {
   getSettledValue,
   getStatus,
   getValue,
+  getWarningStatus,
   getYear,
   isImported,
   routedToRequestEditor

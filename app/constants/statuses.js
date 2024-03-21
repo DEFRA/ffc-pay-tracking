@@ -14,5 +14,16 @@ module.exports = {
   PAYMENT_SUBMITTED_STATUS: 'Submitted to payment ledger',
   PAYMENT_ACKNOWLEDGED_STATUS: 'Acknowledged by payment ledger',
   PAYMENT_SETTLED_STATUS: 'Settled by payment ledger',
-  PAYMENT_SUPPRESSED_STATUS: 'Accounts Receivable value suppressed due to closure'
+  PAYMENT_SUPPRESSED_STATUS: 'Accounts Receivable value suppressed due to closure',
+  BATCH_REJECTED_STATUS: 'Batch rejected by Payment Hub',
+  BATCH_QUARANTINED_STATUS: 'Batch quarantined by Payment Hub',
+  PAYMENT_REJECTED_STATUS: 'Payment rejected by Payment Hub',
+  PAYMENT_DAX_REJECTED_STATUS: 'Payment rejected by D365',
+  PAYMENT_INVALID_BANK_STATUS: 'Bank details missing in D365',
+  PAYMENT_PROCESSING_FAILED_STATUS: 'Payment failed processing in Payment Hub',
+  PAYMENT_SETTLEMENT_UNMATCHED_STATUS: 'Settlement data could not be matched to an existing payment',
+  RESPONSE_REJECTED_STATUS: 'D365 response rejected by Payment Hub',
+  PAYMENT_REQUEST_BLOCKED_STATUS: 'Debt information missing in Payment Hub',
+  PAYMENT_DAX_UNAVAILABLE_STATUS: 'Payment Hub could not reach D365',
+  RECEIVER_CONNECTION_FAILED_STATUS: 'Payment Hub could not establish connection to D365'
 }

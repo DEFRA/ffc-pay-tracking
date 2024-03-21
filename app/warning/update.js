@@ -1,26 +1,31 @@
 const db = require('../data')
 const { createData } = require('./create-data')
-const { getExistingDataFull } = require('../get-existing-data-full')
+const { BATCH_REJECTED, BATCH_QUARANTINED } = require('../constants/warnings')
+const { getWhereFilter } = require('../get-where-filter')
 
 const updateWarning = async (event) => {
-  const transaction = await db.sequelize.transaction()
-  const dbData = await createData(event)
-  try {
-    const existingData = await getExistingDataFull(event.data.correlationId, event.data.sourceSystem, event.data.frn, event.data.agreementNumber, transaction)
-    if (existingData) {
-      await db.reportData.update({ ...dbData }, {
-        where: {
-          correlationId: event.data.correlationId,
-          invoiceNumber: event.data.invoiceNumber
-        }
-      })
-    } else {
-      await db.reportData.create({ ...dbData }, { transaction })
+  if (![BATCH_REJECTED, BATCH_QUARANTINED].includes(event.type)) {
+    const transaction = await db.sequelize.transaction()
+    const dbData = await createData(event)
+    try {
+      if (event.subject) {
+        await db.reportData.update({ ...dbData }, {
+          where: {
+            daxFileName: event.subject
+          }
+        })
+      } else {
+        const where = getWhereFilter(event)
+        await db.reportData.update({ ...dbData }, {
+          where,
+          transaction
+        })
+      }
+      await transaction.commit()
+    } catch (error) {
+      await transaction.rollback()
+      throw (error)
     }
-    await transaction.commit()
-  } catch (error) {
-    await transaction.rollback()
-    throw (error)
   }
 }
 

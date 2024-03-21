@@ -1,11 +1,10 @@
 const moment = require('moment')
-const { DATE_FORMAT } = require('../constants/date-format')
-const { getPHError, getDAXError, getStatus } = require('../data-generation')
+const { getWarningStatus, getPHError, getDAXError } = require('../data-generation')
 
 const createData = (event) => {
   const data = {
-    status: getStatus(event),
-    lastUpdated: moment(event.data.time).format(DATE_FORMAT),
+    status: getWarningStatus(event),
+    lastUpdated: moment(event.time).format(),
     phError: getPHError(event),
     daxError: getDAXError(event)
   }

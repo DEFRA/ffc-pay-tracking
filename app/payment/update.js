@@ -3,7 +3,7 @@ const { createData } = require('./create-data')
 const { getExistingDataFull } = require('../get-existing-data-full')
 const { isNewInvoiceNumber } = require('./is-new-invoice-number')
 const { createDBFromExisting } = require('./create-db-from-existing')
-const { getWhereFilter } = require('./get-where-filter')
+const { getWhereFilter } = require('../get-where-filter')
 
 const updatePayment = async (event) => {
   const transaction = await db.sequelize.transaction()

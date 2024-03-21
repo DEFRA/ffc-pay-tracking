@@ -33,6 +33,8 @@ const createData = async (event, transaction) => {
   const filteredData = Object.fromEntries(
     Object.entries(data).filter(([key, value]) => value !== null)
   )
+  filteredData.phError = null
+  filteredData.daxError = null
   return filteredData
 }
 
