@@ -1,0 +1,15 @@
+const warnings = require('../../../../app/constants/warnings')
+
+test('warnings exports correct warnings', () => {
+  expect(warnings.BATCH_REJECTED).toBe('uk.gov.defra.ffc.pay.warning.batch.rejected')
+  expect(warnings.BATCH_QUARANTINED).toBe('uk.gov.defra.ffc.pay.warning.batch.quarantined')
+  expect(warnings.PAYMENT_REJECTED).toBe('uk.gov.defra.ffc.pay.warning.payment.rejected')
+  expect(warnings.PAYMENT_DAX_REJECTED).toBe('uk.gov.defra.ffc.pay.warning.payment.dax.rejected')
+  expect(warnings.PAYMENT_INVALID_BANK).toBe('uk.gov.defra.ffc.pay.warning.bank.missing')
+  expect(warnings.PAYMENT_PROCESSING_FAILED).toBe('uk.gov.defra.ffc.pay.warning.processing.failed')
+  expect(warnings.PAYMENT_SETTLEMENT_UNMATCHED).toBe('uk.gov.defra.ffc.pay.warning.settlement.unmatched')
+  expect(warnings.RESPONSE_REJECTED).toBe('uk.gov.defra.ffc.pay.warning.response.rejected')
+  expect(warnings.PAYMENT_REQUEST_BLOCKED).toBe('uk.gov.defra.ffc.pay.warning.payment.debt.missing')
+  expect(warnings.PAYMENT_DAX_UNAVAILABLE).toBe('uk.gov.defra.ffc.pay.warning.dax.unavailable')
+  expect(warnings.RECEIVER_CONNECTION_FAILED).toBe('uk.gov.defra.ffc.pay.warning.receiver.connection.failed')
+})
