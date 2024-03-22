@@ -7,5 +7,5 @@ const getReportData = async () => {
 }
 
 module.exports = {
-    getReportData
+  getReportData
 }
