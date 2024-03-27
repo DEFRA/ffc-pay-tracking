@@ -1,7 +1,6 @@
 const { messageConfig } = require('../config')
 const { MessageReceiver } = require('ffc-messaging')
 const { processMessage } = require('./process-message')
-const paymentReceivers = []
 let eventsReceiver
 
 const start = async () => {
@@ -11,9 +10,7 @@ const start = async () => {
 }
 
 const stop = async () => {
-  for (const paymentReceiver of paymentReceivers) {
-    await paymentReceiver.closeConnection()
-  }
+  await eventsReceiver.closeConnection()
 }
 
 module.exports = { start, stop }
