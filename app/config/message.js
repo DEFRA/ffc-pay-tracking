@@ -35,7 +35,6 @@ const result = schema.validate(config, {
 })
 
 if (result.error) {
-  console.log(process.env)
   throw new Error(`The message queue config is invalid. ${result.error.message}`)
 }
 

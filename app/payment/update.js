@@ -9,18 +9,14 @@ const updatePayment = async (event) => {
   const transaction = await db.sequelize.transaction()
   try {
     const dbData = await createData(event, transaction)
-    const existingData = await getExistingDataFull(event.data.correlationId, event.data.sourceSystem, event.data.frn, event.data.agreementNumber, transaction)
+    const existingData = await getExistingDataFull(event.data, transaction)
     if (existingData) {
       if (isNewInvoiceNumber(event, existingData)) {
         createDBFromExisting(dbData, existingData, transaction)
+        const where = getWhereFilter(event)
+        where.invoiceNumber = event.data.originalInvoiceNumber
         await db.reportData.destroy({
-          where: {
-            correlationId: event.data.correlationId,
-            sourceSystem: event.data.sourceSystem,
-            frn: event.data.frn,
-            agreementNumber: event.data.agreementNumber,
-            invoiceNumber: event.data.originalInvoiceNumber
-          },
+          where,
           transaction
         })
       } else {

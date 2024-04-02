@@ -14,7 +14,6 @@ const getRevenue = (event) => {
     const day = parseInt(dateParts[2], 10)
     dueDate = new Date(year, month, day)
   } else {
-    // if we don't have extracted event for any reason - date format will instead be DD/MM/YYYY
     const dateParts = event.data.dueDate.split('/')
     const day = parseInt(dateParts[0], 10)
     const month = parseInt(dateParts[1], 10) - 1

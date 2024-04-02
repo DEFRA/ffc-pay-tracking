@@ -1,14 +1,12 @@
 const db = require('./data')
+const { getDataFilter } = require('./get-data-filter')
 
-const getExistingDataFull = async (correlationId, sourceSystem, frn, agreementNumber, transaction) => {
+const getExistingDataFull = async (data, transaction) => {
+  const where = getDataFilter(data)
+  where.correlationId = data.correlationId
   return db.reportData.findOne({
-    transaction,
-    where: {
-      correlationId,
-      sourceSystem,
-      frn,
-      agreementNumber
-    }
+    where,
+    transaction
   })
 }
 

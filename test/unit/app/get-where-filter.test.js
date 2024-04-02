@@ -1,5 +1,10 @@
 const { getWhereFilter } = require('../../../app/get-where-filter')
 const { PAYMENT_SUBMITTED, PAYMENT_ACKNOWLEDGED, PAYMENT_SETTLED } = require('../../../app/constants/events')
+const { getDataFilter } = require('../../../app/get-data-filter')
+
+jest.mock('../../../app/get-data-filter', () => ({
+  getDataFilter: jest.fn()
+}))
 
 describe('getWhereFilter', () => {
   const paymentEventTypes = [PAYMENT_SUBMITTED, PAYMENT_ACKNOWLEDGED, PAYMENT_SETTLED]
@@ -16,6 +21,12 @@ describe('getWhereFilter', () => {
           invoiceNumber: '101112'
         }
       }
+
+      getDataFilter.mockReturnValue({
+        sourceSystem: 'test',
+        frn: '456',
+        agreementNumber: '789'
+      })
 
       const filter = getWhereFilter(event)
 
