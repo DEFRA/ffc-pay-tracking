@@ -27,16 +27,8 @@ container:
   limitCpu: 100m
   port: 3002
   messageQueueHost: namespace.servicebus.windows.net
-  requestResponseTopicAddress: ffc-pay-request-response
-  requestResponseSubscriptionAddress: ffc-pay-tracking
-  processingTopicAddress: ffc-pay-processing
-  processingSubscriptionAddress: ffc-pay-tracking
-  submitTopicAddress: ffc-pay-submit
-  submitSubscriptionAddress: ffc-pay-tracking
-  returnTopicAddress: ffc-pay-return
-  returnSubscriptionAddress: ffc-pay-tracking
-  acknowledgementTopicAddress: ffc-pay-acknowledgement
-  acknowledgementSubscriptionAddress: ffc-pay-tracking
+  eventsTopicAddress: ffc-pay-events
+  eventsSubscriptionAddress: ffc-pay-tracking
 
 postgresService:
   postgresDb: ffc_pay_tracking

@@ -6,23 +6,11 @@ data:
   APPINSIGHTS_CLOUDROLE: {{ quote .Values.name }}
   MESSAGE_QUEUE_HOST: {{ quote .Values.container.messageQueueHost }}
   {{- if and (.Values.environmentCode) (not .Values.pr) }}
-  REQUEST_RESPONSE_TOPIC_ADDRESS: {{ .Values.container.requestResponseTopicAddress }}-{{ .Values.environmentCode }}
-  PROCESSING_TOPIC_ADDRESS: {{ .Values.container.processingTopicAddress }}-{{ .Values.environmentCode }}
-  SUBMIT_TOPIC_ADDRESS: {{ .Values.container.submitTopicAddress }}-{{ .Values.environmentCode }}
-  RETURN_TOPIC_ADDRESS: {{ .Values.container.returnTopicAddress }}-{{ .Values.environmentCode }}
-  ACKNOWLEDGEMENT_TOPIC_ADDRESS: {{ .Values.container.acknowledgementTopicAddress }}-{{ .Values.environmentCode }}
+  EVENTS_TOPIC_ADDRESS: {{ .Values.container.eventsTopicAddress }}-{{ .Values.environmentCode }}
   {{ else }}
-  REQUEST_RESPONSE_TOPIC_ADDRESS: {{ .Values.container.requestResponseTopicAddress }}
-  PROCESSING_TOPIC_ADDRESS: {{ .Values.container.processingTopicAddress }}
-  SUBMIT_TOPIC_ADDRESS: {{ .Values.container.submitTopicAddress }}
-  RETURN_TOPIC_ADDRESS: {{ .Values.container.returnTopicAddress }}
-  ACKNOWLEDGEMENT_TOPIC_ADDRESS: {{ .Values.container.acknowledgementTopicAddress }}
+  EVENTS_TOPIC_ADDRESS: {{ .Values.container.eventsTopicAddress }}
   {{- end }}
-  REQUEST_RESPONSE_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.requestResponseSubscriptionAddress }}
-  PROCESSING_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.processingSubscriptionAddress }}
-  SUBMIT_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.submitSubscriptionAddress }}
-  RETURN_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.returnSubscriptionAddress }}
-  ACKNOWLEDGEMENT_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.acknowledgementSubscriptionAddress }}
+  EVENTS_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.eventsSubscriptionAddress }}
   POSTGRES_DB: {{ quote .Values.postgresService.postgresDb }}
   POSTGRES_HOST: {{ quote .Values.postgresService.postgresqlHost }}
   POSTGRES_PORT: {{ quote .Values.postgresService.postgresPort }}

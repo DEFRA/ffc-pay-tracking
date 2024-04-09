@@ -1,11 +1,20 @@
-describe('Healthz test', () => {
-  const server = require('../../../../app/server')
+const Hapi = require('@hapi/hapi')
+const healthz = require('../../../../app/server/routes/healthz')
+
+describe('GET /healthz', () => {
+  let server
 
   beforeEach(async () => {
-    await server.start()
+    server = Hapi.server()
+    server.route(healthz)
+    await server.initialize()
   })
 
-  test('GET /healthz route returns 200', async () => {
+  afterEach(async () => {
+    await server.stop()
+  })
+
+  test('responds with 200 and ok', async () => {
     const options = {
       method: 'GET',
       url: '/healthz'
@@ -13,9 +22,6 @@ describe('Healthz test', () => {
 
     const response = await server.inject(options)
     expect(response.statusCode).toBe(200)
-  })
-
-  afterEach(async () => {
-    await server.stop()
+    expect(response.payload).toBe('ok')
   })
 })
