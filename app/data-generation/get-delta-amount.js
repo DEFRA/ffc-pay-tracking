@@ -9,8 +9,6 @@ const getDeltaAmount = async (event, transaction) => {
     return value
   }
   const where = getDataFilter(event.data)
-  console.log(db) // Check the value of db
-  console.log(db.reportData) // Check the value of db.reportData
   const previousRequest = await db.reportData.findOne({
     where,
     transaction
