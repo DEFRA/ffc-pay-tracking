@@ -1,6 +1,6 @@
 {
   "name": "ffc-pay-tracking",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Track payments and publish notifications",
   "homepage": "https://github.com/DEFRA/ffc-pay-tracking",
   "main": "app/index.js",
