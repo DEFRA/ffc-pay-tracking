@@ -1,5 +1,5 @@
 const moment = require('moment')
-const { getARAmount, getDebtType, getFileName, getBatch, getBatchExportDate, getStatus, getValue, getRevenue, getYear, routedToRequestEditor, getDeltaAmount, getAPAmount, isImported, getSettledValue, getOriginalInvoiceNumber } = require('../data-generation')
+const { getARAmount, getDebtType, getFileName, getBatch, getBatchExportDate, getStatus, getValue, getRevenue, getYear, routedToRequestEditor, getDeltaAmount, getAPAmount, isImported, getSettledValue, getOriginalInvoiceNumber, getRequestEditorDate, isEnriched, getRequestEditorReleased } = require('../data-generation')
 
 const createData = async (event, transaction) => {
   const deltaAmount = await getDeltaAmount(event, transaction)
@@ -28,7 +28,10 @@ const createData = async (event, transaction) => {
     debtType: getDebtType(event),
     daxFileName: getFileName(event),
     daxImported: isImported(event),
-    settledValue: getSettledValue(event)
+    settledValue: getSettledValue(event),
+    receivedInRE: getRequestEditorDate(event),
+    enriched: isEnriched(event),
+    releasedFromRE: getRequestEditorReleased(event)
   }
   const filteredData = Object.fromEntries(
     Object.entries(data).filter(([key, value]) => value !== null)
