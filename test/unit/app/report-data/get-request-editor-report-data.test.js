@@ -18,7 +18,7 @@ describe('getRequestEditorReportData', () => {
     const startDate = new Date()
     const endDate = new Date()
     const expectedWhereClause = {
-      receivedInRE: {
+      receivedInRequestEditor: {
         [db.Sequelize.Op.ne]: null
       },
       lastUpdated: {
@@ -36,7 +36,7 @@ describe('getRequestEditorReportData', () => {
 
   test('should call findAll with correct where clause when startDate and endDate are not provided', async () => {
     const expectedWhereClause = {
-      receivedInRE: {
+      receivedInRequestEditor: {
         [db.Sequelize.Op.ne]: null
       }
     }
