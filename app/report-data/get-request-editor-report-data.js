@@ -2,7 +2,7 @@ const db = require('../data')
 
 const getRequestEditorReportData = async (startDate, endDate) => {
   const whereClause = {
-    receivedInRE: {
+    receivedInRequestEditor: {
       [db.Sequelize.Op.ne]: null
     }
   }
