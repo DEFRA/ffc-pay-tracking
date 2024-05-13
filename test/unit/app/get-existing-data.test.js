@@ -18,7 +18,8 @@ describe('getExistingDataFull', () => {
       correlationId: '123',
       sourceSystem: 'test',
       frn: '456',
-      agreementNumber: '789'
+      agreementNumber: '789',
+      paymentRequestNumber: '1'
     }
     const transaction = {}
 

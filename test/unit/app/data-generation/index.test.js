@@ -17,6 +17,9 @@ const { getWarningStatus } = require('../../../../app/data-generation/get-warnin
 const { getYear } = require('../../../../app/data-generation/get-year')
 const { isImported } = require('../../../../app/data-generation/is-imported')
 const { routedToRequestEditor } = require('../../../../app/data-generation/routed-to-request-editor')
+const { getRequestEditorDate } = require('../../../../app/data-generation/get-request-editor-date')
+const { isEnriched } = require('../../../../app/data-generation/is-enriched')
+const { getRequestEditorReleased } = require('../../../../app/data-generation/get-request-editor-released')
 
 test('exports', () => {
   expect(index).toEqual({
@@ -37,6 +40,9 @@ test('exports', () => {
     getWarningStatus,
     getYear,
     isImported,
-    routedToRequestEditor
+    routedToRequestEditor,
+    getRequestEditorDate,
+    isEnriched,
+    getRequestEditorReleased
   })
 })
