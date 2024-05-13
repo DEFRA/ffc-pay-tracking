@@ -1,13 +1,10 @@
 const { handler } = require('../../../../../app/server/routes/request-editor-report-data').options
+const { getRequestEditorReportData } = require('../../../../../app/report-data/get-request-editor-report-data')
 
-jest.mock('../../../../../app/server/routes/request-editor-report-data', () => ({
-  options: {
-    handler: jest.fn()
-  }
-}))
+jest.mock('../../../../../app/report-data/get-request-editor-report-data')
 
 describe('request-editor-report-data', () => {
-  test('should call handler with correct arguments and return response', async () => {
+  test('should call getRequestEditorReportData with correct arguments and return response', async () => {
     const mockStartDate = new Date()
     const mockEndDate = new Date()
     const mockRequest = {
@@ -16,15 +13,15 @@ describe('request-editor-report-data', () => {
         endDate: mockEndDate.toISOString()
       }
     }
-    const mockResponse = jest.fn()
-    const mockHandler = jest.fn(() => ({ response: mockResponse }))
-
+    const mockH = {
+      response: jest.fn()
+    }
     const reReportData = { data: 'mock data' }
-    handler.mockResolvedValue(reReportData)
+    getRequestEditorReportData.mockResolvedValue(reReportData)
 
-    const result = await handler(mockRequest, { h: mockHandler })
+    await handler(mockRequest, mockH)
 
-    expect(handler).toHaveBeenCalledWith(mockRequest, { h: mockHandler })
-    expect(result).toEqual(reReportData)
+    expect(getRequestEditorReportData).toHaveBeenCalledWith(mockStartDate, mockEndDate)
+    expect(mockH.response).toHaveBeenCalledWith({ reReportData })
   })
 })
