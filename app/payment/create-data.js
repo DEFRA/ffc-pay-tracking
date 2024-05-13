@@ -29,9 +29,9 @@ const createData = async (event, transaction) => {
     daxFileName: getFileName(event),
     daxImported: isImported(event),
     settledValue: getSettledValue(event),
-    receivedInRE: getRequestEditorDate(event),
+    receivedInRequestEditor: getRequestEditorDate(event),
     enriched: isEnriched(event),
-    releasedFromRE: getRequestEditorReleased(event)
+    releasedFromRequestEditor: getRequestEditorReleased(event)
   }
   const filteredData = Object.fromEntries(
     Object.entries(data).filter(([key, value]) => value !== null)
