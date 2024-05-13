@@ -27,7 +27,11 @@ module.exports = (sequelize, DataTypes) => {
     daxImported: DataTypes.STRING,
     settledValue: DataTypes.INTEGER,
     phError: DataTypes.STRING,
-    daxError: DataTypes.STRING
+    daxError: DataTypes.STRING,
+    receivedInRequestEditor: DataTypes.DATE,
+    enriched: DataTypes.STRING,
+    ledgerSplit: DataTypes.STRING,
+    releasedFromRequestEditor: DataTypes.DATE
   },
   {
     tableName: 'reportData',

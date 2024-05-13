@@ -16,6 +16,9 @@ const { getWarningStatus } = require('./get-warning-status')
 const { getYear } = require('./get-year')
 const { isImported } = require('./is-imported')
 const { routedToRequestEditor } = require('./routed-to-request-editor')
+const { getRequestEditorDate } = require('./get-request-editor-date')
+const { isEnriched } = require('./is-enriched')
+const { getRequestEditorReleased } = require('./get-request-editor-released')
 
 module.exports = {
   getAPAmount,
@@ -35,5 +38,8 @@ module.exports = {
   getWarningStatus,
   getYear,
   isImported,
-  routedToRequestEditor
+  routedToRequestEditor,
+  getRequestEditorDate,
+  isEnriched,
+  getRequestEditorReleased
 }

@@ -4,6 +4,7 @@ const { getExistingDataFull } = require('../get-existing-data-full')
 const { isNewInvoiceNumber } = require('./is-new-invoice-number')
 const { createDBFromExisting } = require('./create-db-from-existing')
 const { getWhereFilter } = require('../get-where-filter')
+const { updateLedgerSplit } = require('./update-ledger-split')
 
 const updatePayment = async (event) => {
   const transaction = await db.sequelize.transaction()
@@ -11,8 +12,9 @@ const updatePayment = async (event) => {
     const dbData = await createData(event, transaction)
     const existingData = await getExistingDataFull(event.data, transaction)
     if (existingData) {
+      let reportDataCut
       if (isNewInvoiceNumber(event, existingData)) {
-        createDBFromExisting(dbData, existingData, transaction)
+        reportDataCut = createDBFromExisting(dbData, existingData, transaction)
         const where = getWhereFilter(event)
         where.invoiceNumber = event.data.originalInvoiceNumber
         await db.reportData.destroy({
@@ -21,11 +23,12 @@ const updatePayment = async (event) => {
         })
       } else {
         const where = getWhereFilter(event)
-        await db.reportData.update({ ...dbData }, {
+        reportDataCut = await db.reportData.update({ ...dbData }, {
           where,
           transaction
         })
       }
+      await updateLedgerSplit(reportDataCut)
       await transaction.commit()
     } else {
       await db.reportData.create({ ...dbData }, { transaction })
