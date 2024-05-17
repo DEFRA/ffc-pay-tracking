@@ -17,18 +17,24 @@ const updatePayment = async (event) => {
         reportDataCut = createDBFromExisting(dbData, existingData, transaction)
         const where = getWhereFilter(event)
         where.invoiceNumber = event.data.originalInvoiceNumber
-        await db.reportData.destroy({
-          where,
-          transaction
-        })
+        if (Object.values(where).every(value => value !== null && value !== undefined)) {
+          await db.reportData.destroy({
+            where,
+            transaction
+          })
+        }
       } else {
         const where = getWhereFilter(event)
-        reportDataCut = await db.reportData.update({ ...dbData }, {
-          where,
-          transaction
-        })
+        if (Object.values(where).every(value => value !== null && value !== undefined)) {
+          reportDataCut = await db.reportData.update({ ...dbData }, {
+            where,
+            transaction
+          })
+        }
       }
-      await updateLedgerSplit(reportDataCut)
+      if (reportDataCut) {
+        await updateLedgerSplit(reportDataCut)
+      }
       await transaction.commit()
     } else {
       await db.reportData.create({ ...dbData }, { transaction })

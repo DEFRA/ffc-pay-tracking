@@ -16,10 +16,12 @@ const updateWarning = async (event) => {
         })
       } else {
         const where = getWhereFilter(event)
-        await db.reportData.update({ ...dbData }, {
-          where,
-          transaction
-        })
+        if (Object.values(where).every(value => value !== null && value !== undefined)) {
+          await db.reportData.update({ ...dbData }, {
+            where,
+            transaction
+          })
+        }
       }
       await transaction.commit()
     } catch (error) {
