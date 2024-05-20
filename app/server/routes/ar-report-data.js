@@ -1,5 +1,6 @@
+const { AR } = require('../../constants/ledgers')
 const { GET } = require('../../constants/methods')
-const { getARReportData } = require('../../report-data/get-AR-report-data')
+const { getAPARReportData } = require('../../report-data/get-AP-AR-report-data')
 
 module.exports = {
   method: GET,
@@ -8,7 +9,7 @@ module.exports = {
     handler: async (request, h) => {
       const startDate = request.query.startDate ? new Date(request.query.startDate) : null
       const endDate = request.query.endDate ? new Date(request.query.endDate) : null
-      const arReportData = await getARReportData(startDate, endDate)
+      const arReportData = await getAPARReportData(startDate, endDate, AR)
       return h.response({ arReportData })
     }
   }

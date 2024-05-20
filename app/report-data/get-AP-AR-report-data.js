@@ -1,8 +1,10 @@
+const { AP } = require('../constants/ledgers')
 const db = require('../data')
 
-const getAPReportData = async (startDate, endDate) => {
+const getAPARReportData = async (startDate, endDate, ledger) => {
+  const valueToCheck = ledger === AP ? 'apValue' : 'arValue'
   const whereClause = {
-    apValue: {
+    [valueToCheck]: {
       [db.Sequelize.Op.ne]: null
     }
   }
@@ -20,5 +22,5 @@ const getAPReportData = async (startDate, endDate) => {
 }
 
 module.exports = {
-  getAPReportData
+  getAPARReportData
 }
