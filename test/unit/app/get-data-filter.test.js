@@ -1,9 +1,10 @@
+const { BPS, FDMR, CS } = require('../../../app/constants/schemes')
 const { getDataFilter } = require('../../../app/get-data-filter')
 
 describe('getDataFilter', () => {
   test('should return correct filter for BPS scheme', () => {
     const data = {
-      schemeId: 'BPS',
+      schemeId: BPS,
       sourceSystem: 'system1',
       frn: 'frn1',
       marketingYear: '2022'
@@ -22,7 +23,7 @@ describe('getDataFilter', () => {
 
   test('should return correct filter for FDMR scheme', () => {
     const data = {
-      schemeId: 'FDMR',
+      schemeId: FDMR,
       sourceSystem: 'system1',
       frn: 'frn1'
     }
@@ -39,7 +40,7 @@ describe('getDataFilter', () => {
 
   test('should return correct filter for CS scheme', () => {
     const data = {
-      schemeId: 'CS',
+      schemeId: CS,
       sourceSystem: 'system1',
       frn: 'frn1',
       contractNumber: 'contract1'

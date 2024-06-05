@@ -19,6 +19,10 @@ const { routedToRequestEditor } = require('./routed-to-request-editor')
 const { getRequestEditorDate } = require('./get-request-editor-date')
 const { isEnriched } = require('./is-enriched')
 const { getRequestEditorReleased } = require('./get-request-editor-released')
+const { checkDAXPRN } = require('./check-dax-prn')
+const { checkDAXValue } = require('./check-dax-value')
+const { getOverallStatus } = require('./get-overall-status')
+const { getCrossBorderFlag } = require('./get-cross-border-flag')
 
 module.exports = {
   getAPAmount,
@@ -41,5 +45,9 @@ module.exports = {
   routedToRequestEditor,
   getRequestEditorDate,
   isEnriched,
-  getRequestEditorReleased
+  getRequestEditorReleased,
+  checkDAXPRN,
+  checkDAXValue,
+  getOverallStatus,
+  getCrossBorderFlag
 }
