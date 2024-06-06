@@ -6,9 +6,9 @@ const getCrossBorderFlag = (event) => {
   }
   const RP00 = 'RP00'
   if (event.data.invoiceLines.some(line => line.deliveryBody !== RP00)) {
-    return 'E2P'
+    return 'D2P'
   }
-  return 'D2P'
+  return 'E2P'
 }
 
 module.exports = {
