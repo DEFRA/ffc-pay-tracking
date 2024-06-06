@@ -5,7 +5,7 @@ const getExistingDataFull = async (data, transaction) => {
   if (!data.paymentRequestNumber) {
     return null
   }
-  const where = getDataFilter(data, data.paymentRequestNumber)
+  const where = getDataFilter(data)
   where.correlationId = data.correlationId
   return db.reportData.findOne({
     where,

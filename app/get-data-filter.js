@@ -1,8 +1,8 @@
 const { BPS, FDMR, CS } = require('./constants/schemes')
 
-const getDataFilter = (data, requestNumber) => {
+const getDataFilter = (data, previous) => {
   const defaultFilter = {
-    paymentRequestNumber: requestNumber - 1
+    paymentRequestNumber: previous ? data.paymentRequestNumber - 1 : data.paymentRequestNumber
   }
 
   switch (data.schemeId) {

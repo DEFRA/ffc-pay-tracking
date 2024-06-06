@@ -1,12 +1,11 @@
-const { bps, cs, fdmr } = require('../constants/source-systems');
+const { bps, cs, fdmr } = require('../constants/source-systems')
 const db = require('../data')
 
 const getClaimLevelReportData = async (startDate, endDate) => {
-  
-  let startDateEndDate = '';
+  let startDateEndDate = ''
   if (startDate && endDate) {
     startDateEndDate = `WHERE "lastUpdated" BETWEEN '${startDate}' AND '${endDate}'`
-}
+  }
   const reportDataIdsResult = await db.sequelize.query(`
   SELECT rd."reportDataId"
   FROM "reportData" rd
@@ -40,15 +39,15 @@ const getClaimLevelReportData = async (startDate, endDate) => {
   AND CAST(rd."agreementNumber" AS VARCHAR) = sub.agreementNumber
   AND rd."paymentRequestNumber" = sub.maxPaymentRequestNumber
 `, {
-  replacements: {
-    BPS:bps,
-    CS: cs,
-    FDMR: fdmr
-  },
-  raw: true
-})
+    replacements: {
+      BPS: bps,
+      CS: cs,
+      FDMR: fdmr
+    },
+    raw: true
+  })
   console.log(reportDataIdsResult)
-  const reportDataIds = reportDataIdsResult[0].map(result => result.reportDataId);
+  const reportDataIds = reportDataIdsResult[0].map(result => result.reportDataId)
 
   console.log(reportDataIds)
 

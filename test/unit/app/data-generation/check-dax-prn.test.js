@@ -59,12 +59,12 @@ describe('check PRN imported to DAX', () => {
     expect(result).toBe(1)
   })
 
-  test('returns null if no acknowledged or settled status is found', async () => {
+  test('returns 0 if no acknowledged or settled status is found', async () => {
     getStatus.mockReturnValue(PAYMENT_ENRICHED_STATUS)
 
     db.reportData.findOne.mockResolvedValue(null)
 
     const result = await checkDAXPRN(event, transaction)
-    expect(result).toBeNull()
+    expect(result).toBe(0)
   })
 })
