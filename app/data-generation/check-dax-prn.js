@@ -8,7 +8,7 @@ const checkDAXPRN = async (event, transaction) => {
   if ([PAYMENT_ACKNOWLEDGED_STATUS, PAYMENT_SETTLED_STATUS].includes(status)) {
     return event.data.paymentRequestNumber
   }
-  for (let i = event.data.paymentRequestNumber; i >= 0; i--) {
+  for (let i = event.data.paymentRequestNumber; i > 0; i--) {
     const where = getDataFilter(event.data)
     where.paymentRequestNumber = i
     const previousRequest = await db.reportData.findOne({
@@ -19,7 +19,7 @@ const checkDAXPRN = async (event, transaction) => {
       return previousRequest.paymentRequestNumber
     }
   }
-  return null
+  return 0
 }
 
 module.exports = {
