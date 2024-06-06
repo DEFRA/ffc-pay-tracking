@@ -6,7 +6,6 @@ const getClaimLevelReportData = async () => {
     SELECT 
       reportDataId
     FROM reportData
-    WHERE receivedInRequestEditor IS NOT NULL
     GROUP BY 
       sourceSystem, 
       frn,
