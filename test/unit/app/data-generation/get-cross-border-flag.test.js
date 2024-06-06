@@ -14,7 +14,7 @@ describe('getCrossBorderFlag', () => {
     expect(result).toBeNull()
   })
 
-  test('returns "D2P" when all invoiceLines have deliveryBody as RP00', () => {
+  test('returns "E2P" when all invoiceLines have deliveryBody as RP00', () => {
     const event = {
       data: {
         schemeId: BPS,
@@ -26,10 +26,10 @@ describe('getCrossBorderFlag', () => {
     }
 
     const result = getCrossBorderFlag(event)
-    expect(result).toBe('D2P')
+    expect(result).toBe('E2P')
   })
 
-  test('returns "E2P" when at least one invoiceLine has deliveryBody not as RP00', () => {
+  test('returns "D2P" when at least one invoiceLine has deliveryBody not as RP00', () => {
     const event = {
       data: {
         schemeId: BPS,
@@ -41,6 +41,6 @@ describe('getCrossBorderFlag', () => {
     }
 
     const result = getCrossBorderFlag(event)
-    expect(result).toBe('E2P')
+    expect(result).toBe('D2P')
   })
 })
