@@ -1,34 +1,56 @@
+const { bps, cs, fdmr } = require('../constants/source-systems');
 const db = require('../data')
-const { bps, cs, fdmr } = require('../constants/source-systems')
 
-const getClaimLevelReportData = async () => {
-  const reportDataIds = await db.sequelize.query(`
+const getClaimLevelReportData = async (startDate, endDate) => {
+  
+  let startDateEndDate = '';
+  if (startDate && endDate) {
+    startDateEndDate = `WHERE "lastUpdated" BETWEEN '${startDate}' AND '${endDate}'`
+}
+  const reportDataIdsResult = await db.sequelize.query(`
+  SELECT rd."reportDataId"
+  FROM "reportData" rd
+  INNER JOIN (
     SELECT 
-      reportDataId
-    FROM reportData
+      "sourceSystem", 
+      "frn",
+      CASE
+        WHEN "sourceSystem" = :CS THEN CAST("claimNumber" AS VARCHAR)
+        WHEN "sourceSystem" = :FDMR THEN NULL
+        ELSE CAST("marketingYear" AS VARCHAR)
+      END AS marketingYear,
+      CASE
+        WHEN "sourceSystem" = :BPS THEN NULL
+        WHEN "sourceSystem" = :FDMR THEN NULL
+        WHEN "sourceSystem" = :CS THEN NULL
+        ELSE CAST("agreementNumber" AS VARCHAR)
+      END AS agreementNumber,
+      MAX("paymentRequestNumber") AS maxPaymentRequestNumber
+    FROM "reportData"
+    ${startDateEndDate}
     GROUP BY 
-      sourceSystem, 
-      frn,
-      CASE
-        WHEN sourceSystem = :CS THEN claimNumber
-        WHEN sourceSystem = :FDMR THEN NULL
-        ELSE marketingYear
-      END,
-      CASE
-        WHEN sourceSystem = :BPS THEN NULL
-        WHEN sourceSystem = :FDMR THEN NULL
-        WHEN sourceSystem = :CS THEN NULL
-        ELSE agreementNumber
-      END
-    HAVING paymentRequestNumber = MAX(paymentRequestNumber)
-  `, {
-    replacements: {
-      BPS: bps,
-      CS: cs,
-      FDMR: fdmr
-    },
-    raw: true
-  })
+      "sourceSystem", 
+      "frn",
+      marketingYear,
+      agreementNumber
+  ) sub
+  ON rd."sourceSystem" = sub."sourceSystem"
+  AND rd."frn" = sub."frn"
+  AND CAST(rd."marketingYear" AS VARCHAR) = sub.marketingYear
+  AND CAST(rd."agreementNumber" AS VARCHAR) = sub.agreementNumber
+  AND rd."paymentRequestNumber" = sub.maxPaymentRequestNumber
+`, {
+  replacements: {
+    BPS:bps,
+    CS: cs,
+    FDMR: fdmr
+  },
+  raw: true
+})
+  console.log(reportDataIdsResult)
+  const reportDataIds = reportDataIdsResult[0].map(result => result.reportDataId);
+
+  console.log(reportDataIds)
 
   return db.reportData.findAll({
     where: {
@@ -39,7 +61,6 @@ const getClaimLevelReportData = async () => {
     raw: true
   })
 }
-
 module.exports = {
   getClaimLevelReportData
 }
