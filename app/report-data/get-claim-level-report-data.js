@@ -30,8 +30,8 @@ const getClaimLevelReportData = async (startDate, endDate) => {
           "lastUpdated" DESC
       ) AS row_num
     FROM
-      "reportData"
-      ${startDateEndDate}
+    "reportData"
+    ${startDateEndDate}
   )
   SELECT
     *
