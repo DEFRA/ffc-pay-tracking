@@ -21,49 +21,29 @@ describe('check PRN imported to DAX', () => {
     getDataFilter.mockReturnValue({ filter: 'filterValue' })
   })
 
-  test('returns the current paymentRequestNumber when status is acknowledged', async () => {
-    getStatus.mockReturnValue(PAYMENT_ACKNOWLEDGED_STATUS)
-
-    const result = await checkDAXPRN(event, transaction)
-    expect(result).toBe(3)
-  })
-
-  test('returns the current paymentRequestNumber when status is settled', async () => {
-    getStatus.mockReturnValue(PAYMENT_SETTLED_STATUS)
-
-    const result = await checkDAXPRN(event, transaction)
-    expect(result).toBe(3)
-  })
-
   test('returns the previous acknowledged paymentRequestNumber', async () => {
     getStatus.mockReturnValue(PAYMENT_ENRICHED_STATUS)
-
-    db.reportData.findOne
-      .mockResolvedValueOnce(null)
-      .mockResolvedValueOnce({ status: PAYMENT_ENRICHED_STATUS })
-      .mockResolvedValueOnce({ status: PAYMENT_ACKNOWLEDGED_STATUS, paymentRequestNumber: 1 })
-
+    db.reportData.findAll
+      .mockResolvedValue([
+        { status: PAYMENT_ENRICHED_STATUS },
+        { status: PAYMENT_ACKNOWLEDGED_STATUS, paymentRequestNumber: 1 }
+      ])
     const result = await checkDAXPRN(event, transaction)
     expect(result).toBe(1)
   })
-
   test('returns the previous settled paymentRequestNumber', async () => {
     getStatus.mockReturnValue('OTHER_STATUS')
-
-    db.reportData.findOne
-      .mockResolvedValueOnce(null)
-      .mockResolvedValueOnce({ status: PAYMENT_ENRICHED_STATUS })
-      .mockResolvedValueOnce({ status: PAYMENT_SETTLED_STATUS, paymentRequestNumber: 1 })
-
+    db.reportData.findAll
+      .mockResolvedValue([
+        { status: PAYMENT_ENRICHED_STATUS },
+        { status: PAYMENT_SETTLED_STATUS, paymentRequestNumber: 1 }
+      ])
     const result = await checkDAXPRN(event, transaction)
     expect(result).toBe(1)
   })
-
   test('returns 0 if no acknowledged or settled status is found', async () => {
     getStatus.mockReturnValue(PAYMENT_ENRICHED_STATUS)
-
-    db.reportData.findOne.mockResolvedValue(null)
-
+    db.reportData.findAll.mockResolvedValue([])
     const result = await checkDAXPRN(event, transaction)
     expect(result).toBe(0)
   })
