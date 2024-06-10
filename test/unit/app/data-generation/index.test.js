@@ -20,6 +20,10 @@ const { routedToRequestEditor } = require('../../../../app/data-generation/route
 const { getRequestEditorDate } = require('../../../../app/data-generation/get-request-editor-date')
 const { isEnriched } = require('../../../../app/data-generation/is-enriched')
 const { getRequestEditorReleased } = require('../../../../app/data-generation/get-request-editor-released')
+const { checkDAXPRN } = require('../../../../app/data-generation/check-dax-prn')
+const { checkDAXValue } = require('../../../../app/data-generation/check-dax-value')
+const { getOverallStatus } = require('../../../../app/data-generation/get-overall-status')
+const { getCrossBorderFlag } = require('../../../../app/data-generation/get-cross-border-flag')
 
 test('exports', () => {
   expect(index).toEqual({
@@ -43,6 +47,10 @@ test('exports', () => {
     routedToRequestEditor,
     getRequestEditorDate,
     isEnriched,
-    getRequestEditorReleased
+    getRequestEditorReleased,
+    checkDAXPRN,
+    checkDAXValue,
+    getOverallStatus,
+    getCrossBorderFlag
   })
 })

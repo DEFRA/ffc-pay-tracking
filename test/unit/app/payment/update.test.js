@@ -50,14 +50,14 @@ describe('update from a payment message', () => {
   })
 
   test('should handle new invoice number case and delete existing report data', async () => {
-    const event = { data: { originalInvoiceNumber: '123' } }
+    const event = { data: { originalInvoiceNumber: '123', paymentRequestNumber: 1 } }
     const dbData = { id: 1 }
     const existingData = { invoiceNumber: '456' }
     createData.mockResolvedValue(dbData)
     getExistingDataFull.mockResolvedValue(existingData)
     isNewInvoiceNumber.mockReturnValue(true)
     createDBFromExisting.mockReturnValue({ newData: 'newValue' })
-    getWhereFilter.mockReturnValue({ invoiceNumber: null })
+    getWhereFilter.mockReturnValue({ invoiceNumber: 123 })
 
     await updatePayment(event)
 

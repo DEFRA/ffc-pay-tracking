@@ -1,8 +1,12 @@
 const moment = require('moment')
-const { getARAmount, getDebtType, getFileName, getBatch, getBatchExportDate, getStatus, getValue, getRevenue, getYear, routedToRequestEditor, getDeltaAmount, getAPAmount, isImported, getSettledValue, getOriginalInvoiceNumber, getRequestEditorDate, isEnriched, getRequestEditorReleased } = require('../data-generation')
+const { getARAmount, getDebtType, getFileName, getBatch, getBatchExportDate, getStatus, getValue, getRevenue, getYear, routedToRequestEditor, getDeltaAmount, getAPAmount, isImported, getSettledValue, getOriginalInvoiceNumber, getRequestEditorDate, isEnriched, getRequestEditorReleased, checkDAXPRN, checkDAXValue, getOverallStatus, getCrossBorderFlag } = require('../data-generation')
 
 const createData = async (event, transaction) => {
+  const paymentRequestNumber = event.data.paymentRequestNumber
+  const value = getValue(event)
   const deltaAmount = await getDeltaAmount(event, transaction)
+  const daxPaymentRequestNumber = await checkDAXPRN(event, transaction)
+  const daxValue = await checkDAXValue(event, transaction)
   const data = {
     correlationId: event.data.correlationId,
     frn: event.data.frn,
@@ -12,8 +16,8 @@ const createData = async (event, transaction) => {
     originalInvoiceNumber: getOriginalInvoiceNumber(event),
     invoiceNumber: event.data.invoiceNumber,
     currency: event.data.currency,
-    paymentRequestNumber: event.data.paymentRequestNumber,
-    value: getValue(event),
+    paymentRequestNumber,
+    value,
     batch: getBatch(event),
     sourceSystem: event.data.sourceSystem,
     batchExportDate: getBatchExportDate(event),
@@ -31,7 +35,13 @@ const createData = async (event, transaction) => {
     settledValue: getSettledValue(event),
     receivedInRequestEditor: getRequestEditorDate(event),
     enriched: isEnriched(event),
-    releasedFromRequestEditor: getRequestEditorReleased(event)
+    releasedFromRequestEditor: getRequestEditorReleased(event),
+    daxPaymentRequestNumber,
+    daxValue,
+    overallStatus: getOverallStatus(value, daxValue, paymentRequestNumber, daxPaymentRequestNumber),
+    crossBorderFlag: getCrossBorderFlag(event),
+    valueStillToProcess: value - daxValue,
+    prStillToProcess: paymentRequestNumber - daxPaymentRequestNumber
   }
   const filteredData = Object.fromEntries(
     Object.entries(data).filter(([key, value]) => value !== null)

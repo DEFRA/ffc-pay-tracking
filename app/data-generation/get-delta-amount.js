@@ -8,7 +8,7 @@ const getDeltaAmount = async (event, transaction) => {
   if (requestNumber === 1 || value === null) {
     return value
   }
-  const where = getDataFilter(event.data)
+  const where = getDataFilter(event.data, true)
   const previousRequest = await db.reportData.findOne({
     where,
     transaction
