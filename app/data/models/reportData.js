@@ -31,7 +31,13 @@ module.exports = (sequelize, DataTypes) => {
     receivedInRequestEditor: DataTypes.DATE,
     enriched: DataTypes.STRING,
     ledgerSplit: DataTypes.STRING,
-    releasedFromRequestEditor: DataTypes.DATE
+    releasedFromRequestEditor: DataTypes.DATE,
+    daxPaymentRequestNumber: DataTypes.INTEGER,
+    daxValue: DataTypes.INTEGER,
+    overallStatus: DataTypes.STRING,
+    crossBorderFlag: DataTypes.STRING,
+    valueStillToProcess: DataTypes.INTEGER,
+    prStillToProcess: DataTypes.INTEGER
   },
   {
     tableName: 'reportData',
