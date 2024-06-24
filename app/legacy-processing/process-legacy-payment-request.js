@@ -8,17 +8,12 @@ const { checkIfRevenueOrCapital } = require('./check-if-revenue-or-capital')
 const { getLastUpdatedDate } = require('./get-last-updated-date')
 const { getStatus } = require('./get-status')
 const { getYear } = require('./get-year')
+const { calculateDAXPRN } = require('./calculate-dax-prn')
+const { calculateDAXValue } = require('./calculate-dax-value')
+const { getOverallStatus } = require('../data-generation')
 
 const processLegacyPaymentRequest = async (paymentRequest, relatedPaymentRequests) => {
   const primaryPaymentRequest = paymentRequest.completedPaymentRequest ?? paymentRequest
-  const status = getStatus(paymentRequest)
-  const lastUpdated = getLastUpdatedDate(paymentRequest)
-  const revenueOrCapital = checkIfRevenueOrCapital(primaryPaymentRequest)
-  const year = getYear(primaryPaymentRequest, revenueOrCapital)
-  const deltaAmount = calculateDeltaAmount(paymentRequest, relatedPaymentRequests)
-  const apValue = calculateLedgerValue(paymentRequest, AP)
-  const arValue = calculateLedgerValue(paymentRequest, AR)
-  const receivedInRequestEditor = calculateApproximateREReceivedDateTime(primaryPaymentRequest, paymentRequest)
   const data = {
     correlationId: primaryPaymentRequest.correlationId,
     frn: primaryPaymentRequest.frn,
@@ -33,25 +28,32 @@ const processLegacyPaymentRequest = async (paymentRequest, relatedPaymentRequest
     batch: primaryPaymentRequest.batch,
     sourceSystem: primaryPaymentRequest.sourceSystem,
     batchExportDate: null,
-    status,
-    lastUpdated,
-    revenueOrCapital,
-    year,
+    status: getStatus(paymentRequest),
+    lastUpdated: getLastUpdatedDate(paymentRequest),
+    revenueOrCapital: checkIfRevenueOrCapital(primaryPaymentRequest),
+    year: getYear(primaryPaymentRequest, checkIfRevenueOrCapital(primaryPaymentRequest)),
     routedToRequestEditor: primaryPaymentRequest.debtType ? 'Y' : 'N',
-    deltaAmount,
-    apValue,
-    arValue,
+    deltaAmount: calculateDeltaAmount(paymentRequest, relatedPaymentRequests),
+    apValue: calculateLedgerValue(paymentRequest, AP),
+    arValue: calculateLedgerValue(paymentRequest, AR),
     debtType: primaryPaymentRequest.debtType,
     daxFileName: null,
     daxImported: paymentRequest.completedPaymentRequest?.acknowledged ? 'Y' : 'N',
     settledValue: primaryPaymentRequest.settledValue,
     phError: null,
     daxError: null,
-    receivedInRequestEditor,
+    receivedInRequestEditor: calculateApproximateREReceivedDateTime(primaryPaymentRequest, paymentRequest),
     enriched: primaryPaymentRequest.debtType ? 'Y' : null,
     ledgerSplit: apValue && arValue ? 'Y' : 'N',
-    releasedFromRequestEditor: paymentRequest.completedPaymentRequest?.submitted
+    releasedFromRequestEditor: paymentRequest.completedPaymentRequest?.submitted,
+    daxPaymentRequestNumber: calculateDAXPRN(paymentRequest, relatedPaymentRequests),
+    daxValue: calculateDAXValue(paymentRequest, relatedPaymentRequests),
+    overallStatus: getOverallStatus(paymentRequest.value, calculateDAXValue(paymentRequest, relatedPaymentRequests), primaryPaymentRequest.paymentRequestNumber, calculateDAXPRN(paymentRequest, relatedPaymentRequests)),
+    //crossBorderFlag: check tomorrow,
+    valueStillToProcess: paymentRequest.value - calculateDAXValue(paymentRequest, relatedPaymentRequests),
+    prStillToProcess: primaryPaymentRequest.paymentRequestNumber - calculateDAXPRN(paymentRequest, relatedPaymentRequests)
   }
+
   const existingData = await getExistingDataFull(data)
   if (!existingData) {
     await db.reportData.create({ ...data })
