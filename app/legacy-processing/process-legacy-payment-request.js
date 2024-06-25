@@ -11,11 +11,17 @@ const { getYear } = require('./get-year')
 const { calculateDAXPRN } = require('./calculate-dax-prn')
 const { calculateDAXValue } = require('./calculate-dax-value')
 const { getOverallStatus } = require('../data-generation')
+const { checkCrossBorderType } = require('./check-cross-border-type')
 
-const processLegacyPaymentRequest = async (paymentRequest, relatedPaymentRequests) => {
-  const primaryPaymentRequest = paymentRequest.completedPaymentRequest ?? paymentRequest
+const processLegacyPaymentRequest = async (paymentRequest) => {
+  const primaryPaymentRequest = paymentRequest.completedPaymentRequests[0] ?? paymentRequest
+  const apValue = calculateLedgerValue(paymentRequest, AP)
+  const arValue = calculateLedgerValue(paymentRequest, AR)
+  const daxValue = calculateDAXValue(paymentRequest)
+  const daxPaymentRequestNumber = calculateDAXPRN(paymentRequest)
+  const deltaAmount = calculateDeltaAmount(paymentRequest)
   const data = {
-    correlationId: primaryPaymentRequest.correlationId,
+    correlationId: paymentRequest.correlationId,
     frn: primaryPaymentRequest.frn,
     claimNumber: primaryPaymentRequest.contractNumber,
     agreementNumber: primaryPaymentRequest.agreementNumber,
@@ -33,30 +39,46 @@ const processLegacyPaymentRequest = async (paymentRequest, relatedPaymentRequest
     revenueOrCapital: checkIfRevenueOrCapital(primaryPaymentRequest),
     year: getYear(primaryPaymentRequest, checkIfRevenueOrCapital(primaryPaymentRequest)),
     routedToRequestEditor: primaryPaymentRequest.debtType ? 'Y' : 'N',
-    deltaAmount: calculateDeltaAmount(paymentRequest, relatedPaymentRequests),
-    apValue: calculateLedgerValue(paymentRequest, AP),
-    arValue: calculateLedgerValue(paymentRequest, AR),
+    deltaAmount,
+    apValue,
+    arValue,
     debtType: primaryPaymentRequest.debtType,
     daxFileName: null,
-    daxImported: paymentRequest.completedPaymentRequest?.acknowledged ? 'Y' : 'N',
+    daxImported: paymentRequest.completedPaymentRequests[0]?.acknowledged ? 'Y' : 'N',
     settledValue: primaryPaymentRequest.settledValue,
     phError: null,
     daxError: null,
     receivedInRequestEditor: calculateApproximateREReceivedDateTime(primaryPaymentRequest, paymentRequest),
     enriched: primaryPaymentRequest.debtType ? 'Y' : null,
     ledgerSplit: apValue && arValue ? 'Y' : 'N',
-    releasedFromRequestEditor: paymentRequest.completedPaymentRequest?.submitted,
-    daxPaymentRequestNumber: calculateDAXPRN(paymentRequest, relatedPaymentRequests),
-    daxValue: calculateDAXValue(paymentRequest, relatedPaymentRequests),
-    overallStatus: getOverallStatus(paymentRequest.value, calculateDAXValue(paymentRequest, relatedPaymentRequests), primaryPaymentRequest.paymentRequestNumber, calculateDAXPRN(paymentRequest, relatedPaymentRequests)),
-    //crossBorderFlag: check tomorrow,
-    valueStillToProcess: paymentRequest.value - calculateDAXValue(paymentRequest, relatedPaymentRequests),
-    prStillToProcess: primaryPaymentRequest.paymentRequestNumber - calculateDAXPRN(paymentRequest, relatedPaymentRequests)
+    releasedFromRequestEditor: paymentRequest.completedPaymentRequests[0]?.submitted,
+    daxPaymentRequestNumber,
+    daxValue,
+    overallStatus: getOverallStatus(paymentRequest.value, daxValue, primaryPaymentRequest.paymentRequestNumber, daxPaymentRequestNumber),
+    crossBorderFlag: checkCrossBorderType(paymentRequest),
+    valueStillToProcess: paymentRequest.value - daxValue,
+    prStillToProcess: primaryPaymentRequest.paymentRequestNumber - daxPaymentRequestNumber
   }
 
   const existingData = await getExistingDataFull(data)
   if (!existingData) {
     await db.reportData.create({ ...data })
+  } else {
+    const updatedData = {}
+    for (const key in data) {
+      if (existingData[key] === null && data[key] !== null) {
+        updatedData[key] = data[key]
+      }
+    }
+    updatedData.daxValue = existingData.daxValue + daxValue
+    updatedData.deltaAmount = existingData.deltaAmount + deltaAmount
+    updatedData.daxPaymentRequestNumber = Math.max(existingData.daxPaymentRequestNumber, daxPaymentRequestNumber)
+    updatedData.overallStatus = getOverallStatus(paymentRequest.value, updatedData.daxValue, primaryPaymentRequest.paymentRequestNumber, updatedData.daxPaymentRequestNumber)
+    updatedData.valueStillToProcess = paymentRequest.value - updatedData.daxValue
+    updatedData.prStillToProcess = primaryPaymentRequest.paymentRequestNumber - updatedData.daxPaymentRequestNumber
+    if (Object.keys(updatedData).length > 0) {
+      await db.reportData.update(updatedData, { where: { reportDataId: existingData.reportDataId } })
+    }
   }
 }
 

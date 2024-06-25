@@ -3,7 +3,9 @@ const { processLegacyPayments } = require('./process-legacy-payments')
 
 const start = async () => {
   try {
-    await processLegacyPayments()
+    if (processingConfig.legacyProcessingActive) {
+      await processLegacyPayments()
+    }
   } catch (err) {
     console.error(err)
   } finally {

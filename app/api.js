@@ -1,5 +1,5 @@
 const wreck = require('@hapi/wreck')
-const processingConfig = require('./config')
+const { processingConfig } = require('./config')
 
 const get = async (url, token) => {
   return wreck.get(`${processingConfig.paymentsEndpoint}${url}`, getConfiguration(token))

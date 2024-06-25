@@ -1,14 +1,5 @@
-const calculateDeltaAmount = (paymentRequest, relatedPaymentRequests) => {
-  if (!paymentRequest.completedPaymentRequest) {
-    return null
-  }
-  let deltaAmount = Number(paymentRequest.completedPaymentRequest.value)
-  if (relatedPaymentRequests) {
-    relatedPaymentRequests.forEach(relatedPaymentRequest => {
-      deltaAmount += Number(relatedPaymentRequest.completedPaymentRequest?.value)
-    })
-  }
-  return deltaAmount
+const calculateDeltaAmount = (paymentRequest) => {
+  return paymentRequest.completedPaymentRequests[0] ? paymentRequest.completedPaymentRequests[0].value : null
 }
 
 module.exports = {

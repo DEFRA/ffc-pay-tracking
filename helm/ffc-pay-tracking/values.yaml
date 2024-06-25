@@ -30,6 +30,7 @@ container:
   eventsTopicAddress: ffc-pay-events
   eventsSubscriptionAddress: ffc-pay-tracking
   paymentsEndpoint: http://ffc-pay-processing.ffc-pay
+  legacyProcessingActive: true
 
 postgresService:
   postgresDb: ffc_pay_tracking

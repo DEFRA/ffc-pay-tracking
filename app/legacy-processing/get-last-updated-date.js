@@ -1,6 +1,6 @@
 const getLastUpdatedDate = (paymentRequest) => {
-  if (paymentRequest.completedPaymentRequest) {
-    return paymentRequest.completedPaymentRequest.lastSettlement ?? paymentRequest.completedPaymentRequest.submitted
+  if (paymentRequest.completedPaymentRequests[0]) {
+    return paymentRequest.completedPaymentRequests[0].lastSettlement ?? paymentRequest.completedPaymentRequests[0].submitted
   }
   return paymentRequest.received
 }

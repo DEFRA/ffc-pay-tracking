@@ -1,6 +1,6 @@
 const calculateLedgerValue = (paymentRequest, ledger) => {
-  if (paymentRequest.completedPaymentRequest?.ledger === ledger) {
-    return Number(paymentRequest.completedPaymentRequest.value)
+  if (paymentRequest.completedPaymentRequests[0]?.ledger === ledger) {
+    return Number(paymentRequest.completedPaymentRequests[0].value)
   }
   return 0
 }
