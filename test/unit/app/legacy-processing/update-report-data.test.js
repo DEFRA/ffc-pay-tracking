@@ -7,13 +7,12 @@ jest.mock('../../../../app/data')
 jest.mock('../../../../app/get-data-filter')
 jest.mock('../../../../app/legacy-processing/update-payment-request-data')
 
-describe('updateReportData function', () => {
+describe('update report data for legacy migrated data', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
   test('should create new record when no related requests are found', async () => {
-    // Arrange
     const data = {
       paymentRequestNumber: 1,
       daxValue: 100,
@@ -24,17 +23,14 @@ describe('updateReportData function', () => {
     getDataFilter.mockReturnValue(where)
     db.reportData.findAll.mockResolvedValue([])
 
-    // Act
     await updateReportData(data)
 
-    // Assert
     expect(getDataFilter).toHaveBeenCalledWith(data)
     expect(db.reportData.findAll).toHaveBeenCalledWith({ where })
     expect(db.reportData.create).toHaveBeenCalledWith({ ...data })
   })
 
   test('should call updatePaymentRequestData for each related request', async () => {
-    // Arrange
     const data = {
       paymentRequestNumber: 1,
       daxValue: 100,
@@ -62,10 +58,8 @@ describe('updateReportData function', () => {
     getDataFilter.mockReturnValue(where)
     db.reportData.findAll.mockResolvedValue(relatedRequests)
 
-    // Act
     await updateReportData(data)
 
-    // Assert
     expect(getDataFilter).toHaveBeenCalledWith(data)
     expect(db.reportData.findAll).toHaveBeenCalledWith({ where })
     expect(updatePaymentRequestData).toHaveBeenCalledTimes(2)
