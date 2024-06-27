@@ -1,7 +1,8 @@
 const { REVENUE, CAPITAL } = require('../constants/cs-types')
+const { CS } = require('../constants/schemes')
 
 const checkIfRevenueOrCapital = (paymentRequest) => {
-  if (paymentRequest.schemeId !== 5) {
+  if (paymentRequest.schemeId !== CS) {
     return null
   }
   const dateParts = paymentRequest.dueDate?.split('/')
