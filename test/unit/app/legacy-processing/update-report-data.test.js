@@ -1,18 +1,19 @@
 const db = require('../../../../app/data')
-const { getOverallStatus } = require('../../../../app/data-generation')
 const { getDataFilter } = require('../../../../app/get-data-filter')
+const { updatePaymentRequestData } = require('../../../../app/legacy-processing/update-payment-request-data')
 const { updateReportData } = require('../../../../app/legacy-processing/update-report-data')
 
 jest.mock('../../../../app/data')
-jest.mock('../../../../app/data-generation')
 jest.mock('../../../../app/get-data-filter')
+jest.mock('../../../../app/legacy-processing/update-payment-request-data')
 
-describe('update report data for migrated data', () => {
+describe('updateReportData function', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
   test('should create new record when no related requests are found', async () => {
+    // Arrange
     const data = {
       paymentRequestNumber: 1,
       daxValue: 100,
@@ -23,19 +24,21 @@ describe('update report data for migrated data', () => {
     getDataFilter.mockReturnValue(where)
     db.reportData.findAll.mockResolvedValue([])
 
+    // Act
     await updateReportData(data)
 
+    // Assert
     expect(getDataFilter).toHaveBeenCalledWith(data)
     expect(db.reportData.findAll).toHaveBeenCalledWith({ where })
     expect(db.reportData.create).toHaveBeenCalledWith({ ...data })
   })
 
-  test('should update daxValue and overallStatus when paymentRequestNumber is greater in related request', async () => {
+  test('should call updatePaymentRequestData for each related request', async () => {
+    // Arrange
     const data = {
       paymentRequestNumber: 1,
       daxValue: 100,
-      daxPaymentRequestNumber: 1,
-      value: 200
+      daxPaymentRequestNumber: 1
     }
 
     const where = { filter: 'some-filter' }
@@ -46,139 +49,27 @@ describe('update report data for migrated data', () => {
         daxPaymentRequestNumber: 2,
         value: 200,
         reportDataId: 1
-      }
-    ]
-
-    getDataFilter.mockReturnValue(where)
-    db.reportData.findAll.mockResolvedValue(relatedRequests)
-    getOverallStatus.mockReturnValue('Updated Status')
-
-    const expectedUpdateData = {
-      daxValue: 150,
-      daxPaymentRequestNumber: 2,
-      overallStatus: 'Updated Status',
-      valueStillToProcess: 50
-    }
-
-    await updateReportData(data)
-
-    expect(getDataFilter).toHaveBeenCalledWith(data)
-    expect(db.reportData.findAll).toHaveBeenCalledWith({ where })
-    expect(db.reportData.update).toHaveBeenCalledWith(expectedUpdateData, { where: { reportDataId: relatedRequests[0].reportDataId } })
-  })
-
-  test('should update daxValue, deltaAmount, and overallStatus when paymentRequestNumber matches with related request, but invoiceNumber are different', async () => {
-    const data = {
-      paymentRequestNumber: 2,
-      daxValue: 150,
-      deltaAmount: -50,
-      daxPaymentRequestNumber: 2,
-      invoiceNumber: 'INV001',
-      value: 200
-    }
-
-    const where = { filter: 'some-filter' }
-    const relatedRequests = [
-      {
-        paymentRequestNumber: 2,
-        daxValue: 50,
-        deltaAmount: -50,
-        daxPaymentRequestNumber: 2,
-        invoiceNumber: 'INV002',
-        value: 200,
-        reportDataId: 1
-      }
-    ]
-
-    getDataFilter.mockReturnValue(where)
-    db.reportData.findAll.mockResolvedValue(relatedRequests)
-    getOverallStatus.mockReturnValue('Updated Status')
-
-    const expectedUpdateData = {
-      daxValue: 200,
-      deltaAmount: -100,
-      daxPaymentRequestNumber: 2,
-      overallStatus: 'Updated Status',
-      valueStillToProcess: 0,
-      prStillToProcess: 0
-    }
-
-    await updateReportData(data)
-
-    expect(getDataFilter).toHaveBeenCalledWith(data)
-    expect(db.reportData.findAll).toHaveBeenCalledWith({ where })
-    expect(db.reportData.update).toHaveBeenCalledWith(expectedUpdateData, { where: { reportDataId: relatedRequests[0].reportDataId } })
-  })
-
-  test('should update fields when paymentRequestNumber matches and fields are null', async () => {
-    const data = {
-      paymentRequestNumber: 1,
-      daxValue: 100,
-      deltaAmount: 50,
-      invoiceNumber: 'INV001',
-      value: 200,
-      someField: 'newValue'
-    }
-
-    const where = { filter: 'some-filter' }
-    const relatedRequests = [
+      },
       {
         paymentRequestNumber: 1,
         daxValue: 50,
-        deltaAmount: 30,
         daxPaymentRequestNumber: 1,
-        invoiceNumber: 'INV001',
         value: 200,
-        reportDataId: 1,
-        someField: null
+        reportDataId: 2
       }
     ]
 
     getDataFilter.mockReturnValue(where)
     db.reportData.findAll.mockResolvedValue(relatedRequests)
 
-    const expectedUpdateData = {
-      someField: 'newValue'
-    }
-
+    // Act
     await updateReportData(data)
 
+    // Assert
     expect(getDataFilter).toHaveBeenCalledWith(data)
     expect(db.reportData.findAll).toHaveBeenCalledWith({ where })
-    expect(db.reportData.update).toHaveBeenCalledWith(expectedUpdateData, { where: { reportDataId: relatedRequests[0].reportDataId } })
-  })
-
-  test('should not update fields when paymentRequestNumber matches and no fields are null', async () => {
-    const data = {
-      paymentRequestNumber: 1,
-      daxValue: 100,
-      deltaAmount: 50,
-      invoiceNumber: 'INV001',
-      value: 200,
-      someField: 'newValue'
-    }
-
-    const where = { filter: 'some-filter' }
-    const relatedRequests = [
-      {
-        paymentRequestNumber: 1,
-        daxValue: 50,
-        deltaAmount: 30,
-        daxPaymentRequestNumber: 1,
-        invoiceNumber: 'INV001',
-        value: 200,
-        reportDataId: 1,
-        someField: 'existingValue'
-      }
-    ]
-
-    getDataFilter.mockReturnValue(where)
-    db.reportData.findAll.mockResolvedValue(relatedRequests)
-
-    await updateReportData(data)
-
-    expect(getDataFilter).toHaveBeenCalledWith(data)
-    expect(db.reportData.findAll).toHaveBeenCalledWith({ where })
-    expect(db.reportData.update).not.toHaveBeenCalled()
+    expect(updatePaymentRequestData).toHaveBeenCalledTimes(2)
+    expect(updatePaymentRequestData).toHaveBeenCalledWith(relatedRequests[0], data)
+    expect(updatePaymentRequestData).toHaveBeenCalledWith(relatedRequests[1], data)
   })
 })
