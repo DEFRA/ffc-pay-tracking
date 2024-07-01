@@ -15,4 +15,15 @@ data:
   POSTGRES_HOST: {{ quote .Values.postgresService.postgresqlHost }}
   POSTGRES_PORT: {{ quote .Values.postgresService.postgresPort }}
   POSTGRES_SCHEMA_NAME: {{ quote .Values.postgresService.postgresSchema }}
+  LEGACY_PROCESSING_ACTIVE: {{ quote .Values.container.legacyProcessingActive }}
+  {{- if and (.Values.environmentCode) (not .Values.pr) }}
+    {{- if ne .Values.environmentCode "snd" }}
+  PAYMENTS_SERVICE_ENDPOINT: {{ .Values.container.paymentsEndpoint }}-{{ .Values.environmentCode }}
+    {{ else }}
+  PAYMENTS_SERVICE_ENDPOINT: {{ quote .Values.container.paymentsEndpoint }}
+    {{- end }}
+  {{ else }}
+  PAYMENTS_SERVICE_ENDPOINT: {{ quote .Values.container.paymentsEndpoint }}
+  {{- end }}
+
 {{- end -}}
