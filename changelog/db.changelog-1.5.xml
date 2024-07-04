@@ -5,7 +5,7 @@
   </changeSet>
   <changeSet author="Sam Plackett" id="2">
     <sql>
-      DELETE FROM reportData;
+      DELETE FROM "reportData";
     </sql>
   </changeSet>
 </databaseChangeLog>
