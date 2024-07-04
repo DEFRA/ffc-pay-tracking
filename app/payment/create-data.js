@@ -3,7 +3,7 @@ const { getARAmount, getDebtType, getFileName, getBatch, getBatchExportDate, get
 
 const createData = async (event, transaction) => {
   const paymentRequestNumber = event.data.paymentRequestNumber
-  const value = getValue(event)
+  const value = await getValue(event)
   const deltaAmount = await getDeltaAmount(event, transaction)
   const daxPaymentRequestNumber = await checkDAXPRN(event, transaction)
   const daxValue = await checkDAXValue(event, transaction)

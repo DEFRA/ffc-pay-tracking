@@ -1,10 +1,11 @@
+const { SFI23 } = require('../../../../app/constants/schemes')
 const db = require('../../../../app/data')
-const { getDataFilter } = require('../../../../app/get-data-filter')
+const { getLegacyFilter } = require('../../../../app/legacy-processing/get-legacy-filter')
 const { updatePaymentRequestData } = require('../../../../app/legacy-processing/update-payment-request-data')
 const { updateReportData } = require('../../../../app/legacy-processing/update-report-data')
 
 jest.mock('../../../../app/data')
-jest.mock('../../../../app/get-data-filter')
+jest.mock('../../../../app/legacy-processing/get-legacy-filter')
 jest.mock('../../../../app/legacy-processing/update-payment-request-data')
 
 describe('update report data for legacy migrated data', () => {
@@ -20,12 +21,12 @@ describe('update report data for legacy migrated data', () => {
     }
 
     const where = { filter: 'some-filter' }
-    getDataFilter.mockReturnValue(where)
+    getLegacyFilter.mockReturnValue(where)
     db.reportData.findAll.mockResolvedValue([])
 
-    await updateReportData(data)
+    await updateReportData(data, SFI23)
 
-    expect(getDataFilter).toHaveBeenCalledWith(data)
+    expect(getLegacyFilter).toHaveBeenCalledWith(data, SFI23)
     expect(db.reportData.findAll).toHaveBeenCalledWith({ where })
     expect(db.reportData.create).toHaveBeenCalledWith({ ...data })
   })
@@ -55,12 +56,12 @@ describe('update report data for legacy migrated data', () => {
       }
     ]
 
-    getDataFilter.mockReturnValue(where)
+    getLegacyFilter.mockReturnValue(where)
     db.reportData.findAll.mockResolvedValue(relatedRequests)
 
-    await updateReportData(data)
+    await updateReportData(data, SFI23)
 
-    expect(getDataFilter).toHaveBeenCalledWith(data)
+    expect(getLegacyFilter).toHaveBeenCalledWith(data, SFI23)
     expect(db.reportData.findAll).toHaveBeenCalledWith({ where })
     expect(updatePaymentRequestData).toHaveBeenCalledTimes(2)
     expect(updatePaymentRequestData).toHaveBeenCalledWith(relatedRequests[0], data)

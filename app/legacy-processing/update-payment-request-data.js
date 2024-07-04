@@ -11,6 +11,7 @@ const updatePaymentRequestData = async (paymentRequest, data) => {
     await db.reportData.update(
       updateData,
       { where: { reportDataId: paymentRequest.reportDataId } })
+    await db.reportData.create({ ...data })
   } else if (paymentRequest.paymentRequestNumber === data.paymentRequestNumber && paymentRequest.invoiceNumber !== data.invoiceNumber) {
     updateData.daxValue = paymentRequest.daxValue + data.daxValue
     updateData.deltaAmount = paymentRequest.deltaAmount + data.deltaAmount
@@ -19,6 +20,7 @@ const updatePaymentRequestData = async (paymentRequest, data) => {
     updateData.valueStillToProcess = paymentRequest.value - updateData.daxValue
     updateData.prStillToProcess = paymentRequest.paymentRequestNumber - updateData.daxPaymentRequestNumber
     await db.reportData.update(updateData, { where: { reportDataId: paymentRequest.reportDataId } })
+    await db.reportData.create({ ...data })
   } else if (paymentRequest.paymentRequestNumber === data.paymentRequestNumber) {
     for (const key in data) {
       if (paymentRequest[key] === null && data[key] !== null) {
@@ -28,6 +30,12 @@ const updatePaymentRequestData = async (paymentRequest, data) => {
     if (Object.keys(updateData).length > 0) {
       await db.reportData.update(updateData, { where: { reportDataId: paymentRequest.reportDataId } })
     }
+  } else {
+    data.daxValue = paymentRequest.daxValue + data.daxValue
+    data.daxPaymentRequestNumber = Math.max(paymentRequest.daxPaymentRequestNumber, data.daxPaymentRequestNumber)
+    data.overallStatus = getOverallStatus(paymentRequest.value, data.daxValue, paymentRequest.paymentRequestNumber, data.daxPaymentRequestNumber)
+    data.valueStillToProcess = paymentRequest.value - data.daxValue
+    await db.reportData.create({ ...data })
   }
 }
 

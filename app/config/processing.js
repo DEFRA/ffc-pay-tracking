@@ -4,7 +4,7 @@ const schema = Joi.object({
   legacyProcessingInterval: Joi.number().default(60000),
   processingCap: Joi.number().default(500),
   paymentsEndpoint: Joi.string().uri().required(),
-  legacyProcessingActive: Joi.boolean().required().default(true)
+  legacyProcessingActive: Joi.boolean().required().default(false)
 })
 
 const config = {

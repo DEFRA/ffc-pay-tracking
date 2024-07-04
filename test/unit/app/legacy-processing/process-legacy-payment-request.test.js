@@ -12,6 +12,7 @@ const { getOverallStatus } = require('../../../../app/data-generation')
 const { checkCrossBorderType } = require('../../../../app/legacy-processing/check-cross-border-type')
 const { updateReportData } = require('../../../../app/legacy-processing/update-report-data')
 const { REVENUE } = require('../../../../app/constants/cs-types')
+const { SFI } = require('../../../../app/constants/schemes')
 
 jest.mock('../../../../app/legacy-processing/calculate-approximate-re-received-datetime')
 jest.mock('../../../../app/legacy-processing/calculate-delta-amount')
@@ -34,6 +35,7 @@ describe('process legacy payment requests', () => {
   test('should call updateReportData with correct data for completed payment requests', async () => {
     const paymentRequest = {
       correlationId: 'correlationId',
+      schemeId: SFI,
       completedPaymentRequests: [
         {
           frn: 1234567890,
@@ -107,7 +109,7 @@ describe('process legacy payment requests', () => {
     }
 
     await processLegacyPaymentRequest(paymentRequest)
-    expect(updateReportData).toHaveBeenCalledWith(expectedData)
+    expect(updateReportData).toHaveBeenCalledWith(expectedData, SFI)
   })
 
   test('should call updateReportData with correct data for requests without completedPaymentRequests', async () => {
@@ -125,6 +127,7 @@ describe('process legacy payment requests', () => {
       sourceSystem: 'sourceSystem',
       debtType: 'debtType',
       value: 1000,
+      schemeId: SFI,
       completedPaymentRequests: []
     }
 
@@ -181,6 +184,6 @@ describe('process legacy payment requests', () => {
     }
 
     await processLegacyPaymentRequest(paymentRequest)
-    expect(updateReportData).toHaveBeenCalledWith(expectedData)
+    expect(updateReportData).toHaveBeenCalledWith(expectedData, SFI)
   })
 })

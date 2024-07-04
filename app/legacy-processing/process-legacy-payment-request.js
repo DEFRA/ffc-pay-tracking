@@ -16,9 +16,10 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
   const primaryPaymentRequest = paymentRequest.completedPaymentRequests?.[0] ?? paymentRequest
   const apValue = calculateLedgerValue(paymentRequest, AP)
   const arValue = calculateLedgerValue(paymentRequest, AR)
-  const daxValue = calculateDAXValue(paymentRequest)
   const daxPaymentRequestNumber = calculateDAXPRN(paymentRequest)
   const deltaAmount = calculateDeltaAmount(paymentRequest)
+  const daxValue = calculateDAXValue(deltaAmount, paymentRequest)
+  const routedToRequestEditor = primaryPaymentRequest.debtType ? 'Y' : 'N'
   const data = {
     correlationId: paymentRequest.correlationId,
     frn: primaryPaymentRequest.frn,
@@ -37,7 +38,7 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
     lastUpdated: getLastUpdatedDate(paymentRequest),
     revenueOrCapital: checkIfRevenueOrCapital(primaryPaymentRequest),
     year: getYear(primaryPaymentRequest, checkIfRevenueOrCapital(primaryPaymentRequest)),
-    routedToRequestEditor: primaryPaymentRequest.debtType ? 'Y' : 'N',
+    routedToRequestEditor,
     deltaAmount,
     apValue,
     arValue,
@@ -50,7 +51,7 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
     receivedInRequestEditor: calculateApproximateREReceivedDateTime(primaryPaymentRequest, paymentRequest),
     enriched: primaryPaymentRequest.debtType ? 'Y' : null,
     ledgerSplit: apValue && arValue ? 'Y' : 'N',
-    releasedFromRequestEditor: paymentRequest.completedPaymentRequests?.[0]?.submitted,
+    releasedFromRequestEditor: routedToRequestEditor === 'Y' ? paymentRequest.completedPaymentRequests?.[0]?.submitted : null,
     daxPaymentRequestNumber,
     daxValue,
     overallStatus: getOverallStatus(paymentRequest.value, daxValue, primaryPaymentRequest.paymentRequestNumber, daxPaymentRequestNumber),
@@ -58,7 +59,7 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
     valueStillToProcess: paymentRequest.value - daxValue,
     prStillToProcess: primaryPaymentRequest.paymentRequestNumber - daxPaymentRequestNumber
   }
-  await updateReportData(data)
+  await updateReportData(data, paymentRequest.schemeId)
 }
 
 module.exports = {

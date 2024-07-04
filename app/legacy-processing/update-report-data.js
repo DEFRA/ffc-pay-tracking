@@ -1,10 +1,9 @@
 const db = require('../data')
-const { getDataFilter } = require('../get-data-filter')
+const { getLegacyFilter } = require('./get-legacy-filter')
 const { updatePaymentRequestData } = require('./update-payment-request-data')
 
-const updateReportData = async (data) => {
-  const where = getDataFilter(data)
-  delete where.paymentRequestNumber
+const updateReportData = async (data, schemeId) => {
+  const where = getLegacyFilter(data, schemeId)
   const relatedRequests = await db.reportData.findAll({
     where
   })

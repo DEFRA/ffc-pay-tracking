@@ -24,7 +24,7 @@ services:
       POSTGRES_SCHEMA_NAME: ${POSTGRES_SCHEMA_NAME:-public}
       POSTGRES_USERNAME: ${POSTGRES_SCHEMA_USERNAME:-postgres}
       PAYMENTS_SERVICE_ENDPOINT: http://ffc-pay-processing:3008
-      LEGACY_PROCESSING_ACTIVE: true
+      LEGACY_PROCESSING_ACTIVE: false
 
   ffc-pay-tracking-postgres:
     image: postgres:11.4-alpine

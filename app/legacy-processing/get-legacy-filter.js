@@ -1,29 +1,22 @@
-const { BPS, FDMR, CS } = require('./constants/schemes')
+const { BPS, FDMR, CS } = require('../constants/schemes')
 
-const getDataFilter = (data, previous) => {
-  const defaultFilter = {
-    paymentRequestNumber: previous ? data.paymentRequestNumber - 1 : data.paymentRequestNumber
-  }
-
-  switch (data.schemeId) {
+const getLegacyFilter = (data, schemeId) => {
+  switch (schemeId) {
     case BPS:
     case FDMR:
       return {
-        ...defaultFilter,
         sourceSystem: data.sourceSystem,
         frn: data.frn,
         marketingYear: data.marketingYear
       }
     case CS:
       return {
-        ...defaultFilter,
         sourceSystem: data.sourceSystem,
         frn: data.frn,
-        claimNumber: data.contractNumber
+        claimNumber: data.claimNumber
       }
     default:
       return {
-        ...defaultFilter,
         sourceSystem: data.sourceSystem,
         frn: data.frn,
         marketingYear: data.marketingYear,
@@ -33,5 +26,5 @@ const getDataFilter = (data, previous) => {
 }
 
 module.exports = {
-  getDataFilter
+  getLegacyFilter
 }
