@@ -113,7 +113,6 @@ describe('process legacy payment requests', () => {
   })
 
   test('should call updateReportData with correct data for requests without completedPaymentRequests', async () => {
-    // Arrange
     const paymentRequest = {
       correlationId: 'correlationId',
       frn: 1234567890,
