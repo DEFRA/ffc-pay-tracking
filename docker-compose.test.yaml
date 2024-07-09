@@ -16,6 +16,8 @@ services:
       - ./test-output:/home/node/test-output
       - ./jest.config.js:/home/node/jest.config.js
       - ./package.json:/home/node/package.json
+    environment:
+      LEGACY_PROCESSING_ACTIVE: true
 
   ffc-pay-tracking-postgres:
     volumes:
