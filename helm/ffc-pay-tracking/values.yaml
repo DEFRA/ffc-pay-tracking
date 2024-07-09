@@ -29,6 +29,8 @@ container:
   messageQueueHost: namespace.servicebus.windows.net
   eventsTopicAddress: ffc-pay-events
   eventsSubscriptionAddress: ffc-pay-tracking
+  paymentsEndpoint: http://ffc-pay-processing.ffc-pay
+  legacyProcessingActive: false
 
 postgresService:
   postgresDb: ffc_pay_tracking

@@ -1,7 +1,7 @@
 const { PAYMENT_PROCESSED } = require('../../../../app/constants/events')
-const { isNewInvoiceNumber } = require('../../../../app/payment/is-new-invoice-number')
+const { isNewSplitInvoiceNumber } = require('../../../../app/payment/is-new-split-invoice-number')
 
-describe('isNewInvoiceNumber', () => {
+describe('check if new split invoice number', () => {
   test('should return true if the invoice number is new', () => {
     const mockEvent = {
       type: PAYMENT_PROCESSED,
@@ -14,7 +14,7 @@ describe('isNewInvoiceNumber', () => {
       invoiceNumber: 'existingInvoiceNumber'
     }
 
-    const result = isNewInvoiceNumber(mockEvent, mockExistingData)
+    const result = isNewSplitInvoiceNumber(mockEvent, mockExistingData)
 
     expect(result).toBe(true)
   })
@@ -31,7 +31,7 @@ describe('isNewInvoiceNumber', () => {
       invoiceNumber: 'existingInvoiceNumber'
     }
 
-    const result = isNewInvoiceNumber(mockEvent, mockExistingData)
+    const result = isNewSplitInvoiceNumber(mockEvent, mockExistingData)
 
     expect(result).toBe(false)
   })
