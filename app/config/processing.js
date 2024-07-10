@@ -11,7 +11,7 @@ const config = {
   legacyProcessingInterval: process.env.PROCESSING_INTERVAL,
   processingCap: process.env.PROCESSING_CAP,
   paymentsEndpoint: process.env.PAYMENTS_SERVICE_ENDPOINT,
-  legacyProcessingActive: false
+  legacyProcessingActive: process.env.LEGACY_PROCESSING_ACTIVE
 }
 
 const result = schema.validate(config, {
