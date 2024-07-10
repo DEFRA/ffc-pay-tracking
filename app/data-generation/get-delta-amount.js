@@ -17,7 +17,8 @@ const getDeltaAmount = async (event, transaction) => {
     where,
     transaction
   })
-  return value - previousRequest?.value
+  const previousValue = previousRequest?.value ?? 0
+  return value - previousValue
 }
 
 module.exports = {
