@@ -13,7 +13,7 @@ describe('update report data for legacy migrated data', () => {
     jest.clearAllMocks()
   })
 
-  test('should create new record when no related requests are found', async () => {
+  test('should create new record and not call updatePaymentRequestData when no related requests are found', async () => {
     const data = {
       paymentRequestNumber: 1,
       daxValue: 100,
@@ -21,14 +21,18 @@ describe('update report data for legacy migrated data', () => {
     }
 
     const where = { filter: 'some-filter' }
+    const createdRecord = { ...data, reportDataId: 1 }
+
+    db.reportData.create.mockResolvedValue(createdRecord)
     getLegacyFilter.mockReturnValue(where)
     db.reportData.findAll.mockResolvedValue([])
 
     await updateReportData(data, SFI23)
 
-    expect(getLegacyFilter).toHaveBeenCalledWith(data, SFI23)
-    expect(db.reportData.findAll).toHaveBeenCalledWith({ where })
     expect(db.reportData.create).toHaveBeenCalledWith({ ...data })
+    expect(getLegacyFilter).toHaveBeenCalledWith(createdRecord, SFI23)
+    expect(db.reportData.findAll).toHaveBeenCalledWith({ where })
+    expect(updatePaymentRequestData).not.toHaveBeenCalled()
   })
 
   test('should call updatePaymentRequestData for each related request', async () => {
@@ -39,6 +43,7 @@ describe('update report data for legacy migrated data', () => {
     }
 
     const where = { filter: 'some-filter' }
+    const createdRecord = { ...data, reportDataId: 1 }
     const relatedRequests = [
       {
         paymentRequestNumber: 2,
@@ -56,15 +61,17 @@ describe('update report data for legacy migrated data', () => {
       }
     ]
 
+    db.reportData.create.mockResolvedValue(createdRecord)
     getLegacyFilter.mockReturnValue(where)
     db.reportData.findAll.mockResolvedValue(relatedRequests)
 
     await updateReportData(data, SFI23)
 
-    expect(getLegacyFilter).toHaveBeenCalledWith(data, SFI23)
+    expect(db.reportData.create).toHaveBeenCalledWith({ ...data })
+    expect(getLegacyFilter).toHaveBeenCalledWith(createdRecord, SFI23)
     expect(db.reportData.findAll).toHaveBeenCalledWith({ where })
     expect(updatePaymentRequestData).toHaveBeenCalledTimes(2)
-    expect(updatePaymentRequestData).toHaveBeenCalledWith(relatedRequests[0], data)
-    expect(updatePaymentRequestData).toHaveBeenCalledWith(relatedRequests[1], data)
+    expect(updatePaymentRequestData).toHaveBeenCalledWith(relatedRequests[0], createdRecord)
+    expect(updatePaymentRequestData).toHaveBeenCalledWith(relatedRequests[1], createdRecord)
   })
 })

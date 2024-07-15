@@ -131,4 +131,30 @@ describe('update payment request data on migrated PR', () => {
 
     expect(db.reportData.update).not.toHaveBeenCalled()
   })
+
+  test('should destroy current report data when exact match found and invoice number is same', async () => {
+    const paymentRequest = {
+      paymentRequestNumber: 1,
+      daxValue: 50,
+      deltaAmount: 30,
+      daxPaymentRequestNumber: 1,
+      invoiceNumber: 'INV001',
+      value: 200,
+      reportDataId: 1,
+      someField: 'existingValue'
+    }
+
+    const data = {
+      paymentRequestNumber: 1,
+      daxValue: 50,
+      deltaAmount: 30,
+      invoiceNumber: 'INV001',
+      value: 200,
+      reportDataId: 2
+    }
+
+    await updatePaymentRequestData(paymentRequest, data)
+
+    expect(db.reportData.destroy).toHaveBeenCalledWith({ where: { reportDataId: data.reportDataId } })
+  })
 })
