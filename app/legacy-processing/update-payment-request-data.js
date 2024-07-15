@@ -19,6 +19,36 @@ const computeUpdateData = (relatedPaymentRequest, currentPaymentRequest, value, 
   return updateData
 }
 
+const handleSamePaymentRequestNumber = async (relatedPaymentRequest, currentPaymentRequest) => {
+  if (relatedPaymentRequest.invoiceNumber !== currentPaymentRequest.invoiceNumber) {
+    const updateData = computeUpdateData(
+      relatedPaymentRequest,
+      currentPaymentRequest,
+      relatedPaymentRequest.value,
+      relatedPaymentRequest.paymentRequestNumber
+    )
+    updateData.deltaAmount = relatedPaymentRequest.deltaAmount + currentPaymentRequest.deltaAmount
+    updateData.prStillToProcess = relatedPaymentRequest.paymentRequestNumber - updateData.daxPaymentRequestNumber
+    await updateReportData(updateData, relatedPaymentRequest.reportDataId)
+    await updateReportData(updateData, currentPaymentRequest.reportDataId)
+  } else {
+    await handleInvoiceNumberMatch(relatedPaymentRequest, currentPaymentRequest)
+  }
+}
+
+const handleInvoiceNumberMatch = async (relatedPaymentRequest, currentPaymentRequest) => {
+  const updateData = {}
+  for (const key in relatedPaymentRequest) {
+    if (relatedPaymentRequest[key] === null && currentPaymentRequest[key] !== null) {
+      updateData[key] = currentPaymentRequest[key]
+    }
+  }
+  if (Object.keys(updateData).length > 0) {
+    await db.reportData.update(updateData, { where: { reportDataId: relatedPaymentRequest.reportDataId } })
+  }
+  await db.reportData.destroy({ where: { reportDataId: currentPaymentRequest.reportDataId } })
+}
+
 const updatePaymentRequestData = async (relatedPaymentRequest, currentPaymentRequest) => {
   if (relatedPaymentRequest.paymentRequestNumber > currentPaymentRequest.paymentRequestNumber) {
     const updateData = computeUpdateData(
@@ -29,29 +59,7 @@ const updatePaymentRequestData = async (relatedPaymentRequest, currentPaymentReq
     )
     await updateReportData(updateData, relatedPaymentRequest.reportDataId)
   } else if (relatedPaymentRequest.paymentRequestNumber === currentPaymentRequest.paymentRequestNumber) {
-    if (relatedPaymentRequest.invoiceNumber !== currentPaymentRequest.invoiceNumber) {
-      const updateData = computeUpdateData(
-        relatedPaymentRequest,
-        currentPaymentRequest,
-        relatedPaymentRequest.value,
-        relatedPaymentRequest.paymentRequestNumber
-      )
-      updateData.deltaAmount = relatedPaymentRequest.deltaAmount + currentPaymentRequest.deltaAmount
-      updateData.prStillToProcess = relatedPaymentRequest.paymentRequestNumber - updateData.daxPaymentRequestNumber
-      await updateReportData(updateData, relatedPaymentRequest.reportDataId)
-      await updateReportData(updateData, currentPaymentRequest.reportDataId)
-    } else {
-      const updateData = {}
-      for (const key in relatedPaymentRequest) {
-        if (relatedPaymentRequest[key] === null && currentPaymentRequest[key] !== null) {
-          updateData[key] = currentPaymentRequest[key]
-        }
-      }
-      if (Object.keys(updateData).length > 0) {
-        await db.reportData.update(updateData, { where: { reportDataId: relatedPaymentRequest.reportDataId } })
-      }
-      await db.reportData.destroy({ where: { reportDataId: currentPaymentRequest.reportDataId } })
-    }
+    await handleSamePaymentRequestNumber(relatedPaymentRequest, currentPaymentRequest)
   } else {
     const updateData = computeUpdateData(
       relatedPaymentRequest,
