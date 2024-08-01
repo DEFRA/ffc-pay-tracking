@@ -16,7 +16,7 @@ const getValue = async (event, transaction) => {
     where,
     transaction
   })
-  return existingRequest.value
+  return existingRequest?.value
 }
 
 module.exports = {
