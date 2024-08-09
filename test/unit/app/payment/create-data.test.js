@@ -88,4 +88,28 @@ describe('createData', () => {
 
     expect(data).toEqual(expectedData)
   })
+
+  test('should set valueStillToProcess to null and thus not be in final data when getValue returns null', async () => {
+    const mockEvent = {
+      data: {
+        correlationId: 'testCorrelationId',
+        frn: 1234567890,
+        contractNumber: 'testContractNumber',
+        agreementNumber: 'testAgreementNumber',
+        marketingYear: 2023,
+        invoiceNumber: 'testInvoiceNumber',
+        currency: 'testCurrency',
+        paymentRequestNumber: 2,
+        sourceSystem: 'testSourceSystem'
+      },
+      time: new Date()
+    }
+    const mockTransaction = {}
+
+    getValue.mockReturnValue(null)
+    checkDAXValue.mockResolvedValue(2000)
+
+    const data = await createData(mockEvent, mockTransaction)
+    expect(data.valueStillToProcess).toBeUndefined()
+  })
 })

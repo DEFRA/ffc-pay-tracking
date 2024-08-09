@@ -40,7 +40,7 @@ const createData = async (event, transaction) => {
     daxValue,
     overallStatus: getOverallStatus(value, daxValue, paymentRequestNumber, daxPaymentRequestNumber),
     crossBorderFlag: getCrossBorderFlag(event),
-    valueStillToProcess: value - daxValue,
+    valueStillToProcess: value ? value - daxValue : null,
     prStillToProcess: paymentRequestNumber - daxPaymentRequestNumber
   }
   const filteredData = Object.fromEntries(
