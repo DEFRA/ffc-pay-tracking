@@ -1,11 +1,7 @@
 const { bps, cs, fdmr } = require('../constants/source-systems')
 const db = require('../data')
 
-const getClaimLevelReportData = async (startDate, endDate) => {
-  let startDateEndDate = ''
-  if (startDate && endDate) {
-    startDateEndDate = `WHERE "lastUpdated" BETWEEN '${startDate}' AND '${endDate}'`
-  }
+const getClaimLevelReportData = async () => {
   return db.sequelize.query(`
   WITH "rankedData" AS (
     SELECT
@@ -31,7 +27,6 @@ const getClaimLevelReportData = async (startDate, endDate) => {
       ) AS row_num
     FROM
     "reportData"
-    ${startDateEndDate}
   )
   SELECT
     *

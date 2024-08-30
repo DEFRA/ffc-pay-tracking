@@ -3,11 +3,10 @@ const { getClaimLevelReportData } = require('../../report-data/get-claim-level-r
 
 module.exports = {
   method: GET,
-  path: '/claim-level-report-data',
+  path: '/claim-level-report',
   options: {
     handler: async (request, h) => {
-      const { startDate, endDate } = request.query
-      const claimLevelReportData = await getClaimLevelReportData(startDate, endDate)
+      const claimLevelReportData = await getClaimLevelReportData()
       return h.response({ claimLevelReportData })
     }
   }

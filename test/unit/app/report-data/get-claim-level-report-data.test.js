@@ -18,8 +18,6 @@ describe('getClaimLevelReportData', () => {
   })
 
   test('should call sequelize.query with correct SQL and options', async () => {
-    const startDate = '2021-01-01'
-    const endDate = '2021-12-31'
     const expectedSQL = `
         WITH "rankedData" AS (
             SELECT
@@ -45,7 +43,6 @@ describe('getClaimLevelReportData', () => {
             ) AS row_num
             FROM
             "reportData"
-            WHERE "lastUpdated" BETWEEN '${startDate}' AND '${endDate}'
         )
         SELECT
             *
@@ -63,7 +60,7 @@ describe('getClaimLevelReportData', () => {
       type: db.sequelize.QueryTypes.SELECT
     }
 
-    await getClaimLevelReportData(startDate, endDate)
+    await getClaimLevelReportData()
 
     const actualSQL = db.sequelize.query.mock.calls[0][0].replace(/\s+/g, ' ').trim()
     const expectedSQLCleaned = expectedSQL.replace(/\s+/g, ' ').trim()
@@ -72,11 +69,9 @@ describe('getClaimLevelReportData', () => {
   })
 
   test('should return the result of sequelize.query', async () => {
-    const startDate = '2021-01-01'
-    const endDate = '2021-12-31'
     const mockedResult = mockResult
     db.sequelize.query.mockReturnValue(Promise.resolve(mockedResult))
-    const result = await getClaimLevelReportData(startDate, endDate)
+    const result = await getClaimLevelReportData()
     expect(result).toEqual(mockedResult)
   })
 })

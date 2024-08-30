@@ -5,12 +5,7 @@ jest.mock('../../../../../app/report-data/get-claim-level-report-data')
 
 describe('Claim Level Report', () => {
   test('should call getClaimLevelReportData with correct parameters', async () => {
-    const mockRequest = {
-      query: {
-        startDate: '2021-01-01',
-        endDate: '2021-12-31'
-      }
-    }
+    const mockRequest = {}
     const mockH = {
       response: jest.fn().mockReturnThis()
     }
@@ -19,7 +14,7 @@ describe('Claim Level Report', () => {
 
     await handler(mockRequest, mockH)
 
-    expect(getClaimLevelReportData).toHaveBeenCalledWith('2021-01-01', '2021-12-31')
+    expect(getClaimLevelReportData).toHaveBeenCalled()
     expect(mockH.response).toHaveBeenCalledWith({ claimLevelReportData: { claimLevelReportData: [] } })
   })
 })
