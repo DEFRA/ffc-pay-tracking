@@ -1,11 +1,11 @@
 const db = require('../../../../app/data')
 const { PAYMENT_ACKNOWLEDGED_STATUS, PAYMENT_SETTLED_STATUS, PAYMENT_ENRICHED_STATUS } = require('../../../../app/constants/statuses')
-const { getDataFilter } = require('../../../../app/get-data-filter')
+const { getDataFilter } = require('../../../../app/helpers/get-data-filter')
 const { getStatus } = require('../../../../app/data-generation/get-status')
 const { checkDAXPRN } = require('../../../../app/data-generation/check-dax-prn')
 
 jest.mock('../../../../app/data')
-jest.mock('../../../../app/get-data-filter')
+jest.mock('../../../../app/helpers/get-data-filter')
 jest.mock('../../../../app/data-generation/get-status')
 
 describe('check PRN imported to DAX', () => {

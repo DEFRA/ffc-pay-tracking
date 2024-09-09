@@ -1,12 +1,12 @@
 const db = require('../../../../app/data')
 const { createData } = require('../../../../app/warning/create-data')
 const { BATCH_REJECTED, BATCH_QUARANTINED } = require('../../../../app/constants/warnings')
-const { getWhereFilter } = require('../../../../app/get-where-filter')
+const { getWhereFilter } = require('../../../../app/helpers/get-where-filter')
 const { updateWarning } = require('../../../../app/warning/update')
 
 jest.mock('../../../../app/data')
 jest.mock('../../../../app/warning/create-data')
-jest.mock('../../../../app/get-where-filter')
+jest.mock('../../../../app/helpers/get-where-filter')
 
 describe('updateWarning', () => {
   let transaction

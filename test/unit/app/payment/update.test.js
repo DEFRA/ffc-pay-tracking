@@ -1,11 +1,11 @@
 const db = require('../../../../app/data')
 const { createData } = require('../../../../app/payment/create-data')
-const { getExistingDataFull } = require('../../../../app/get-existing-data-full')
+const { getExistingDataFull } = require('../../../../app/helpers/get-existing-data-full')
 const { updatePayment } = require('../../../../app/payment/update')
 
 jest.mock('../../../../app/data')
 jest.mock('../../../../app/payment/create-data')
-jest.mock('../../../../app/get-existing-data-full')
+jest.mock('../../../../app/helpers/get-existing-data-full')
 
 describe('update from a payment message', () => {
   let transaction

@@ -1,8 +1,8 @@
 const db = require('../data')
 
 const { PAYMENT_EXTRACTED, PAYMENT_ENRICHED } = require('../constants/events')
-const { convertToPence } = require('../currency-convert')
-const { getDataFilter } = require('../get-data-filter')
+const { convertToPence } = require('../helpers/currency-convert')
+const { getDataFilter } = require('../helpers/get-data-filter')
 
 const getValue = async (event, transaction) => {
   if (event.type === PAYMENT_EXTRACTED) {

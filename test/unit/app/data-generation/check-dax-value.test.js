@@ -1,12 +1,12 @@
 const db = require('../../../../app/data')
 const { PAYMENT_ACKNOWLEDGED_STATUS, PAYMENT_SETTLED_STATUS, PAYMENT_ENRICHED_STATUS } = require('../../../../app/constants/statuses')
-const { getDataFilter } = require('../../../../app/get-data-filter')
+const { getDataFilter } = require('../../../../app/helpers/get-data-filter')
 const { getStatus } = require('../../../../app/data-generation/get-status')
 const { getDeltaAmount } = require('../../../../app/data-generation/get-delta-amount')
 const { checkDAXValue } = require('../../../../app/data-generation/check-dax-value')
 
 jest.mock('../../../../app/data')
-jest.mock('../../../../app/get-data-filter')
+jest.mock('../../../../app/helpers/get-data-filter')
 jest.mock('../../../../app/data-generation/get-status')
 jest.mock('../../../../app/data-generation/get-delta-amount')
 

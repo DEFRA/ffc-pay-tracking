@@ -1,32 +1,29 @@
 const db = require('../data')
-const schemes = require('../constants/schemes')
-const sourceSystems = require('../constants/source-systems')
+const { getSourceSystem } = require('../helpers/get-source-system')
 
-const getTransactionSummaryData = async (schemeId, frn) => {
+const getTransactionSummaryData = async (schemeId, year, revenueOrCapital, frn) => {
   const sourceSystem = getSourceSystem(schemeId)
   if (!sourceSystem) {
     throw new Error(`Source system not found for schemeId: ${schemeId}`)
   }
 
   const where = {
-    sourceSystem
+    sourceSystem,
+    year
   }
+
   if (frn) {
     where.frn = frn
+  }
+
+  if (revenueOrCapital) {
+    where.revenueOrCapital = revenueOrCapital
   }
 
   return db.reportData.findAll({
     where,
     raw: true
   })
-}
-
-const getSourceSystem = (schemeId) => {
-  const schemeIdsToKeys = Object.fromEntries(
-    Object.entries(schemes).map(([key, value]) => [value, key])
-  )
-  const schemeKey = schemeIdsToKeys[schemeId]
-  return sourceSystems[schemeKey] || null
 }
 
 module.exports = {

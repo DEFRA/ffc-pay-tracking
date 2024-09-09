@@ -57,6 +57,9 @@ const updatePaymentRequestData = async (relatedPaymentRequest, currentPaymentReq
       relatedPaymentRequest.value,
       relatedPaymentRequest.paymentRequestNumber
     )
+    if (currentPaymentRequest.paymentRequestNumber + 1 === relatedPaymentRequest.paymentRequestNumber) {
+      updateData.deltaAmount = relatedPaymentRequest.value - currentPaymentRequest.value
+    }
     await updateReportData(updateData, relatedPaymentRequest.reportDataId)
   } else if (relatedPaymentRequest.paymentRequestNumber === currentPaymentRequest.paymentRequestNumber) {
     await handleSamePaymentRequestNumber(relatedPaymentRequest, currentPaymentRequest)
@@ -67,6 +70,9 @@ const updatePaymentRequestData = async (relatedPaymentRequest, currentPaymentReq
       currentPaymentRequest.value,
       currentPaymentRequest.paymentRequestNumber
     )
+    if (relatedPaymentRequest.paymentRequestNumber + 1 === currentPaymentRequest.paymentRequestNumber) {
+      updateData.deltaAmount = currentPaymentRequest.value - relatedPaymentRequest.value
+    }
     await updateReportData(updateData, currentPaymentRequest.reportDataId)
   }
 }

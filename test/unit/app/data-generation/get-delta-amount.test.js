@@ -1,10 +1,10 @@
 const { getDeltaAmount } = require('../../../../app/data-generation/get-delta-amount')
 const { PAYMENT_PROCESSED, PAYMENT_SUBMITTED, PAYMENT_ACKNOWLEDGED, PAYMENT_SETTLED } = require('../../../../app/constants/events')
 const { getValue } = require('../../../../app/data-generation')
-const { getDataFilter } = require('../../../../app/get-data-filter')
+const { getDataFilter } = require('../../../../app/helpers/get-data-filter')
 
 jest.mock('../../../../app/data-generation/get-value')
-jest.mock('../../../../app/get-data-filter')
+jest.mock('../../../../app/helpers/get-data-filter')
 
 const db = require('../../../../app/data')
 jest.mock('../../../../app/data')

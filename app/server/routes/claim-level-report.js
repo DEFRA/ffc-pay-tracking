@@ -6,7 +6,8 @@ module.exports = {
   path: '/claim-level-report',
   options: {
     handler: async (request, h) => {
-      const claimLevelReportData = await getClaimLevelReportData()
+      const { schemeId, year, revenueOrCapital, frn } = request.query
+      const claimLevelReportData = await getClaimLevelReportData(schemeId, year, revenueOrCapital, frn)
       return h.response({ claimLevelReportData })
     }
   }

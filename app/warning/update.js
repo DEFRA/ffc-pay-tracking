@@ -1,7 +1,7 @@
 const db = require('../data')
 const { createData } = require('./create-data')
 const { BATCH_REJECTED, BATCH_QUARANTINED } = require('../constants/warnings')
-const { getWhereFilter } = require('../get-where-filter')
+const { getWhereFilter } = require('../helpers/get-where-filter')
 
 const updateWarning = async (event) => {
   if (![BATCH_REJECTED, BATCH_QUARANTINED].includes(event.type)) {
