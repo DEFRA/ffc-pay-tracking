@@ -1,0 +1,23 @@
+services:
+  ffc-pay-tracking:
+    build:
+      target: development
+    image: ffc-pay-tracking-development
+    container_name: ffc-pay-tracking-development
+    ports:
+      - "3002:3002"
+      - "9299:9229"
+    environment:
+      - JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+    volumes:
+      - ../.gitignore:/workspaces:cached/.gitignore
+      - ..:/workspaces:cached
+
+  ffc-pay-tracking-postgres:
+    ports:
+      - "5440:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data: {}
