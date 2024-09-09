@@ -12,9 +12,9 @@ ARG PORT_DEBUG
 ENV PORT ${PORT}
 EXPOSE ${PORT} ${PORT_DEBUG}
 USER root
-RUN apk upgrade --no-cache && apk add openjdk17-jre --no-cache
+RUN apk upgrade --no-cache && apk --no-cache add openjdk17-jre 
 
-# USER node
+USER node
 COPY --chown=node:node package*.json ./
 RUN npm install
 COPY --chown=node:node . .
