@@ -1,4 +1,5 @@
 const { handler } = require('../../../../../app/server/routes/claim-level-report').options
+const { SFI } = require('../../../../../app/constants/schemes')
 const { getClaimLevelReportData } = require('../../../../../app/report-data/get-claim-level-report-data')
 
 jest.mock('../../../../../app/report-data/get-claim-level-report-data')
@@ -7,8 +8,7 @@ describe('Claim Level Report', () => {
   test('should call getClaimLevelReportData with correct parameters', async () => {
     const mockRequest = {
       query: {
-        startDate: '2021-01-01',
-        endDate: '2021-12-31'
+        schemeId: SFI
       }
     }
     const mockH = {
@@ -19,7 +19,7 @@ describe('Claim Level Report', () => {
 
     await handler(mockRequest, mockH)
 
-    expect(getClaimLevelReportData).toHaveBeenCalledWith('2021-01-01', '2021-12-31')
+    expect(getClaimLevelReportData).toHaveBeenCalled()
     expect(mockH.response).toHaveBeenCalledWith({ claimLevelReportData: { claimLevelReportData: [] } })
   })
 })

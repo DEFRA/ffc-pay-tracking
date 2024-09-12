@@ -1,6 +1,6 @@
 const db = require('../../../app/data')
-const { getExistingDataFull } = require('../../../app/get-existing-data-full')
-const { getDataFilter } = require('../../../app/get-data-filter')
+const { getExistingDataFull } = require('../../../app/helpers/get-existing-data-full')
+const { getDataFilter } = require('../../../app/helpers/get-data-filter')
 
 jest.mock('../../../app/data', () => ({
   reportData: {
@@ -8,7 +8,7 @@ jest.mock('../../../app/data', () => ({
   }
 }))
 
-jest.mock('../../../app/get-data-filter', () => ({
+jest.mock('../../../app/helpers/get-data-filter', () => ({
   getDataFilter: jest.fn()
 }))
 

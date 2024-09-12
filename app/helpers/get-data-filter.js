@@ -1,4 +1,4 @@
-const { BPS, FDMR, CS } = require('./constants/schemes')
+const { BPS, CS, FDMR } = require('../constants/schemes')
 
 const getDataFilter = (data, previous) => {
   const defaultFilter = {

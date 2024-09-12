@@ -10,8 +10,8 @@ describe('update payment request data on migrated PR', () => {
     jest.clearAllMocks()
   })
 
-  test('should update daxValue and overallStatus when paymentRequestNumber in the report data is greater', async () => {
-    const paymentRequest = {
+  test('should compute update data and update report data when related paymentRequestNumber is greater', async () => {
+    const relatedPaymentRequest = {
       paymentRequestNumber: 2,
       daxValue: 50,
       daxPaymentRequestNumber: 2,
@@ -19,10 +19,11 @@ describe('update payment request data on migrated PR', () => {
       reportDataId: 1
     }
 
-    const data = {
+    const currentPaymentRequest = {
       paymentRequestNumber: 1,
       daxValue: 150,
-      daxPaymentRequestNumber: 1
+      daxPaymentRequestNumber: 1,
+      value: 100
     }
 
     getOverallStatus.mockReturnValue('Updated Status')
@@ -31,17 +32,23 @@ describe('update payment request data on migrated PR', () => {
       daxValue: 200,
       daxPaymentRequestNumber: 2,
       overallStatus: 'Updated Status',
-      valueStillToProcess: 0
+      valueStillToProcess: 0,
+      deltaAmount: 100
     }
 
-    await updatePaymentRequestData(paymentRequest, data)
+    await updatePaymentRequestData(relatedPaymentRequest, currentPaymentRequest)
 
-    expect(getOverallStatus).toHaveBeenCalledWith(paymentRequest.value, expectedUpdateData.daxValue, paymentRequest.paymentRequestNumber, expectedUpdateData.daxPaymentRequestNumber)
-    expect(db.reportData.update).toHaveBeenCalledWith(expectedUpdateData, { where: { reportDataId: paymentRequest.reportDataId } })
+    expect(getOverallStatus).toHaveBeenCalledWith(
+      relatedPaymentRequest.value,
+      expectedUpdateData.daxValue,
+      relatedPaymentRequest.paymentRequestNumber,
+      expectedUpdateData.daxPaymentRequestNumber
+    )
+    expect(db.reportData.update).toHaveBeenCalledWith(expectedUpdateData, { where: { reportDataId: relatedPaymentRequest.reportDataId } })
   })
 
-  test('should update daxValue, deltaAmount and overallStatus when paymentRequestNumber matches, and invoiceNumber is different', async () => {
-    const paymentRequest = {
+  test('should update daxValue, deltaAmount, and overallStatus when paymentRequestNumber matches and invoiceNumber is different', async () => {
+    const relatedPaymentRequest = {
       paymentRequestNumber: 2,
       daxValue: -50,
       deltaAmount: -50,
@@ -51,7 +58,7 @@ describe('update payment request data on migrated PR', () => {
       reportDataId: 1
     }
 
-    const data = {
+    const currentPaymentRequest = {
       paymentRequestNumber: 2,
       daxValue: -50,
       deltaAmount: -50,
@@ -70,14 +77,20 @@ describe('update payment request data on migrated PR', () => {
       prStillToProcess: 0
     }
 
-    await updatePaymentRequestData(paymentRequest, data)
+    await updatePaymentRequestData(relatedPaymentRequest, currentPaymentRequest)
 
-    expect(getOverallStatus).toHaveBeenCalledWith(paymentRequest.value, expectedUpdateData.daxValue, paymentRequest.paymentRequestNumber, expectedUpdateData.daxPaymentRequestNumber)
-    expect(db.reportData.update).toHaveBeenCalledWith(expectedUpdateData, { where: { reportDataId: paymentRequest.reportDataId } })
+    expect(getOverallStatus).toHaveBeenCalledWith(
+      relatedPaymentRequest.value,
+      expectedUpdateData.daxValue,
+      relatedPaymentRequest.paymentRequestNumber,
+      expectedUpdateData.daxPaymentRequestNumber
+    )
+    expect(db.reportData.update).toHaveBeenCalledWith(expectedUpdateData, { where: { reportDataId: relatedPaymentRequest.reportDataId } })
+    expect(db.reportData.update).toHaveBeenCalledWith(expectedUpdateData, { where: { reportDataId: currentPaymentRequest.reportDataId } })
   })
 
-  test('should update fields when exact match found and fields are null', async () => {
-    const paymentRequest = {
+  test('should update fields when matching fields are null in related payment request', async () => {
+    const relatedPaymentRequest = {
       paymentRequestNumber: 1,
       daxValue: 50,
       deltaAmount: 30,
@@ -88,7 +101,7 @@ describe('update payment request data on migrated PR', () => {
       someField: null
     }
 
-    const data = {
+    const currentPaymentRequest = {
       paymentRequestNumber: 1,
       daxValue: 100,
       deltaAmount: 50,
@@ -101,13 +114,13 @@ describe('update payment request data on migrated PR', () => {
       someField: 'newValue'
     }
 
-    await updatePaymentRequestData(paymentRequest, data)
+    await updatePaymentRequestData(relatedPaymentRequest, currentPaymentRequest)
 
-    expect(db.reportData.update).toHaveBeenCalledWith(expectedUpdateData, { where: { reportDataId: paymentRequest.reportDataId } })
+    expect(db.reportData.update).toHaveBeenCalledWith(expectedUpdateData, { where: { reportDataId: relatedPaymentRequest.reportDataId } })
   })
 
-  test('should not update fields when exact match found, and no fields are null', async () => {
-    const paymentRequest = {
+  test('should not update fields when there are no null fields in related payment request', async () => {
+    const relatedPaymentRequest = {
       paymentRequestNumber: 1,
       daxValue: 50,
       deltaAmount: 30,
@@ -118,7 +131,7 @@ describe('update payment request data on migrated PR', () => {
       someField: 'existingValue'
     }
 
-    const data = {
+    const currentPaymentRequest = {
       paymentRequestNumber: 1,
       daxValue: 100,
       deltaAmount: 50,
@@ -127,13 +140,13 @@ describe('update payment request data on migrated PR', () => {
       someField: 'newValue'
     }
 
-    await updatePaymentRequestData(paymentRequest, data)
+    await updatePaymentRequestData(relatedPaymentRequest, currentPaymentRequest)
 
     expect(db.reportData.update).not.toHaveBeenCalled()
   })
 
-  test('should destroy current report data when exact match found and invoice number is same', async () => {
-    const paymentRequest = {
+  test('should destroy current report data when exact match found and invoice number is the same', async () => {
+    const relatedPaymentRequest = {
       paymentRequestNumber: 1,
       daxValue: 50,
       deltaAmount: 30,
@@ -144,7 +157,7 @@ describe('update payment request data on migrated PR', () => {
       someField: 'existingValue'
     }
 
-    const data = {
+    const currentPaymentRequest = {
       paymentRequestNumber: 1,
       daxValue: 50,
       deltaAmount: 30,
@@ -153,8 +166,8 @@ describe('update payment request data on migrated PR', () => {
       reportDataId: 2
     }
 
-    await updatePaymentRequestData(paymentRequest, data)
+    await updatePaymentRequestData(relatedPaymentRequest, currentPaymentRequest)
 
-    expect(db.reportData.destroy).toHaveBeenCalledWith({ where: { reportDataId: data.reportDataId } })
+    expect(db.reportData.destroy).toHaveBeenCalledWith({ where: { reportDataId: currentPaymentRequest.reportDataId } })
   })
 })

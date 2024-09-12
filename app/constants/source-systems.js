@@ -1,14 +1,16 @@
 module.exports = {
-  sfi: 'SITI_SFI',
-  sfip: 'SITISFI',
-  lses: 'SitiLUMP',
-  ahwr: 'AHWR',
-  cs: 'SITICS',
-  bps: 'SITIAgri',
-  fdmr: 'SITIAgri',
-  manual: 'M_TEMPLATE',
-  genesis: 'Genesis',
-  glos: 'GLOS',
-  imps: 'IMPS',
-  sfia: 'SITI_SFIA'
+  SFI: 'SFI',
+  SFI_PILOT: 'SFIP',
+  LUMP_SUMS: 'LSES',
+  VET_VISITS: 'AHWR',
+  CS: 'SITI AGRI CS SYS',
+  BPS: 'SITI AGRI SYS',
+  FDMR: 'FDMR',
+  MANUAL: 'Injection',
+  ES: 'Genesis',
+  FC: 'GLOS',
+  IMPS: 'IMPS',
+  SFI23: 'SFIA',
+  DELINKED: 'DP',
+  SFI_EXPANDED: 'ESFIO'
 }

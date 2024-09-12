@@ -1,5 +1,5 @@
 const { BPS, FDMR, CS } = require('../../../app/constants/schemes')
-const { getDataFilter } = require('../../../app/get-data-filter')
+const { getDataFilter } = require('../../../app/helpers/get-data-filter')
 
 describe('getDataFilter', () => {
   test('should return correct filter for BPS scheme', () => {

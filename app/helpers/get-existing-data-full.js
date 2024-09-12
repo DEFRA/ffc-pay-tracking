@@ -1,4 +1,4 @@
-const db = require('./data')
+const db = require('../data')
 const { getDataFilter } = require('./get-data-filter')
 
 const getExistingDataFull = async (data, transaction) => {

@@ -19,7 +19,7 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
   const daxPaymentRequestNumber = calculateDAXPRN(paymentRequest)
   const deltaAmount = calculateDeltaAmount(paymentRequest)
   const daxValue = calculateDAXValue(deltaAmount, paymentRequest)
-  const routedToRequestEditor = primaryPaymentRequest.debtType ? 'Y' : 'N'
+  const routedToRequestEditor = (primaryPaymentRequest.debtType || !paymentRequest.completedPaymentRequests?.[0]) ? 'Y' : 'N'
   const data = {
     correlationId: paymentRequest.correlationId,
     frn: primaryPaymentRequest.frn,

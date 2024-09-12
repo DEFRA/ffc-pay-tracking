@@ -1,10 +1,10 @@
 const { getValue } = require('../../../../app/data-generation/get-value')
 const { PAYMENT_EXTRACTED, PAYMENT_ENRICHED } = require('../../../../app/constants/events')
-const { convertToPence } = require('../../../../app/currency-convert')
+const { convertToPence } = require('../../../../app/helpers/currency-convert')
 const db = require('../../../../app/data')
-const { getDataFilter } = require('../../../../app/get-data-filter')
+const { getDataFilter } = require('../../../../app/helpers/get-data-filter')
 
-jest.mock('../../../../app/currency-convert', () => ({
+jest.mock('../../../../app/helpers/currency-convert', () => ({
   convertToPence: jest.fn()
 }))
 
@@ -14,7 +14,7 @@ jest.mock('../../../../app/data', () => ({
   }
 }))
 
-jest.mock('../../../../app/get-data-filter', () => ({
+jest.mock('../../../../app/helpers/get-data-filter', () => ({
   getDataFilter: jest.fn()
 }))
 

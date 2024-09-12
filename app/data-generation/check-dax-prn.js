@@ -1,8 +1,8 @@
 const db = require('../data')
 const { PAYMENT_ACKNOWLEDGED_STATUS, PAYMENT_SETTLED_STATUS } = require('../constants/statuses')
-const { getDataFilter } = require('../get-data-filter')
 const { getStatus } = require('./get-status')
 const { Op } = require('sequelize')
+const { getDataFilter } = require('../helpers/get-data-filter')
 
 const checkDAXPRN = async (event, transaction) => {
   const status = getStatus(event)

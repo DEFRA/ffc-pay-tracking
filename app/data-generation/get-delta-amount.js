@@ -1,7 +1,7 @@
 const db = require('../data')
 const { getValue } = require('./get-value')
-const { getDataFilter } = require('../get-data-filter')
 const { PAYMENT_PROCESSED, PAYMENT_SUBMITTED, PAYMENT_ACKNOWLEDGED, PAYMENT_SETTLED } = require('../constants/events')
+const { getDataFilter } = require('../helpers/get-data-filter')
 
 const getDeltaAmount = async (event, transaction) => {
   if ([PAYMENT_PROCESSED, PAYMENT_SUBMITTED, PAYMENT_ACKNOWLEDGED, PAYMENT_SETTLED].includes(event.type)) {

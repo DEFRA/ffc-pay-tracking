@@ -1,4 +1,4 @@
-const { PAYMENT_SUBMITTED, PAYMENT_ACKNOWLEDGED, PAYMENT_SETTLED } = require('./constants/events')
+const { PAYMENT_SUBMITTED, PAYMENT_ACKNOWLEDGED, PAYMENT_SETTLED } = require('../constants/events')
 const { getDataFilter } = require('./get-data-filter')
 
 const getWhereFilter = (event) => {

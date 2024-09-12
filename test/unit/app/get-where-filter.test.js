@@ -1,8 +1,8 @@
-const { getWhereFilter } = require('../../../app/get-where-filter')
+const { getWhereFilter } = require('../../../app/helpers/get-where-filter')
 const { PAYMENT_SUBMITTED, PAYMENT_ACKNOWLEDGED, PAYMENT_SETTLED } = require('../../../app/constants/events')
-const { getDataFilter } = require('../../../app/get-data-filter')
+const { getDataFilter } = require('../../../app/helpers/get-data-filter')
 
-jest.mock('../../../app/get-data-filter', () => ({
+jest.mock('../../../app/helpers/get-data-filter', () => ({
   getDataFilter: jest.fn()
 }))
 

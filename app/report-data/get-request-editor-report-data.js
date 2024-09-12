@@ -1,16 +1,11 @@
 const db = require('../data')
 
-const getRequestEditorReportData = async (startDate, endDate) => {
+const getRequestEditorReportData = async () => {
   const whereClause = {
     receivedInRequestEditor: {
       [db.Sequelize.Op.ne]: null
-    }
-  }
-
-  if (startDate && endDate) {
-    whereClause.lastUpdated = {
-      [db.Sequelize.Op.between]: [startDate, endDate]
-    }
+    },
+    releasedFromRequestEditor: null
   }
 
   return db.reportData.findAll({
