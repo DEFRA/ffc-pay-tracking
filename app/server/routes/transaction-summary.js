@@ -6,8 +6,8 @@ module.exports = {
   path: '/transaction-summary',
   options: {
     handler: async (request, h) => {
-      const { schemeId, year, revenueOrCapital, frn } = request.query
-      const reportData = await getTransactionSummaryData(schemeId, year, revenueOrCapital, frn)
+      const { schemeId, year, prn, revenueOrCapital, frn } = request.query
+      const reportData = await getTransactionSummaryData(schemeId, year, prn, revenueOrCapital, frn)
       return h.response({ reportData })
     }
   }

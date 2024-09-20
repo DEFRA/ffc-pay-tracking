@@ -8,18 +8,20 @@ describe('GET /transaction-summary', () => {
     jest.clearAllMocks()
   })
 
-  test('should return transaction summary data when schemeId, year, revenueOrCapital, and frn are provided', async () => {
+  test('should return transaction summary data when schemeId, year, prn, revenueOrCapital, and frn are provided', async () => {
     const mockData = [{ id: 1, value: 'test data' }]
     getTransactionSummaryData.mockResolvedValue(mockData)
 
     const schemeId = 1
     const year = 2023
+    const prn = 1
     const revenueOrCapital = 'revenue'
     const frn = 123456
     const mockRequest = {
       query: {
         schemeId,
         year,
+        prn,
         revenueOrCapital,
         frn
       }
@@ -30,7 +32,7 @@ describe('GET /transaction-summary', () => {
 
     await options.handler(mockRequest, mockH)
 
-    expect(getTransactionSummaryData).toHaveBeenCalledWith(schemeId, year, revenueOrCapital, frn)
+    expect(getTransactionSummaryData).toHaveBeenCalledWith(schemeId, year, prn, revenueOrCapital, frn)
     expect(getTransactionSummaryData).toHaveBeenCalledTimes(1)
     expect(mockH.response).toHaveBeenCalledWith({ reportData: mockData })
   })
@@ -41,11 +43,13 @@ describe('GET /transaction-summary', () => {
 
     const schemeId = 1
     const year = 2023
+    const prn = 1
     const revenueOrCapital = 'capital'
     const mockRequest = {
       query: {
         schemeId,
         year,
+        prn,
         revenueOrCapital
       }
     }
@@ -55,7 +59,7 @@ describe('GET /transaction-summary', () => {
 
     await options.handler(mockRequest, mockH)
 
-    expect(getTransactionSummaryData).toHaveBeenCalledWith(schemeId, year, revenueOrCapital, undefined)
+    expect(getTransactionSummaryData).toHaveBeenCalledWith(schemeId, year, prn, revenueOrCapital, undefined)
     expect(getTransactionSummaryData).toHaveBeenCalledTimes(1)
     expect(mockH.response).toHaveBeenCalledWith({ reportData: mockData })
   })
@@ -76,7 +80,7 @@ describe('GET /transaction-summary', () => {
 
     await options.handler(mockRequest, mockH)
 
-    expect(getTransactionSummaryData).toHaveBeenCalledWith(schemeId, undefined, undefined, undefined)
+    expect(getTransactionSummaryData).toHaveBeenCalledWith(schemeId, undefined, undefined, undefined, undefined)
     expect(getTransactionSummaryData).toHaveBeenCalledTimes(1)
     expect(mockH.response).toHaveBeenCalledWith({ reportData: mockData })
   })
