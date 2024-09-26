@@ -11,6 +11,7 @@ const { calculateDAXValue } = require('./calculate-dax-value')
 const { getOverallStatus } = require('../data-generation')
 const { checkCrossBorderType } = require('./check-cross-border-type')
 const { updateReportData } = require('./update-report-data')
+const { FDMR } = require('../constants/schemes')
 
 const processLegacyPaymentRequest = async (paymentRequest) => {
   const primaryPaymentRequest = paymentRequest.completedPaymentRequests?.[0] ?? paymentRequest
@@ -57,7 +58,8 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
     overallStatus: getOverallStatus(paymentRequest.value, daxValue, primaryPaymentRequest.paymentRequestNumber, daxPaymentRequestNumber),
     crossBorderFlag: checkCrossBorderType(paymentRequest),
     valueStillToProcess: paymentRequest.value - daxValue,
-    prStillToProcess: primaryPaymentRequest.paymentRequestNumber - daxPaymentRequestNumber
+    prStillToProcess: primaryPaymentRequest.paymentRequestNumber - daxPaymentRequestNumber,
+    fdmrSchemeCode: paymentRequest.schemeId === FDMR ? paymentRequest.invoiceLines[0].schemeCode : null
   }
   await updateReportData(data, paymentRequest.schemeId)
 }

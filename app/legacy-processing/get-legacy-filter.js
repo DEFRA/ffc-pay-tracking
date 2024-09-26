@@ -8,8 +8,14 @@ const getLegacyFilter = (data, schemeId) => {
     }
   }
   switch (schemeId) {
-    case BPS:
     case FDMR:
+      return {
+        ...defaultFilter,
+        sourceSystem: data.sourceSystem,
+        frn: data.frn,
+        fdmrSchemeCode: data.fdmrSchemeCode
+      }
+    case BPS:
       return {
         ...defaultFilter,
         sourceSystem: data.sourceSystem,

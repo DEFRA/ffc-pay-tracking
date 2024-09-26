@@ -12,7 +12,7 @@ const { getOverallStatus } = require('../../../../app/data-generation')
 const { checkCrossBorderType } = require('../../../../app/legacy-processing/check-cross-border-type')
 const { updateReportData } = require('../../../../app/legacy-processing/update-report-data')
 const { REVENUE } = require('../../../../app/constants/cs-types')
-const { SFI } = require('../../../../app/constants/schemes')
+const { SFI, FDMR } = require('../../../../app/constants/schemes')
 
 jest.mock('../../../../app/legacy-processing/calculate-approximate-re-received-datetime')
 jest.mock('../../../../app/legacy-processing/calculate-delta-amount')
@@ -105,29 +105,39 @@ describe('process legacy payment requests', () => {
       overallStatus: 'overallStatus',
       crossBorderFlag: 'N',
       valueStillToProcess: 800,
-      prStillToProcess: 1
+      prStillToProcess: 1,
+      fdmrSchemeCode: null
     }
 
     await processLegacyPaymentRequest(paymentRequest)
     expect(updateReportData).toHaveBeenCalledWith(expectedData, SFI)
   })
 
-  test('should call updateReportData with correct data for requests without completedPaymentRequests', async () => {
+  test('should call updateReportData with correct data for FDMR scheme including fdmrSchemeCode', async () => {
     const paymentRequest = {
       correlationId: 'correlationId',
-      frn: 1234567890,
-      contractNumber: 'contractNumber',
-      agreementNumber: 'agreementNumber',
-      marketingYear: 2023,
-      invoiceNumber: 'invoiceNumber',
-      currency: 'GBP',
-      paymentRequestNumber: 3,
-      batch: 'batch.csv',
-      sourceSystem: 'sourceSystem',
-      debtType: 'debtType',
-      value: 1000,
-      schemeId: SFI,
-      completedPaymentRequests: []
+      schemeId: FDMR,
+      completedPaymentRequests: [
+        {
+          frn: 1234567890,
+          contractNumber: 'contractNumber',
+          agreementNumber: 'agreementNumber',
+          marketingYear: 2023,
+          invoiceNumber: 'invoiceNumber',
+          currency: 'GBP',
+          paymentRequestNumber: 3,
+          batch: 'batch.csv',
+          sourceSystem: 'sourceSystem',
+          debtType: 'debtType',
+          acknowledged: true,
+          settledValue: 1000,
+          submitted: '2023-01-01T00:00:00Z'
+        }
+      ],
+      invoiceLines: [{
+        schemeCode: 'SOS270'
+      }],
+      value: 1000
     }
 
     calculateLedgerValue.mockReturnValueOnce(500).mockReturnValueOnce(500)
@@ -147,6 +157,7 @@ describe('process legacy payment requests', () => {
       frn: 1234567890,
       claimNumber: 'contractNumber',
       agreementNumber: 'agreementNumber',
+      fdmrSchemeCode: 'SOS270',
       marketingYear: 2023,
       originalInvoiceNumber: null,
       invoiceNumber: 'invoiceNumber',
@@ -166,14 +177,14 @@ describe('process legacy payment requests', () => {
       arValue: 500,
       debtType: 'debtType',
       daxFileName: null,
-      daxImported: 'N',
-      settledValue: undefined,
+      daxImported: 'Y',
+      settledValue: 1000,
       phError: null,
       daxError: null,
       receivedInRequestEditor: '2023-01-01T00:00:00Z',
       enriched: 'Y',
       ledgerSplit: 'Y',
-      releasedFromRequestEditor: undefined,
+      releasedFromRequestEditor: '2023-01-01T00:00:00Z',
       daxPaymentRequestNumber: 2,
       daxValue: 200,
       overallStatus: 'overallStatus',
@@ -183,6 +194,6 @@ describe('process legacy payment requests', () => {
     }
 
     await processLegacyPaymentRequest(paymentRequest)
-    expect(updateReportData).toHaveBeenCalledWith(expectedData, SFI)
+    expect(updateReportData).toHaveBeenCalledWith(expectedData, FDMR)
   })
 })

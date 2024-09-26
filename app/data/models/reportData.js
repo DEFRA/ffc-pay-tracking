@@ -37,7 +37,8 @@ module.exports = (sequelize, DataTypes) => {
     overallStatus: DataTypes.STRING,
     crossBorderFlag: DataTypes.STRING,
     valueStillToProcess: DataTypes.INTEGER,
-    prStillToProcess: DataTypes.INTEGER
+    prStillToProcess: DataTypes.INTEGER,
+    fdmrSchemeCode: DataTypes.STRING
   },
   {
     tableName: 'reportData',
