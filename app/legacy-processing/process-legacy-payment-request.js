@@ -21,6 +21,12 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
   const deltaAmount = calculateDeltaAmount(paymentRequest)
   const daxValue = calculateDAXValue(deltaAmount, paymentRequest)
   const routedToRequestEditor = ((primaryPaymentRequest.debtType || !paymentRequest.completedPaymentRequests?.[0]) && primaryPaymentRequest.paymentRequestNumber > 1) ? 'Y' : 'N'
+  let enriched = null
+  if (primaryPaymentRequest.debtType) {
+    enriched = 'Y'
+  } else if (routedToRequestEditor === 'Y') {
+    enriched = 'N'
+  }
   const data = {
     correlationId: paymentRequest.correlationId,
     frn: primaryPaymentRequest.frn,
@@ -50,7 +56,7 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
     phError: null,
     daxError: null,
     receivedInRequestEditor: calculateApproximateREReceivedDateTime(primaryPaymentRequest, paymentRequest),
-    enriched: primaryPaymentRequest.debtType ? 'Y' : (routedToRequestEditor === 'Y' ? 'N' : null),
+    enriched,
     ledgerSplit: apValue && arValue ? 'Y' : 'N',
     releasedFromRequestEditor: routedToRequestEditor === 'Y' ? paymentRequest.completedPaymentRequests?.[0]?.submitted : null,
     daxPaymentRequestNumber,
