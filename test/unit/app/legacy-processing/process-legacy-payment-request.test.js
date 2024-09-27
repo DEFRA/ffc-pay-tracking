@@ -196,4 +196,85 @@ describe('process legacy payment requests', () => {
     await processLegacyPaymentRequest(paymentRequest)
     expect(updateReportData).toHaveBeenCalledWith(expectedData, FDMR)
   })
+
+  test('should set ledgerSplit to "Y" when apValue and arValue are non-zero', async () => {
+    const paymentRequest = {
+      correlationId: 'correlationId',
+      schemeId: SFI,
+      completedPaymentRequests: [
+        {
+          frn: 1234567890,
+          contractNumber: 'contractNumber',
+          agreementNumber: 'agreementNumber',
+          marketingYear: 2023,
+          invoiceNumber: 'invoiceNumber',
+          currency: 'GBP',
+          paymentRequestNumber: 3,
+          batch: 'batch.csv',
+          sourceSystem: 'sourceSystem',
+          debtType: 'debtType',
+          acknowledged: true,
+          settledValue: 1000,
+          submitted: '2023-01-01T00:00:00Z'
+        }
+      ],
+      value: 1000
+    }
+
+    calculateLedgerValue.mockReturnValueOnce(300).mockReturnValueOnce(400)
+    calculateDAXValue.mockReturnValue(200)
+    calculateDAXPRN.mockReturnValue(2)
+    calculateDeltaAmount.mockReturnValue(300)
+    getStatus.mockReturnValue('status')
+    getLastUpdatedDate.mockReturnValue('2023-01-01T00:00:00Z')
+    checkIfRevenueOrCapital.mockReturnValue(REVENUE)
+    getYear.mockReturnValue(2023)
+    calculateApproximateREReceivedDateTime.mockReturnValue('2023-01-01T00:00:00Z')
+    getOverallStatus.mockReturnValue('overallStatus')
+    checkCrossBorderType.mockReturnValue('N')
+
+    const expectedData = {
+      correlationId: 'correlationId',
+      frn: 1234567890,
+      claimNumber: 'contractNumber',
+      agreementNumber: 'agreementNumber',
+      marketingYear: 2023,
+      originalInvoiceNumber: null,
+      invoiceNumber: 'invoiceNumber',
+      currency: 'GBP',
+      paymentRequestNumber: 3,
+      value: 1000,
+      batch: 'batch.csv',
+      sourceSystem: 'sourceSystem',
+      batchExportDate: null,
+      status: 'status',
+      lastUpdated: '2023-01-01T00:00:00Z',
+      revenueOrCapital: REVENUE,
+      year: 2023,
+      routedToRequestEditor: 'Y',
+      deltaAmount: 300,
+      apValue: 300,
+      arValue: 400,
+      debtType: 'debtType',
+      daxFileName: null,
+      daxImported: 'Y',
+      settledValue: 1000,
+      phError: null,
+      daxError: null,
+      receivedInRequestEditor: '2023-01-01T00:00:00Z',
+      enriched: 'Y',
+      ledgerSplit: 'Y', // apValue and arValue are non-zero, so ledgerSplit is 'Y'
+      releasedFromRequestEditor: '2023-01-01T00:00:00Z',
+      daxPaymentRequestNumber: 2,
+      daxValue: 200,
+      overallStatus: 'overallStatus',
+      crossBorderFlag: 'N',
+      valueStillToProcess: 800,
+      prStillToProcess: 1,
+      fdmrSchemeCode: null
+    }
+
+    await processLegacyPaymentRequest(paymentRequest)
+    expect(updateReportData).toHaveBeenCalledWith(expectedData, SFI)
+  })
 })
