@@ -27,7 +27,6 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
   } else if (routedToRequestEditor === 'Y') {
     enriched = 'N'
   }
-  console.log(routedToRequestEditor)
   const data = {
     correlationId: paymentRequest.correlationId,
     frn: primaryPaymentRequest.frn,
