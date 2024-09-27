@@ -27,6 +27,7 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
   } else if (routedToRequestEditor === 'Y') {
     enriched = 'N'
   }
+  console.log(routedToRequestEditor)
   const data = {
     correlationId: paymentRequest.correlationId,
     frn: primaryPaymentRequest.frn,
@@ -49,7 +50,7 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
     deltaAmount,
     apValue,
     arValue,
-    debtType: primaryPaymentRequest.debtType,
+    debtType: primaryPaymentRequest.debtType ?? null,
     daxFileName: null,
     daxImported: paymentRequest.completedPaymentRequests?.[0]?.acknowledged ? 'Y' : 'N',
     settledValue: primaryPaymentRequest.settledValue,
