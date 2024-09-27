@@ -89,6 +89,51 @@ describe('update payment request data on migrated PR', () => {
     expect(db.reportData.update).toHaveBeenCalledWith(expectedUpdateData, { where: { reportDataId: currentPaymentRequest.reportDataId } })
   })
 
+  test('should set ledgerSplit to "Y" when paymentRequestNumber matches and ledgers are "AP" and "AR"', async () => {
+    const relatedPaymentRequest = {
+      paymentRequestNumber: 2,
+      daxValue: -50,
+      deltaAmount: -50,
+      daxPaymentRequestNumber: 1,
+      invoiceNumber: 'INV002',
+      value: 200,
+      reportDataId: 1,
+      ledger: 'AP'
+    }
+
+    const currentPaymentRequest = {
+      paymentRequestNumber: 2,
+      daxValue: -50,
+      deltaAmount: -50,
+      daxPaymentRequestNumber: 2,
+      invoiceNumber: 'INV001',
+      ledger: 'AR'
+    }
+
+    getOverallStatus.mockReturnValue('Updated Status')
+
+    const expectedUpdateData = {
+      daxValue: -100,
+      daxPaymentRequestNumber: 2,
+      deltaAmount: -100,
+      overallStatus: 'Updated Status',
+      valueStillToProcess: 300,
+      prStillToProcess: 0,
+      ledgerSplit: 'Y'
+    }
+
+    await updatePaymentRequestData(relatedPaymentRequest, currentPaymentRequest)
+
+    expect(getOverallStatus).toHaveBeenCalledWith(
+      relatedPaymentRequest.value,
+      expectedUpdateData.daxValue,
+      relatedPaymentRequest.paymentRequestNumber,
+      expectedUpdateData.daxPaymentRequestNumber
+    )
+    expect(db.reportData.update).toHaveBeenCalledWith(expectedUpdateData, { where: { reportDataId: relatedPaymentRequest.reportDataId } })
+    expect(db.reportData.update).toHaveBeenCalledWith(expectedUpdateData, { where: { reportDataId: currentPaymentRequest.reportDataId } })
+  })
+
   test('should update fields when matching fields are null in related payment request', async () => {
     const relatedPaymentRequest = {
       paymentRequestNumber: 1,
