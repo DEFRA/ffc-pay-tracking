@@ -25,7 +25,7 @@ describe('get legacy data filter', () => {
   test('should return the correct filter for FDMR scheme', () => {
     const fdmrData = {
       ...baseData,
-      fdmrSchemeCode: 'schemeCode123' // Adding the required field for FDMR
+      fdmrSchemeCode: 'SOS270'
     }
     const result = getLegacyFilter(fdmrData, FDMR)
     expect(result).toEqual({
