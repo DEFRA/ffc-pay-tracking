@@ -11,6 +11,7 @@ const { calculateDAXValue } = require('./calculate-dax-value')
 const { getOverallStatus } = require('../data-generation')
 const { checkCrossBorderType } = require('./check-cross-border-type')
 const { updateReportData } = require('./update-report-data')
+const { FDMR } = require('../constants/schemes')
 
 const processLegacyPaymentRequest = async (paymentRequest) => {
   const primaryPaymentRequest = paymentRequest.completedPaymentRequests?.[0] ?? paymentRequest
@@ -20,6 +21,12 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
   const deltaAmount = calculateDeltaAmount(paymentRequest)
   const daxValue = calculateDAXValue(deltaAmount, paymentRequest)
   const routedToRequestEditor = ((primaryPaymentRequest.debtType || !paymentRequest.completedPaymentRequests?.[0]) && primaryPaymentRequest.paymentRequestNumber > 1) ? 'Y' : 'N'
+  let enriched = null
+  if (primaryPaymentRequest.debtType) {
+    enriched = 'Y'
+  } else if (routedToRequestEditor === 'Y') {
+    enriched = 'N'
+  }
   const data = {
     correlationId: paymentRequest.correlationId,
     frn: primaryPaymentRequest.frn,
@@ -42,14 +49,14 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
     deltaAmount,
     apValue,
     arValue,
-    debtType: primaryPaymentRequest.debtType,
+    debtType: primaryPaymentRequest.debtType ?? null,
     daxFileName: null,
     daxImported: paymentRequest.completedPaymentRequests?.[0]?.acknowledged ? 'Y' : 'N',
     settledValue: primaryPaymentRequest.settledValue,
     phError: null,
     daxError: null,
     receivedInRequestEditor: calculateApproximateREReceivedDateTime(primaryPaymentRequest, paymentRequest),
-    enriched: primaryPaymentRequest.debtType ? 'Y' : (routedToRequestEditor === 'Y' ? 'N' : null),
+    enriched,
     ledgerSplit: apValue && arValue ? 'Y' : 'N',
     releasedFromRequestEditor: routedToRequestEditor === 'Y' ? paymentRequest.completedPaymentRequests?.[0]?.submitted : null,
     daxPaymentRequestNumber,
@@ -57,7 +64,8 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
     overallStatus: getOverallStatus(paymentRequest.value, daxValue, primaryPaymentRequest.paymentRequestNumber, daxPaymentRequestNumber),
     crossBorderFlag: checkCrossBorderType(paymentRequest),
     valueStillToProcess: paymentRequest.value - daxValue,
-    prStillToProcess: primaryPaymentRequest.paymentRequestNumber - daxPaymentRequestNumber
+    prStillToProcess: primaryPaymentRequest.paymentRequestNumber - daxPaymentRequestNumber,
+    fdmrSchemeCode: paymentRequest.schemeId === FDMR ? paymentRequest.invoiceLines[0].schemeCode : null
   }
   await updateReportData(data, paymentRequest.schemeId)
 }

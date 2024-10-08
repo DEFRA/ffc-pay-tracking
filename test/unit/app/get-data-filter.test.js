@@ -43,14 +43,16 @@ describe('getDataFilter', () => {
       schemeId: FDMR,
       sourceSystem: 'system1',
       frn: 'frn1',
-      paymentRequestNumber: 2
+      paymentRequestNumber: 2,
+      invoiceLines: [{ schemeCode: 'SOS270' }]
     }
     const result = getDataFilter(data)
 
     expect(result).toEqual({
       paymentRequestNumber: 2,
       sourceSystem: 'system1',
-      frn: 'frn1'
+      frn: 'frn1',
+      fdmrSchemeCode: 'SOS270'
     })
   })
 
@@ -59,14 +61,16 @@ describe('getDataFilter', () => {
       schemeId: FDMR,
       sourceSystem: 'system1',
       frn: 'frn1',
-      paymentRequestNumber: 2
+      paymentRequestNumber: 2,
+      invoiceLines: [{ schemeCode: 'SOS270' }]
     }
     const result = getDataFilter(data, true)
 
     expect(result).toEqual({
       paymentRequestNumber: 1,
       sourceSystem: 'system1',
-      frn: 'frn1'
+      frn: 'frn1',
+      fdmrSchemeCode: 'SOS270'
     })
   })
 
