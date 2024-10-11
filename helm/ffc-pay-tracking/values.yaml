@@ -21,10 +21,8 @@ containerSecret:
 deployment: {}
 
 container:
-  requestMemory: 400Mi
-  requestCpu: 400m
-  limitMemory: 800Mi
-  limitCpu: 800m
+  requestMemory: 800Mi
+  requestCpu: 800m
   port: 3002
   messageQueueHost: namespace.servicebus.windows.net
   eventsTopicAddress: ffc-pay-events
