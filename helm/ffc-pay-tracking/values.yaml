@@ -23,6 +23,7 @@ deployment: {}
 container:
   requestMemory: 800Mi
   requestCpu: 800m
+  limitMemory: 1000Mi
   port: 3002
   messageQueueHost: namespace.servicebus.windows.net
   eventsTopicAddress: ffc-pay-events
