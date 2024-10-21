@@ -16,10 +16,7 @@ jest.mock('../../../../app/data', () => ({
 describe('getRequestEditorReportData', () => {
   test('should call findAll with correct where clause', async () => {
     const expectedWhereClause = {
-      receivedInRequestEditor: {
-        [db.Sequelize.Op.ne]: null
-      },
-      releasedFromRequestEditor: null
+      routedToRequestEditor: 'Y'
     }
 
     await getRequestEditorReportData()

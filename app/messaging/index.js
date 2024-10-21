@@ -7,6 +7,7 @@ const start = async () => {
   const processingAction = message => processMessage(message, eventsReceiver)
   eventsReceiver = new MessageReceiver(messageConfig.eventsSubscription, processingAction)
   await eventsReceiver.subscribe()
+  console.log('Ready to receive messages')
 }
 
 const stop = async () => {

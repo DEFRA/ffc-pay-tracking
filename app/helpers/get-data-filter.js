@@ -7,12 +7,18 @@ const getDataFilter = (data, previous) => {
 
   switch (data.schemeId) {
     case BPS:
-    case FDMR:
       return {
         ...defaultFilter,
         sourceSystem: data.sourceSystem,
         frn: data.frn,
         marketingYear: data.marketingYear
+      }
+    case FDMR:
+      return {
+        ...defaultFilter,
+        sourceSystem: data.sourceSystem,
+        frn: data.frn,
+        fdmrSchemeCode: data.invoiceLines[0].schemeCode
       }
     case CS:
       return {

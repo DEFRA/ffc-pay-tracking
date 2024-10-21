@@ -1,3 +1,4 @@
+require('log-timestamp')
 const server = require('./server/server')
 const messaging = require('./messaging')
 const legacyProcessing = require('./legacy-processing')

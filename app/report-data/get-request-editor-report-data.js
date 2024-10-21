@@ -2,10 +2,7 @@ const db = require('../data')
 
 const getRequestEditorReportData = async () => {
   const whereClause = {
-    receivedInRequestEditor: {
-      [db.Sequelize.Op.ne]: null
-    },
-    releasedFromRequestEditor: null
+    routedToRequestEditor: 'Y'
   }
 
   return db.reportData.findAll({

@@ -23,12 +23,16 @@ describe('get legacy data filter', () => {
   })
 
   test('should return the correct filter for FDMR scheme', () => {
-    const result = getLegacyFilter(baseData, FDMR)
+    const fdmrData = {
+      ...baseData,
+      fdmrSchemeCode: 'SOS270'
+    }
+    const result = getLegacyFilter(fdmrData, FDMR)
     expect(result).toEqual({
-      reportDataId: { [db.Sequelize.Op.ne]: baseData.reportDataId },
-      sourceSystem: baseData.sourceSystem,
-      frn: baseData.frn,
-      marketingYear: baseData.marketingYear
+      reportDataId: { [db.Sequelize.Op.ne]: fdmrData.reportDataId },
+      sourceSystem: fdmrData.sourceSystem,
+      frn: fdmrData.frn,
+      fdmrSchemeCode: fdmrData.fdmrSchemeCode
     })
   })
 

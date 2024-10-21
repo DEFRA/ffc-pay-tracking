@@ -27,6 +27,9 @@ const handleSamePaymentRequestNumber = async (relatedPaymentRequest, currentPaym
       relatedPaymentRequest.value,
       relatedPaymentRequest.paymentRequestNumber
     )
+    if (relatedPaymentRequest.ledger !== currentPaymentRequest.ledger) {
+      updateData.ledgerSplit = 'Y'
+    }
     updateData.deltaAmount = relatedPaymentRequest.deltaAmount + currentPaymentRequest.deltaAmount
     updateData.prStillToProcess = relatedPaymentRequest.paymentRequestNumber - updateData.daxPaymentRequestNumber
     await updateReportData(updateData, relatedPaymentRequest.reportDataId)
