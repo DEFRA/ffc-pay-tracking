@@ -6,17 +6,19 @@ const updateReportData = async (updateData, reportDataId) => {
 }
 
 const computeUpdateData = (relatedPaymentRequest, currentPaymentRequest, value, paymentRequestNumber) => {
-  const updateData = {}
-  updateData.daxValue = relatedPaymentRequest.daxValue + currentPaymentRequest.daxValue
-  updateData.daxPaymentRequestNumber = Math.max(relatedPaymentRequest.daxPaymentRequestNumber, currentPaymentRequest.daxPaymentRequestNumber)
-  updateData.overallStatus = getOverallStatus(
-    value,
-    updateData.daxValue,
-    paymentRequestNumber,
-    updateData.daxPaymentRequestNumber
-  )
-  updateData.valueStillToProcess = value - updateData.daxValue
-  return updateData
+  const daxValue = relatedPaymentRequest.daxValue + currentPaymentRequest.daxValue
+  const daxPaymentRequestNumber = Math.max(relatedPaymentRequest.daxPaymentRequestNumber, currentPaymentRequest.daxPaymentRequestNumber)
+  return {
+    daxValue,
+    daxPaymentRequestNumber,
+    overallStatus: getOverallStatus(
+      value,
+      daxValue,
+      paymentRequestNumber,
+      daxPaymentRequestNumber
+    ),
+    valueStillToProcess: value - daxValue
+  }
 }
 
 const handleSamePaymentRequestNumber = async (relatedPaymentRequest, currentPaymentRequest) => {
