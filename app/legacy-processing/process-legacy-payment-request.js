@@ -13,6 +13,15 @@ const { checkCrossBorderType } = require('./check-cross-border-type')
 const { updateReportData } = require('./update-report-data')
 const { FDMR } = require('../constants/schemes')
 
+const formatDebtType = (type) => {
+  if (type === 'irr') {
+    return 'Irregular'
+  } else if (type === 'adm') {
+    return 'Administrative'
+  }
+  return null
+}
+
 const processLegacyPaymentRequest = async (paymentRequest) => {
   const primaryPaymentRequest = paymentRequest.completedPaymentRequests?.[0] ?? paymentRequest
   const apValue = calculateLedgerValue(paymentRequest, AP)
@@ -49,7 +58,7 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
     deltaAmount,
     apValue,
     arValue,
-    debtType: primaryPaymentRequest.debtType ?? null,
+    debtType: primaryPaymentRequest.debtType ? formatDebtType(primaryPaymentRequest.debtType) : null,
     daxFileName: null,
     daxImported: paymentRequest.completedPaymentRequests?.[0]?.acknowledged ? 'Y' : 'N',
     settledValue: primaryPaymentRequest.settledValue,
