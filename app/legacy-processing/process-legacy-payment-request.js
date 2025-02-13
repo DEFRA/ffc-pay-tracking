@@ -63,7 +63,7 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
     deltaAmount,
     apValue,
     arValue,
-    debtType: primaryPaymentRequest.debtType ? formatDebtType(primaryPaymentRequest.debtType) : null,
+    debtType: formatDebtType(primaryPaymentRequest.debtType),
     daxFileName: null,
     daxImported: paymentRequest.completedPaymentRequests?.[0]?.acknowledged ? 'Y' : 'N',
     settledValue: primaryPaymentRequest.settledValue,
