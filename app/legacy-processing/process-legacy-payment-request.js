@@ -16,8 +16,19 @@ const { FDMR } = require('../constants/schemes')
 const formatDebtType = (type) => {
   if (type === 'irr') {
     return 'Irregular'
-  } else if (type === 'adm') {
+  }
+  if (type === 'adm') {
     return 'Administrative'
+  }
+  return null
+}
+
+const formatEnriched = (debtType, routedToRequestEditor) => {
+  if (debtType) {
+    return 'Y'
+  }
+  if (routedToRequestEditor === 'Y') {
+    return 'N'
   }
   return null
 }
@@ -30,12 +41,6 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
   const deltaAmount = calculateDeltaAmount(paymentRequest)
   const daxValue = calculateDAXValue(deltaAmount, paymentRequest)
   const routedToRequestEditor = ((primaryPaymentRequest.debtType || !paymentRequest.completedPaymentRequests?.[0]) && primaryPaymentRequest.paymentRequestNumber > 1) ? 'Y' : 'N'
-  let enriched = null
-  if (primaryPaymentRequest.debtType) {
-    enriched = 'Y'
-  } else if (routedToRequestEditor === 'Y') {
-    enriched = 'N'
-  }
   const data = {
     correlationId: paymentRequest.correlationId,
     frn: primaryPaymentRequest.frn,
@@ -65,7 +70,7 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
     phError: null,
     daxError: null,
     receivedInRequestEditor: calculateApproximateREReceivedDateTime(primaryPaymentRequest, paymentRequest),
-    enriched,
+    enriched: formatEnriched(primaryPaymentRequest.debtType, routedToRequestEditor),
     ledgerSplit: apValue && arValue ? 'Y' : 'N',
     releasedFromRequestEditor: routedToRequestEditor === 'Y' ? paymentRequest.completedPaymentRequests?.[0]?.submitted : null,
     daxPaymentRequestNumber,
