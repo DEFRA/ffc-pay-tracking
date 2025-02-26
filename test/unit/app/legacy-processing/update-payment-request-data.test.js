@@ -31,9 +31,9 @@ describe('update payment request data on migrated PR', () => {
     const expectedUpdateData = {
       daxValue: 200,
       daxPaymentRequestNumber: 2,
+      deltaAmount: 100,
       overallStatus: 'Updated Status',
-      valueStillToProcess: 0,
-      deltaAmount: 100
+      valueStillToProcess: 0
     }
 
     await updatePaymentRequestData(relatedPaymentRequest, currentPaymentRequest)
@@ -47,11 +47,10 @@ describe('update payment request data on migrated PR', () => {
     expect(db.reportData.update).toHaveBeenCalledWith(expectedUpdateData, { where: { reportDataId: relatedPaymentRequest.reportDataId } })
   })
 
-  test('should update daxValue, deltaAmount, and overallStatus when paymentRequestNumber matches and invoiceNumber is different', async () => {
+  test('should update daxValue and overallStatus when paymentRequestNumber matches and invoiceNumber is different', async () => {
     const relatedPaymentRequest = {
       paymentRequestNumber: 2,
       daxValue: -50,
-      deltaAmount: -50,
       daxPaymentRequestNumber: 1,
       invoiceNumber: 'INV002',
       value: 200,
@@ -61,7 +60,6 @@ describe('update payment request data on migrated PR', () => {
     const currentPaymentRequest = {
       paymentRequestNumber: 2,
       daxValue: -50,
-      deltaAmount: -50,
       daxPaymentRequestNumber: 2,
       invoiceNumber: 'INV001'
     }
@@ -71,7 +69,6 @@ describe('update payment request data on migrated PR', () => {
     const expectedUpdateData = {
       daxValue: -100,
       daxPaymentRequestNumber: 2,
-      deltaAmount: -100,
       overallStatus: 'Updated Status',
       valueStillToProcess: 300,
       prStillToProcess: 0
@@ -93,7 +90,6 @@ describe('update payment request data on migrated PR', () => {
     const relatedPaymentRequest = {
       paymentRequestNumber: 2,
       daxValue: -50,
-      deltaAmount: -50,
       daxPaymentRequestNumber: 1,
       invoiceNumber: 'INV002',
       value: 200,
@@ -104,7 +100,6 @@ describe('update payment request data on migrated PR', () => {
     const currentPaymentRequest = {
       paymentRequestNumber: 2,
       daxValue: -50,
-      deltaAmount: -50,
       daxPaymentRequestNumber: 2,
       invoiceNumber: 'INV001',
       ledger: 'AR'
@@ -115,7 +110,6 @@ describe('update payment request data on migrated PR', () => {
     const expectedUpdateData = {
       daxValue: -100,
       daxPaymentRequestNumber: 2,
-      deltaAmount: -100,
       overallStatus: 'Updated Status',
       valueStillToProcess: 300,
       prStillToProcess: 0,
@@ -138,7 +132,6 @@ describe('update payment request data on migrated PR', () => {
     const relatedPaymentRequest = {
       paymentRequestNumber: 1,
       daxValue: 50,
-      deltaAmount: 30,
       daxPaymentRequestNumber: 1,
       invoiceNumber: 'INV001',
       value: 200,
@@ -149,7 +142,7 @@ describe('update payment request data on migrated PR', () => {
     const currentPaymentRequest = {
       paymentRequestNumber: 1,
       daxValue: 100,
-      deltaAmount: 50,
+      daxPaymentRequestNumber: 1,
       invoiceNumber: 'INV001',
       value: 200,
       someField: 'newValue'
@@ -168,7 +161,6 @@ describe('update payment request data on migrated PR', () => {
     const relatedPaymentRequest = {
       paymentRequestNumber: 1,
       daxValue: 50,
-      deltaAmount: 30,
       daxPaymentRequestNumber: 1,
       invoiceNumber: 'INV001',
       value: 200,
@@ -179,7 +171,7 @@ describe('update payment request data on migrated PR', () => {
     const currentPaymentRequest = {
       paymentRequestNumber: 1,
       daxValue: 100,
-      deltaAmount: 50,
+      daxPaymentRequestNumber: 1,
       invoiceNumber: 'INV001',
       value: 200,
       someField: 'newValue'
@@ -194,7 +186,6 @@ describe('update payment request data on migrated PR', () => {
     const relatedPaymentRequest = {
       paymentRequestNumber: 1,
       daxValue: 50,
-      deltaAmount: 30,
       daxPaymentRequestNumber: 1,
       invoiceNumber: 'INV001',
       value: 200,
@@ -205,7 +196,7 @@ describe('update payment request data on migrated PR', () => {
     const currentPaymentRequest = {
       paymentRequestNumber: 1,
       daxValue: 50,
-      deltaAmount: 30,
+      daxPaymentRequestNumber: 1,
       invoiceNumber: 'INV001',
       value: 200,
       reportDataId: 2
