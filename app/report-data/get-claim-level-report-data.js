@@ -2,7 +2,7 @@ const { BPS, CS, FDMR } = require('../constants/source-systems')
 const db = require('../data')
 const { getSourceSystem } = require('../helpers/get-source-system')
 
-const getClaimLevelReportData = async (schemeId, year, paymentRequestNumber, revenueOrCapital, frn) => {
+const getClaimLevelReportData = async (schemeId, year, revenueOrCapital, frn) => {
   const sourceSystem = getSourceSystem(schemeId)
   if (!sourceSystem) {
     throw new Error(`Source system not found for schemeId: ${schemeId}`)
@@ -30,10 +30,6 @@ const getClaimLevelReportData = async (schemeId, year, paymentRequestNumber, rev
     year
   }
 
-  if (paymentRequestNumber) {
-    whereClause += ' AND "paymentRequestNumber" = :paymentRequestNumber'
-    replacements.paymentRequestNumber = paymentRequestNumber
-  }
   if (frn) {
     whereClause += ' AND "frn" = :frn'
     replacements.frn = frn
