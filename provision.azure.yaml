@@ -1,0 +1,10 @@
+resources:
+  identity: pay-tracking
+  postgreSql:
+    name: ffc-pay-tracking
+  topics:
+    - name: eventsTopicAddress
+      role: receiver
+      subscriptions:
+        - name: ffc-pay-tracking
+        
