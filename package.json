@@ -18,14 +18,15 @@
     "John Watson <john.watson1@defra.gov.uk>",
     "Kirsten Williamson <kirsten.williamson@kainos.com>",
     "Sam Plackett <samuel.plackett@eviden.com>",
-    "Amirs Ishmuhametovs <amirs.ishmuhametovs@defra.gov.uk>"
+    "Amirs Ishmuhametovs <amirs.ishmuhametovs@defra.gov.uk>",
+    "Oliver Lewington oliver.lewington@eviden.com"
   ],
   "license": "OGL-UK-3.0",
   "dependencies": {
-    "@azure/identity": "4.3.0",
+    "@azure/identity": "4.4.1",
     "@hapi/hapi": "20.2.2",
     "applicationinsights": "2.9.6",
-    "ffc-messaging": "2.9.1",
+    "ffc-messaging": "2.10.1",
     "hapi-pino": "12.1.0",
     "log-timestamp": "0.3.0",
     "pg": "8.7.3",
