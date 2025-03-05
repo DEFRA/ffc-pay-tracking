@@ -13,7 +13,7 @@ Optional:
 - [Helm](https://helm.sh/)
 
 ### Configuration
-#### Azure Service Bus
+#### Azure Service Bus 
 
 This service publishes responses as messages to Azure Service Bus topics.
 
