@@ -3,7 +3,7 @@ resources:
   postgreSql:
     name: ffc-pay-tracking
   topics:
-    - name: eventsTopicAddress
+    - name: ffc-pay-events
       role: receiver
       subscriptions:
         - name: ffc-pay-tracking
