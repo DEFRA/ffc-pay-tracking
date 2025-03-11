@@ -1,17 +1,21 @@
 require('log-timestamp')
+const { processingConfig } = require('./config')
 const server = require('./server/server')
 const messaging = require('./messaging')
 const legacyProcessing = require('./legacy-processing')
 
-const init = async () => {
+const startApp = async () => {
   await server.start()
-  await messaging.start()
-  await legacyProcessing.start()
+  if (processingConfig.active) {
+    await messaging.start()
+    await legacyProcessing.start()
+  } else {
+    console.info('Processing capabilities are currently not enabled in this environment')
+  }
 }
 
-process.on(['SIGTERM', 'SIGINT'], async () => {
-  await messaging.stop()
-  process.exit(0)
-})
+(async () => {
+  await startApp()
+})()
 
-init()
+module.exports = startApp
