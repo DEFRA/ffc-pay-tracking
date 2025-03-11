@@ -6,7 +6,7 @@ const legacyProcessing = require('./legacy-processing')
 
 const startApp = async () => {
   await server.start()
-  if (processingConfig.active) {
+  if (processingConfig.processingActive) {
     await messaging.start()
     await legacyProcessing.start()
   } else {

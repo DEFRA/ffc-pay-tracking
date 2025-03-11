@@ -15,43 +15,43 @@ describe('app start', () => {
   })
 
   test('starts processing when active is true', async () => {
-    processingConfig.active = true
+    processingConfig.processingActive = true
     await startApp()
     expect(mockStartProcessing).toHaveBeenCalledTimes(1)
   })
 
   test('does not start processing if active is false', async () => {
-    processingConfig.active = false
+    processingConfig.processingActive = false
     await startApp()
     expect(mockStartProcessing).toHaveBeenCalledTimes(0)
   })
 
   test('starts messaging when active is true', async () => {
-    processingConfig.active = true
+    processingConfig.processingActive = true
     await startApp()
     expect(mockStartMessaging).toHaveBeenCalledTimes(1)
   })
 
   test('does not start messaging when active is false', async () => {
-    processingConfig.active = false
+    processingConfig.processingActive = false
     await startApp()
     expect(mockStartMessaging).toHaveBeenCalledTimes(0)
   })
 
   test('starts server when active is true', async () => {
-    processingConfig.active = true
+    processingConfig.processingActive = true
     await startApp()
     expect(mockStartServer).toHaveBeenCalledTimes(1)
   })
 
   test('starts server when active is false', async () => {
-    processingConfig.active = false
+    processingConfig.processingActive = false
     await startApp()
     expect(mockStartServer).toHaveBeenCalledTimes(1)
   })
 
   test('does not log console.info when active is true', async () => {
-    processingConfig.active = true
+    processingConfig.processingActive = true
     const consoleInfoSpy = jest.spyOn(console, 'info').mockImplementation(() => {})
     await startApp()
     expect(consoleInfoSpy).not.toHaveBeenCalled()
@@ -59,7 +59,7 @@ describe('app start', () => {
   })
 
   test('logs console.info when active is false', async () => {
-    processingConfig.active = false
+    processingConfig.processingActive = false
     const consoleInfoSpy = jest.spyOn(console, 'info').mockImplementation(() => {})
     await startApp()
     expect(consoleInfoSpy).toHaveBeenCalledWith(
