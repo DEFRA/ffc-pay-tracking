@@ -1,6 +1,6 @@
 {
   "name": "ffc-pay-tracking",
-  "version": "1.3.14",
+  "version": "1.3.19",
   "description": "Track payments and publish notifications",
   "homepage": "https://github.com/DEFRA/ffc-pay-tracking",
   "main": "app/index.js",
@@ -18,20 +18,22 @@
     "John Watson <john.watson1@defra.gov.uk>",
     "Kirsten Williamson <kirsten.williamson@kainos.com>",
     "Sam Plackett <samuel.plackett@eviden.com>",
-    "Amirs Ishmuhametovs <amirs.ishmuhametovs@defra.gov.uk>"
+    "Amirs Ishmuhametovs <amirs.ishmuhametovs@defra.gov.uk>",
+    "Oliver Lewington oliver.lewington@eviden.com"
   ],
   "license": "OGL-UK-3.0",
   "dependencies": {
-    "@azure/identity": "4.3.0",
+    "@azure/identity": "4.4.1",
     "@hapi/hapi": "20.2.2",
     "applicationinsights": "2.9.6",
-    "ffc-messaging": "2.9.1",
+    "ffc-messaging": "2.10.1",
     "hapi-pino": "12.1.0",
     "log-timestamp": "0.3.0",
     "pg": "8.7.3",
     "pg-hstore": "2.3.4",
     "sequelize": "6.32.0",
-    "uuid": "8.3.2"
+    "uuid": "8.3.2",
+    "joi": "17.13.3"
   },
   "devDependencies": {
     "blipp": "4.0.2",
