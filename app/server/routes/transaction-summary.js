@@ -1,5 +1,5 @@
 const { GET } = require('../../constants/methods')
-const { getTransactionSummaryData } = require('../../report-data/get-transaction-summary-data')
+const { getFilteredReportData } = require('../../report-data/get-filtered-report-data')
 
 module.exports = {
   method: GET,
@@ -7,7 +7,7 @@ module.exports = {
   options: {
     handler: async (request, h) => {
       const { schemeId, year, prn, revenueOrCapital, frn } = request.query
-      const reportData = await getTransactionSummaryData(schemeId, year, prn, revenueOrCapital, frn)
+      const reportData = await getFilteredReportData(schemeId, year, prn, revenueOrCapital, frn)
       return h.response({ reportData })
     }
   }
