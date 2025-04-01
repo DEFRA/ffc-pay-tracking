@@ -8,8 +8,11 @@ const getFilteredReportData = async (schemeId, year, paymentRequestNumber, reven
   }
 
   const where = {
-    sourceSystem,
-    year
+    sourceSystem
+  }
+
+  if (year) {
+    where.year = year
   }
 
   if (paymentRequestNumber) {

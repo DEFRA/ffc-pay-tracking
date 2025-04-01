@@ -23,17 +23,21 @@ const getClaimLevelReportData = async (schemeId, year, revenueOrCapital, frn) =>
 
   let whereClause = `
     WHERE "sourceSystem" = :sourceSystem
-    AND "year" = :year
   `
   const replacements = {
-    sourceSystem,
-    year
+    sourceSystem
+  }
+
+  if (year) {
+    whereClause += ' AND "year" = :year'
+    replacements.year = year
   }
 
   if (frn) {
     whereClause += ' AND "frn" = :frn'
     replacements.frn = frn
   }
+
   if (revenueOrCapital) {
     whereClause += ' AND "revenueOrCapital" = :revenueOrCapital'
     replacements.revenueOrCapital = revenueOrCapital
