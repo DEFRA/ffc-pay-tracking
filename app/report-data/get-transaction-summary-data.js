@@ -9,7 +9,25 @@ const getTransactionSummaryData = async (schemeId, year, paymentRequestNumber, r
 
   const where = {
     sourceSystem,
-    year
+    value: {
+      [db.Sequelize.Op.ne]: null
+    },
+    batch: {
+      [db.Sequelize.Op.ne]: null
+    },
+    routedToRequestEditor: {
+      [db.Sequelize.Op.ne]: null
+    },
+    apValue: {
+      [db.Sequelize.Op.ne]: null
+    },
+    arValue: {
+      [db.Sequelize.Op.ne]: null
+    }
+  }
+
+  if (year) {
+    where.year = year
   }
 
   if (paymentRequestNumber) {
