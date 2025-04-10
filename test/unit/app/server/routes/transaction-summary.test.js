@@ -1,7 +1,7 @@
-const { getTransactionSummaryData } = require('../../../../../app/report-data/get-transaction-summary-data')
+const { getFilteredReportData } = require('../../../../../app/report-data/get-filtered-report-data')
 const { options } = require('../../../../../app/server/routes/transaction-summary')
 
-jest.mock('../../../../../app/report-data/get-transaction-summary-data')
+jest.mock('../../../../../app/report-data/get-filtered-report-data')
 
 describe('GET /transaction-summary', () => {
   beforeEach(() => {
@@ -10,7 +10,7 @@ describe('GET /transaction-summary', () => {
 
   test('should return transaction summary data when schemeId, year, prn, revenueOrCapital, and frn are provided', async () => {
     const mockData = [{ id: 1, value: 'test data' }]
-    getTransactionSummaryData.mockResolvedValue(mockData)
+    getFilteredReportData.mockResolvedValue(mockData)
 
     const schemeId = 1
     const year = 2023
@@ -32,14 +32,14 @@ describe('GET /transaction-summary', () => {
 
     await options.handler(mockRequest, mockH)
 
-    expect(getTransactionSummaryData).toHaveBeenCalledWith(schemeId, year, prn, revenueOrCapital, frn)
-    expect(getTransactionSummaryData).toHaveBeenCalledTimes(1)
+    expect(getFilteredReportData).toHaveBeenCalledWith(schemeId, year, prn, revenueOrCapital, frn)
+    expect(getFilteredReportData).toHaveBeenCalledTimes(1)
     expect(mockH.response).toHaveBeenCalledWith({ reportData: mockData })
   })
 
   test('should return transaction summary data when frn is not provided', async () => {
     const mockData = [{ id: 1, value: 'test data' }]
-    getTransactionSummaryData.mockResolvedValue(mockData)
+    getFilteredReportData.mockResolvedValue(mockData)
 
     const schemeId = 1
     const year = 2023
@@ -59,14 +59,14 @@ describe('GET /transaction-summary', () => {
 
     await options.handler(mockRequest, mockH)
 
-    expect(getTransactionSummaryData).toHaveBeenCalledWith(schemeId, year, prn, revenueOrCapital, undefined)
-    expect(getTransactionSummaryData).toHaveBeenCalledTimes(1)
+    expect(getFilteredReportData).toHaveBeenCalledWith(schemeId, year, prn, revenueOrCapital, undefined)
+    expect(getFilteredReportData).toHaveBeenCalledTimes(1)
     expect(mockH.response).toHaveBeenCalledWith({ reportData: mockData })
   })
 
   test('should return transaction summary data when only schemeId is provided', async () => {
     const mockData = [{ id: 1, value: 'test data' }]
-    getTransactionSummaryData.mockResolvedValue(mockData)
+    getFilteredReportData.mockResolvedValue(mockData)
 
     const schemeId = 1
     const mockRequest = {
@@ -80,8 +80,8 @@ describe('GET /transaction-summary', () => {
 
     await options.handler(mockRequest, mockH)
 
-    expect(getTransactionSummaryData).toHaveBeenCalledWith(schemeId, undefined, undefined, undefined, undefined)
-    expect(getTransactionSummaryData).toHaveBeenCalledTimes(1)
+    expect(getFilteredReportData).toHaveBeenCalledWith(schemeId, undefined, undefined, undefined, undefined)
+    expect(getFilteredReportData).toHaveBeenCalledTimes(1)
     expect(mockH.response).toHaveBeenCalledWith({ reportData: mockData })
   })
 })
