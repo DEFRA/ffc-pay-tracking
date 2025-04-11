@@ -21,7 +21,6 @@ describe('get claim level report data', () => {
   test('should call sequelize.query with correct SQL and options', async () => {
     const schemeId = BPS
     const year = 2023
-    const paymentRequestNumber = 1
     const revenueOrCapital = 'Revenue'
     const frn = 1234567890
 
@@ -42,7 +41,6 @@ describe('get claim level report data', () => {
           "reportData"
         WHERE "sourceSystem" = :sourceSystem
         AND "year" = :year
-        AND "paymentRequestNumber" = :paymentRequestNumber
         AND "frn" = :frn
         AND "revenueOrCapital" = :revenueOrCapital
       )
@@ -58,14 +56,13 @@ describe('get claim level report data', () => {
       replacements: {
         sourceSystem: bps,
         year,
-        paymentRequestNumber,
         frn,
         revenueOrCapital
       },
       type: db.sequelize.QueryTypes.SELECT
     }
 
-    await getClaimLevelReportData(schemeId, year, paymentRequestNumber, revenueOrCapital, frn)
+    await getClaimLevelReportData(schemeId, year, revenueOrCapital, frn)
 
     const actualSQL = db.sequelize.query.mock.calls[0][0].replace(/\s+/g, ' ').trim()
     const expectedSQLCleaned = expectedSQL.replace(/\s+/g, ' ').trim()
