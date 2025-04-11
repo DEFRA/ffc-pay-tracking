@@ -1,7 +1,7 @@
 const schemes = require('../../../../app/constants/schemes')
 const sourceSystems = require('../../../../app/constants/source-systems')
 const db = require('../../../../app/data')
-const { getTransactionSummaryData } = require('../../../../app/report-data/get-transaction-summary-data')
+const { getFilteredReportData } = require('../../../../app/report-data/get-filtered-report-data')
 const { getSourceSystem } = require('../../../../app/helpers/get-source-system')
 
 jest.mock('../../../../app/data', () => ({
@@ -33,7 +33,7 @@ describe('get transaction summary data', () => {
     getSourceSystem.mockReturnValue(sourceSystems.SFI)
     db.reportData.findAll.mockResolvedValue(mockData)
 
-    const result = await getTransactionSummaryData(schemeId, year, paymentRequestNumber, revenueOrCapital, frn)
+    const result = await getFilteredReportData(schemeId, year, paymentRequestNumber, revenueOrCapital, frn)
 
     expect(result).toEqual(mockData)
     expect(getSourceSystem).toHaveBeenCalledWith(schemeId)
@@ -64,7 +64,7 @@ describe('get transaction summary data', () => {
     getSourceSystem.mockReturnValue(sourceSystems.SFI)
     db.reportData.findAll.mockResolvedValue(mockData)
 
-    const result = await getTransactionSummaryData(schemeId, year, paymentRequestNumber, revenueOrCapital)
+    const result = await getFilteredReportData(schemeId, year, paymentRequestNumber, revenueOrCapital)
 
     expect(result).toEqual(mockData)
     expect(getSourceSystem).toHaveBeenCalledWith(schemeId)
@@ -92,7 +92,7 @@ describe('get transaction summary data', () => {
     getSourceSystem.mockReturnValue(sourceSystems.SFI)
     db.reportData.findAll.mockResolvedValue(mockData)
 
-    const result = await getTransactionSummaryData(schemeId, undefined, undefined, undefined, frn)
+    const result = await getFilteredReportData(schemeId, undefined, undefined, undefined, frn)
 
     expect(result).toEqual(mockData)
     expect(getSourceSystem).toHaveBeenCalledWith(schemeId)
@@ -115,7 +115,7 @@ describe('get transaction summary data', () => {
 
     getSourceSystem.mockReturnValue(undefined)
 
-    await expect(getTransactionSummaryData(schemeId)).rejects.toThrow(
+    await expect(getFilteredReportData(schemeId)).rejects.toThrow(
       `Source system not found for schemeId: ${schemeId}`
     )
     expect(db.reportData.findAll).not.toHaveBeenCalled()
@@ -141,7 +141,7 @@ describe('get transaction summary data', () => {
     getSourceSystem.mockReturnValue(expectedSourceSystem)
     db.reportData.findAll.mockResolvedValue(mockData)
 
-    const result = await getTransactionSummaryData(schemeId)
+    const result = await getFilteredReportData(schemeId)
 
     expect(result).toEqual(mockData)
     expect(getSourceSystem).toHaveBeenCalledWith(schemeId)
