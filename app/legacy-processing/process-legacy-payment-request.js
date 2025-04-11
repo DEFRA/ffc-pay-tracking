@@ -12,6 +12,7 @@ const { getOverallStatus } = require('../data-generation')
 const { checkCrossBorderType } = require('./check-cross-border-type')
 const { updateReportData } = require('./update-report-data')
 const { FDMR } = require('../constants/schemes')
+const { CS, BPS } = require('../constants/source-systems')
 
 const formatDebtType = (type) => {
   if (type === 'irr') {
@@ -72,7 +73,7 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
     receivedInRequestEditor: calculateApproximateREReceivedDateTime(primaryPaymentRequest, paymentRequest),
     enriched: formatEnriched(primaryPaymentRequest.debtType, routedToRequestEditor),
     ledgerSplit: apValue && arValue ? 'Y' : 'N',
-    releasedFromRequestEditor: routedToRequestEditor === 'Y' ? paymentRequest.completedPaymentRequests?.[0]?.submitted : null,
+    releasedFromRequestEditor: routedToRequestEditor === 'Y' && ![CS, BPS].includes(primaryPaymentRequest.sourceSystem) ? paymentRequest.completedPaymentRequests?.[0]?.submitted : null,
     daxPaymentRequestNumber,
     daxValue,
     overallStatus: getOverallStatus(paymentRequest.value, daxValue, primaryPaymentRequest.paymentRequestNumber, daxPaymentRequestNumber),
