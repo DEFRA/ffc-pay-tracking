@@ -15,23 +15,25 @@ const { FDMR } = require('../constants/schemes')
 const { CS, BPS } = require('../constants/source-systems')
 
 const formatDebtType = (type) => {
-  if (type === 'irr') {
-    return 'Irregular'
-  }
-  if (type === 'adm') {
-    return 'Administrative'
-  }
+  if (type === 'irr') return 'Irregular'
+  if (type === 'adm') return 'Administrative'
   return null
 }
 
 const formatEnriched = (debtType, routedToRequestEditor) => {
-  if (debtType) {
-    return 'Y'
-  }
-  if (routedToRequestEditor === 'Y') {
-    return 'N'
-  }
+  if (debtType) return 'Y'
+  if (routedToRequestEditor === 'Y') return 'N'
   return null
+}
+
+const determineRoutedToRequestEditor = (primaryPaymentRequest) => {
+  return (primaryPaymentRequest.debtType || !primaryPaymentRequest.completedPaymentRequests?.[0]) && primaryPaymentRequest.paymentRequestNumber > 1 ? 'Y' : 'N'
+}
+
+const determineReleasedFromRequestEditor = (routedToRequestEditor, primaryPaymentRequest, paymentRequest) => {
+  return routedToRequestEditor === 'Y' && ![CS, BPS].includes(primaryPaymentRequest.sourceSystem)
+    ? paymentRequest.completedPaymentRequests?.[0]?.submitted
+    : null
 }
 
 const processLegacyPaymentRequest = async (paymentRequest) => {
@@ -41,7 +43,8 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
   const daxPaymentRequestNumber = calculateDAXPRN(paymentRequest)
   const deltaAmount = calculateDeltaAmount(paymentRequest)
   const daxValue = calculateDAXValue(deltaAmount, paymentRequest)
-  const routedToRequestEditor = ((primaryPaymentRequest.debtType || !paymentRequest.completedPaymentRequests?.[0]) && primaryPaymentRequest.paymentRequestNumber > 1) ? 'Y' : 'N'
+  const routedToRequestEditor = determineRoutedToRequestEditor(primaryPaymentRequest)
+
   const data = {
     correlationId: paymentRequest.correlationId,
     frn: primaryPaymentRequest.frn,
@@ -73,7 +76,7 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
     receivedInRequestEditor: calculateApproximateREReceivedDateTime(primaryPaymentRequest, paymentRequest),
     enriched: formatEnriched(primaryPaymentRequest.debtType, routedToRequestEditor),
     ledgerSplit: apValue && arValue ? 'Y' : 'N',
-    releasedFromRequestEditor: routedToRequestEditor === 'Y' && ![CS, BPS].includes(primaryPaymentRequest.sourceSystem) ? paymentRequest.completedPaymentRequests?.[0]?.submitted : null,
+    releasedFromRequestEditor: determineReleasedFromRequestEditor(routedToRequestEditor, primaryPaymentRequest, paymentRequest),
     daxPaymentRequestNumber,
     daxValue,
     overallStatus: getOverallStatus(paymentRequest.value, daxValue, primaryPaymentRequest.paymentRequestNumber, daxPaymentRequestNumber),
@@ -82,6 +85,7 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
     prStillToProcess: primaryPaymentRequest.paymentRequestNumber - daxPaymentRequestNumber,
     fdmrSchemeCode: paymentRequest.schemeId === FDMR ? paymentRequest.invoiceLines[0].schemeCode : null
   }
+
   await updateReportData(data, paymentRequest.schemeId)
 }
 
