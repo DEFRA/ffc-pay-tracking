@@ -15,14 +15,22 @@ const { FDMR } = require('../constants/schemes')
 const { CS, BPS } = require('../constants/source-systems')
 
 const formatDebtType = (type) => {
-  if (type === 'irr') return 'Irregular'
-  if (type === 'adm') return 'Administrative'
+  if (type === 'irr') {
+    return 'Irregular'
+  }
+  if (type === 'adm') {
+    return 'Administrative'
+  }
   return null
 }
 
 const formatEnriched = (debtType, routedToRequestEditor) => {
-  if (debtType) return 'Y'
-  if (routedToRequestEditor === 'Y') return 'N'
+  if (debtType) {
+    return 'Y'
+  }
+  if (routedToRequestEditor === 'Y') {
+    return 'N'
+  }
   return null
 }
 
