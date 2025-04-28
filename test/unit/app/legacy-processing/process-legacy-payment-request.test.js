@@ -13,6 +13,7 @@ const { checkCrossBorderType } = require('../../../../app/legacy-processing/chec
 const { updateReportData } = require('../../../../app/legacy-processing/update-report-data')
 const { REVENUE } = require('../../../../app/constants/cs-types')
 const { SFI, FDMR } = require('../../../../app/constants/schemes')
+const { CS, BPS } = require('../../../../app/constants/source-systems')
 
 jest.mock('../../../../app/legacy-processing/calculate-approximate-re-received-datetime')
 jest.mock('../../../../app/legacy-processing/calculate-delta-amount')
@@ -99,7 +100,7 @@ describe('process legacy payment requests', () => {
       receivedInRequestEditor: '2023-01-01T00:00:00Z',
       enriched: 'Y',
       ledgerSplit: 'Y',
-      releasedFromRequestEditor: '2023-01-01T00:00:00Z',
+      releasedFromRequestEditor: '2023-01-01T00:00:00Z', // This will be checked in the next test
       daxPaymentRequestNumber: 2,
       daxValue: 200,
       overallStatus: 'overallStatus',
@@ -184,7 +185,7 @@ describe('process legacy payment requests', () => {
       receivedInRequestEditor: '2023-01-01T00:00:00Z',
       enriched: 'Y',
       ledgerSplit: 'Y',
-      releasedFromRequestEditor: '2023-01-01T00:00:00Z',
+      releasedFromRequestEditor: '2023-01-01T00:00:00Z', // This will be checked in the next test
       daxPaymentRequestNumber: 2,
       daxValue: 200,
       overallStatus: 'overallStatus',
@@ -264,7 +265,7 @@ describe('process legacy payment requests', () => {
       receivedInRequestEditor: '2023-01-01T00:00:00Z',
       enriched: 'Y',
       ledgerSplit: 'Y', // apValue and arValue are non-zero, so ledgerSplit is 'Y'
-      releasedFromRequestEditor: '2023-01-01T00:00:00Z',
+      releasedFromRequestEditor: '2023-01-01T00:00:00Z', // This will be checked in the next test
       daxPaymentRequestNumber: 2,
       daxValue: 200,
       overallStatus: 'overallStatus',
@@ -338,7 +339,7 @@ describe('process legacy payment requests', () => {
       receivedInRequestEditor: '2023-01-01T00:00:00Z',
       enriched: null,
       ledgerSplit: 'Y',
-      releasedFromRequestEditor: null,
+      releasedFromRequestEditor: null, // This will be checked in the next test
       daxPaymentRequestNumber: 1,
       daxValue: 200,
       overallStatus: 'overallStatus',
@@ -427,5 +428,178 @@ describe('process legacy payment requests', () => {
 
     await processLegacyPaymentRequest(paymentRequest)
     expect(updateReportData).toHaveBeenCalledWith(expectedData, SFI)
+  })
+
+  // Additional tests for 'releasedFromRequestEditor'
+  test('should set releasedFromRequestEditor to null if sourceSystem is CS', async () => {
+    const paymentRequest = {
+      correlationId: 'correlationId',
+      schemeId: SFI,
+      completedPaymentRequests: [
+        {
+          frn: 1234567890,
+          contractNumber: 'contractNumber',
+          agreementNumber: 'agreementNumber',
+          marketingYear: 2023,
+          invoiceNumber: 'invoiceNumber',
+          currency: 'GBP',
+          paymentRequestNumber: 3,
+          batch: 'batch.csv',
+          sourceSystem: CS,
+          debtType: 'irr',
+          acknowledged: true,
+          settledValue: 1000,
+          submitted: '2023-01-01T00:00:00Z'
+        }
+      ],
+      value: 1000
+    }
+
+    calculateLedgerValue.mockReturnValueOnce(500).mockReturnValueOnce(500)
+    calculateDAXValue.mockReturnValue(200)
+    calculateDAXPRN.mockReturnValue(2)
+    calculateDeltaAmount.mockReturnValue(300)
+    getStatus.mockReturnValue('status')
+    getLastUpdatedDate.mockReturnValue('2023-01-01T00:00:00Z')
+    checkIfRevenueOrCapital.mockReturnValue(REVENUE)
+    getYear.mockReturnValue(2023)
+    calculateApproximateREReceivedDateTime.mockReturnValue('2023-01-01T00:00:00Z')
+    getOverallStatus.mockReturnValue('overallStatus')
+    checkCrossBorderType.mockReturnValue('N')
+
+    await processLegacyPaymentRequest(paymentRequest)
+
+    expect(updateReportData).toHaveBeenCalledWith(expect.objectContaining({
+      releasedFromRequestEditor: null
+    }), SFI)
+  })
+
+  test('should set releasedFromRequestEditor to null if sourceSystem is BPS', async () => {
+    const paymentRequest = {
+      correlationId: 'correlationId',
+      schemeId: SFI,
+      completedPaymentRequests: [
+        {
+          frn: 1234567890,
+          contractNumber: 'contractNumber',
+          agreementNumber: 'agreementNumber',
+          marketingYear: 2023,
+          invoiceNumber: 'invoiceNumber',
+          currency: 'GBP',
+          paymentRequestNumber: 3,
+          batch: 'batch.csv',
+          sourceSystem: BPS,
+          debtType: 'irr',
+          acknowledged: true,
+          settledValue: 1000,
+          submitted: '2023-01-01T00:00:00Z'
+        }
+      ],
+      value: 1000
+    }
+
+    calculateLedgerValue.mockReturnValueOnce(500).mockReturnValueOnce(500)
+    calculateDAXValue.mockReturnValue(200)
+    calculateDAXPRN.mockReturnValue(2)
+    calculateDeltaAmount.mockReturnValue(300)
+    getStatus.mockReturnValue('status')
+    getLastUpdatedDate.mockReturnValue('2023-01-01T00:00:00Z')
+    checkIfRevenueOrCapital.mockReturnValue(REVENUE)
+    getYear.mockReturnValue(2023)
+    calculateApproximateREReceivedDateTime.mockReturnValue('2023-01-01T00:00:00Z')
+    getOverallStatus.mockReturnValue('overallStatus')
+    checkCrossBorderType.mockReturnValue('N')
+
+    await processLegacyPaymentRequest(paymentRequest)
+
+    expect(updateReportData).toHaveBeenCalledWith(expect.objectContaining({
+      releasedFromRequestEditor: null
+    }), SFI)
+  })
+
+  test('should set releasedFromRequestEditor to submitted date when routedToRequestEditor is "Y" and sourceSystem is not CS or BPS', async () => {
+    const paymentRequest = {
+      correlationId: 'correlationId',
+      schemeId: SFI,
+      completedPaymentRequests: [
+        {
+          frn: 1234567890,
+          contractNumber: 'contractNumber',
+          agreementNumber: 'agreementNumber',
+          marketingYear: 2023,
+          invoiceNumber: 'invoiceNumber',
+          currency: 'GBP',
+          paymentRequestNumber: 3,
+          batch: 'batch.csv',
+          sourceSystem: 'otherSystem',
+          debtType: 'irr',
+          acknowledged: true,
+          settledValue: 1000,
+          submitted: '2023-01-01T00:00:00Z'
+        }
+      ],
+      value: 1000
+    }
+
+    calculateLedgerValue.mockReturnValueOnce(500).mockReturnValueOnce(500)
+    calculateDAXValue.mockReturnValue(200)
+    calculateDAXPRN.mockReturnValue(2)
+    calculateDeltaAmount.mockReturnValue(300)
+    getStatus.mockReturnValue('status')
+    getLastUpdatedDate.mockReturnValue('2023-01-01T00:00:00Z')
+    checkIfRevenueOrCapital.mockReturnValue(REVENUE)
+    getYear.mockReturnValue(2023)
+    calculateApproximateREReceivedDateTime.mockReturnValue('2023-01-01T00:00:00Z')
+    getOverallStatus.mockReturnValue('overallStatus')
+    checkCrossBorderType.mockReturnValue('N')
+
+    await processLegacyPaymentRequest(paymentRequest)
+
+    expect(updateReportData).toHaveBeenCalledWith(expect.objectContaining({
+      releasedFromRequestEditor: '2023-01-01T00:00:00Z'
+    }), SFI)
+  })
+
+  test('should set releasedFromRequestEditor to null if routedToRequestEditor is "N"', async () => {
+    const paymentRequest = {
+      correlationId: 'correlationId',
+      schemeId: SFI,
+      completedPaymentRequests: [
+        {
+          frn: 1234567890,
+          contractNumber: 'contractNumber',
+          agreementNumber: 'agreementNumber',
+          marketingYear: 2023,
+          invoiceNumber: 'invoiceNumber',
+          currency: 'GBP',
+          paymentRequestNumber: 1,
+          batch: 'batch.csv',
+          sourceSystem: 'otherSystem',
+          debtType: null,
+          acknowledged: true,
+          settledValue: 1000,
+          submitted: '2023-01-01T00:00:00Z'
+        }
+      ],
+      value: 1000
+    }
+
+    calculateLedgerValue.mockReturnValueOnce(500).mockReturnValueOnce(500)
+    calculateDAXValue.mockReturnValue(200)
+    calculateDAXPRN.mockReturnValue(1)
+    calculateDeltaAmount.mockReturnValue(300)
+    getStatus.mockReturnValue('status')
+    getLastUpdatedDate.mockReturnValue('2023-01-01T00:00:00Z')
+    checkIfRevenueOrCapital.mockReturnValue(REVENUE)
+    getYear.mockReturnValue(2023)
+    calculateApproximateREReceivedDateTime.mockReturnValue('2023-01-01T00:00:00Z')
+    getOverallStatus.mockReturnValue('overallStatus')
+    checkCrossBorderType.mockReturnValue('N')
+
+    await processLegacyPaymentRequest(paymentRequest)
+
+    expect(updateReportData).toHaveBeenCalledWith(expect.objectContaining({
+      releasedFromRequestEditor: null
+    }), SFI)
   })
 })

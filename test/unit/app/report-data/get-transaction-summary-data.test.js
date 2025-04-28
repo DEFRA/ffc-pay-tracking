@@ -7,6 +7,11 @@ const { getSourceSystem } = require('../../../../app/helpers/get-source-system')
 jest.mock('../../../../app/data', () => ({
   reportData: {
     findAll: jest.fn()
+  },
+  Sequelize: {
+    Op: {
+      ne: Symbol('ne')
+    }
   }
 }))
 
@@ -35,6 +40,11 @@ describe('get transaction summary data', () => {
     expect(db.reportData.findAll).toHaveBeenCalledWith({
       where: {
         sourceSystem: sourceSystems.SFI,
+        value: { [db.Sequelize.Op.ne]: null },
+        batch: { [db.Sequelize.Op.ne]: null },
+        routedToRequestEditor: { [db.Sequelize.Op.ne]: null },
+        apValue: { [db.Sequelize.Op.ne]: null },
+        arValue: { [db.Sequelize.Op.ne]: null },
         year,
         paymentRequestNumber,
         revenueOrCapital,
@@ -61,6 +71,11 @@ describe('get transaction summary data', () => {
     expect(db.reportData.findAll).toHaveBeenCalledWith({
       where: {
         sourceSystem: sourceSystems.SFI,
+        value: { [db.Sequelize.Op.ne]: null },
+        batch: { [db.Sequelize.Op.ne]: null },
+        routedToRequestEditor: { [db.Sequelize.Op.ne]: null },
+        apValue: { [db.Sequelize.Op.ne]: null },
+        arValue: { [db.Sequelize.Op.ne]: null },
         year,
         paymentRequestNumber,
         revenueOrCapital
@@ -69,7 +84,7 @@ describe('get transaction summary data', () => {
     })
   })
 
-  test('should return data when year, prn and revenueOrCapital are not provided', async () => {
+  test('should return data when only frn is provided', async () => {
     const schemeId = schemes.SFI
     const frn = 1234567890
     const mockData = [{ id: 1, frn, value: 'test data' }]
@@ -84,6 +99,11 @@ describe('get transaction summary data', () => {
     expect(db.reportData.findAll).toHaveBeenCalledWith({
       where: {
         sourceSystem: sourceSystems.SFI,
+        value: { [db.Sequelize.Op.ne]: null },
+        batch: { [db.Sequelize.Op.ne]: null },
+        routedToRequestEditor: { [db.Sequelize.Op.ne]: null },
+        apValue: { [db.Sequelize.Op.ne]: null },
+        arValue: { [db.Sequelize.Op.ne]: null },
         frn
       },
       raw: true
@@ -127,7 +147,12 @@ describe('get transaction summary data', () => {
     expect(getSourceSystem).toHaveBeenCalledWith(schemeId)
     expect(db.reportData.findAll).toHaveBeenCalledWith({
       where: {
-        sourceSystem: expectedSourceSystem
+        sourceSystem: expectedSourceSystem,
+        value: { [db.Sequelize.Op.ne]: null },
+        batch: { [db.Sequelize.Op.ne]: null },
+        routedToRequestEditor: { [db.Sequelize.Op.ne]: null },
+        apValue: { [db.Sequelize.Op.ne]: null },
+        arValue: { [db.Sequelize.Op.ne]: null }
       },
       raw: true
     })
