@@ -6,7 +6,8 @@ const routes = [].concat(
   require('../routes/ar-report-data'),
   require('../routes/request-editor-report-data'),
   require('../routes/claim-level-report'),
-  require('../routes/transaction-summary')
+  require('../routes/transaction-summary'),
+  require('../routes/payment-requests')
 )
 
 module.exports = {

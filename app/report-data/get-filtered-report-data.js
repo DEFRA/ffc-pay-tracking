@@ -8,7 +8,22 @@ const getFilteredReportData = async (schemeId, year, paymentRequestNumber, reven
   }
 
   const where = {
-    sourceSystem
+    sourceSystem,
+    value: {
+      [db.Sequelize.Op.ne]: null
+    },
+    batch: {
+      [db.Sequelize.Op.ne]: null
+    },
+    routedToRequestEditor: {
+      [db.Sequelize.Op.ne]: null
+    },
+    apValue: {
+      [db.Sequelize.Op.ne]: null
+    },
+    arValue: {
+      [db.Sequelize.Op.ne]: null
+    }
   }
 
   if (year) {
