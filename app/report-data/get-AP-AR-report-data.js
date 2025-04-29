@@ -6,6 +6,9 @@ const getAPARReportData = async (startDate, endDate, ledger) => {
   const whereClause = {
     [valueToCheck]: {
       [db.Sequelize.Op.ne]: null
+    },
+    daxFileName: {
+      [db.Sequelize.Op.ne]: null
     }
   }
 
