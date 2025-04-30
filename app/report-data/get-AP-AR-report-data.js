@@ -24,17 +24,9 @@ async function getYearChunks (startDate, endDate) {
 async function streamChunkToJsonFile (startDate, endDate, ledger, chunkIndex) {
   const valueToCheck = ledger === AP ? 'apValue' : 'arValue'
   const whereClause = {
-<<<<<<< HEAD
-    [valueToCheck]: {
-      [db.Sequelize.Op.ne]: null
-    },
-    daxFileName: {
-      [db.Sequelize.Op.ne]: null
-    }
-=======
     [valueToCheck]: { [db.Sequelize.Op.ne]: null },
+    daxFileName: { [db.Sequelize.Op.ne]: null },
     lastUpdated: { [db.Sequelize.Op.between]: [startDate, endDate] }
->>>>>>> 9c38286 (Chunking up data retrieval by year)
   }
 
   const client = await db.sequelize.connectionManager.getConnection()
