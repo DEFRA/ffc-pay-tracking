@@ -1,11 +1,12 @@
-// report-data/save-AP-AR-report-data.js
-const fs = require('fs')
-const path = require('path')
+const { PassThrough } = require('stream')
 const { AP } = require('../constants/ledgers')
 const db = require('../data')
 const QueryStream = require('pg-query-stream')
-const JSONStream = require('JSONStream')
-const async = require('async') // Import async package
+const { saveReportFile } = require('../storage')
+
+function toYYYYMMDD (date) {
+  return date.toISOString().split('T')[0]
+}
 
 async function getYearChunks (startDate, endDate) {
   const chunks = []
@@ -21,72 +22,63 @@ async function getYearChunks (startDate, endDate) {
   return chunks
 }
 
-async function streamChunkToJsonFile (startDate, endDate, ledger, chunkIndex) {
+async function streamChunkToWriteStream (startDate, endDate, ledger, client, writeStream, rowState) {
   const valueToCheck = ledger === AP ? 'apValue' : 'arValue'
   const whereClause = {
     [valueToCheck]: { [db.Sequelize.Op.ne]: null },
-    daxFileName: { [db.Sequelize.Op.ne]: null },
+    // daxFileName: { [db.Sequelize.Op.ne]: null }, // Waiting on Sam to test
     lastUpdated: { [db.Sequelize.Op.between]: [startDate, endDate] }
   }
 
-  const client = await db.sequelize.connectionManager.getConnection()
   const whereSql = db.sequelize.getQueryInterface().queryGenerator.getWhereConditions(
     whereClause,
     db.reportData.getTableName()
   )
 
   const sql = `SELECT * FROM ${db.reportData.getTableName()} WHERE ${whereSql}`
-  const pgStream = client.query(new QueryStream(sql, [], { batchSize: 1000 }))
-
-  const outFilePath = path.join(__dirname, `ar-report-chunk-${chunkIndex}.json`)
-  const jsonStream = JSONStream.stringify('[', ',', ']')
-  const writeStream = fs.createWriteStream(outFilePath)
+  const pgStream = client.query(new QueryStream(sql, [], { batchSize: 5000 }))
 
   return new Promise((resolve, reject) => {
-    writeStream
-      .on('finish', async () => {
-        await db.sequelize.connectionManager.releaseConnection(client)
-        console.log(`✅ Finished chunk ${chunkIndex}: ${outFilePath}`)
-        resolve(outFilePath)
-      })
-      .on('error', reject)
+    pgStream.on('data', (row) => {
+      const json = JSON.stringify(row)
+      if (!rowState.firstRow) {
+        writeStream.write(',\n')
+      }
+      writeStream.write(json)
+      rowState.firstRow = false
+    })
 
-    pgStream
-      .on('error', async (err) => {
-        await db.sequelize.connectionManager.releaseConnection(client)
-        console.error(`❌ Error in chunk ${chunkIndex}`, err)
-        reject(err)
-      })
-      .pipe(jsonStream)
-      .pipe(writeStream)
+    pgStream.on('end', resolve)
+    pgStream.on('error', reject)
   })
 }
 
 async function saveAPARReportDataJson (startDate, endDate, ledger) {
+  console.log(`Generating AR report from ${toYYYYMMDD(startDate)} to ${toYYYYMMDD(endDate)}`)
+  
+  const filename = `ffc-pay-${ledger.toLowerCase()}-listing-report-from-${toYYYYMMDD(startDate)}-to-${toYYYYMMDD(endDate)}.json`
+  const writeStream = new PassThrough()
+  const client = await db.sequelize.connectionManager.getConnection()
+
+  const savePromise = saveReportFile(filename, writeStream)
+
+  writeStream.write('[\n') // Start of JSON file.
+
   const chunks = await getYearChunks(startDate, endDate)
+  const rowState = { firstRow: true }
 
-  // Use async.parallelLimit to manage concurrency
-  const filePaths = await new Promise((resolve, reject) => {
-    async.parallelLimit(
-      chunks.map((chunk, index) => {
-        return (callback) => {
-          streamChunkToJsonFile(chunk.start, chunk.end, ledger, index)
-            .then(filePath => callback(null, filePath))
-            .catch(callback)
-        }
-      }),
-      3, // Limit to 3 concurrent tasks
-      (err, result) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(result)
-        }
-      }
-    )
-  })
+  for (let i = 0; i < chunks.length; i++) {
+    console.debug(`Processing chunk ${i}`)
+    await streamChunkToWriteStream(chunks[i].start, chunks[i].end, ledger, client, writeStream, rowState)
+  }
 
-  return filePaths
+  writeStream.end('\n]\n') // End of JSON file.
+
+  await savePromise
+  await db.sequelize.connectionManager.releaseConnection(client)
+
+  console.log(`Report successfully saved to Azure Blob Storage as ${filename}`)
+  return filename
 }
 
 module.exports = {
