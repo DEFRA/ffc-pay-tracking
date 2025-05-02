@@ -13,7 +13,7 @@ module.exports = {
       const endDate = request.query.endDate
         ? new Date(request.query.endDate)
         : null
-        
+
       const reportFilePath = await saveAPARReportDataJson(startDate, endDate, AR)
       return h.response({ file: reportFilePath })
     }

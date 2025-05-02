@@ -55,7 +55,7 @@ async function streamChunkToWriteStream (startDate, endDate, ledger, client, wri
 
 async function saveAPARReportDataJson (startDate, endDate, ledger) {
   console.log(`Generating AR report from ${toYYYYMMDD(startDate)} to ${toYYYYMMDD(endDate)}`)
-  
+
   const filename = `ffc-pay-${ledger.toLowerCase()}-listing-report-from-${toYYYYMMDD(startDate)}-to-${toYYYYMMDD(endDate)}.json`
   const writeStream = new PassThrough()
   const client = await db.sequelize.connectionManager.getConnection()
