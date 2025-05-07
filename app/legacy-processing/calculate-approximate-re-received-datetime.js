@@ -1,5 +1,7 @@
+const { CS, BPS } = require('../constants/source-systems')
+
 const calculateApproximateREReceivedDateTime = (primaryPaymentRequest, paymentRequest) => {
-  if (primaryPaymentRequest.paymentRequestNumber <= 1) {
+  if (primaryPaymentRequest.paymentRequestNumber <= 1 || [CS, BPS].includes(primaryPaymentRequest.sourceSystem)) {
     return null
   }
   if (primaryPaymentRequest.debtType && paymentRequest.completedPaymentRequests?.[0]) {
