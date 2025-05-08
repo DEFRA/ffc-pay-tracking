@@ -1,5 +1,5 @@
 const getStatusDaxImported = (paymentRequest) => {
-  const fields = { status: 'Waiting for debt data', daxImported: null }
+  const fields = { }
   if (paymentRequest.completedPaymentRequests?.[0]?.ledger === 'AP' && paymentRequest.completedPaymentRequests[0]?.settledValue) {
     fields.status = 'Settled by payment ledger'
     fields.daxImported = 'Y'
@@ -10,6 +10,8 @@ const getStatusDaxImported = (paymentRequest) => {
     fields.status = 'Submitted to payment ledger'
   } else if (paymentRequest.debtType) {
     fields.status = 'Waiting for ledger assignment'
+  } else {
+    fields.status = 'Waiting for debt data'
   }
   return fields
 }
