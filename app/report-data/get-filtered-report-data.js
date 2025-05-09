@@ -1,13 +1,9 @@
 const db = require('../data')
 const { getSourceSystem } = require('../helpers/get-source-system')
+const { generateSqlQuery, exportQueryToJsonFile } = require('./report-file-generator.js')
 
-const getFilteredReportData = async (schemeId, year, paymentRequestNumber, revenueOrCapital, frn) => {
-  const sourceSystem = getSourceSystem(schemeId)
-  if (!sourceSystem) {
-    throw new Error(`Source system not found for schemeId: ${schemeId}`)
-  }
-
-  const where = {
+const generateReportSql = async (sourceSystem, year, paymentRequestNumber, revenueOrCapital, frn) => {
+  const whereClause = {
     sourceSystem,
     value: {
       [db.Sequelize.Op.ne]: null
@@ -27,25 +23,33 @@ const getFilteredReportData = async (schemeId, year, paymentRequestNumber, reven
   }
 
   if (year) {
-    where.year = year
+    whereClause.year = year
   }
 
   if (paymentRequestNumber) {
-    where.paymentRequestNumber = paymentRequestNumber
+    whereClause.paymentRequestNumber = paymentRequestNumber
   }
 
   if (frn) {
-    where.frn = frn
+    whereClause.frn = frn
   }
 
   if (revenueOrCapital) {
-    where.revenueOrCapital = revenueOrCapital
+    whereClause.revenueOrCapital = revenueOrCapital
   }
 
-  return db.reportData.findAll({
-    where,
-    raw: true
-  })
+  return generateSqlQuery(whereClause)
+}
+
+const getFilteredReportData = async (schemeId, year, paymentRequestNumber, revenueOrCapital, frn) => {
+  const sourceSystem = getSourceSystem(schemeId)
+  if (!sourceSystem) {
+    throw new Error(`Source system not found for schemeId: ${schemeId}`)
+  }
+
+  const sql = await generateReportSql(sourceSystem, year, paymentRequestNumber, revenueOrCapital, frn)
+
+  return exportQueryToJsonFile(sql, sourceSystem)
 }
 
 module.exports = {

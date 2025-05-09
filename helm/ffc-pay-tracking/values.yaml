@@ -30,6 +30,8 @@ container:
   eventsSubscriptionAddress: ffc-pay-tracking
   paymentsEndpoint: http://ffc-pay-processing.ffc-pay
   processingActive: true
+  azureStorageAccountName: ffcpay
+  azureStorageUseConnectionString: false
 
 postgresService:
   postgresDb: ffc_pay_tracking
