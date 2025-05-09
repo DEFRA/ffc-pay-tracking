@@ -1,9 +1,8 @@
 const { AP } = require('../../constants/ledgers')
-const { GET } = require('../../constants/methods')
-const { saveAPARReportDataJson } = require('../../report-data/get-AP-AR-report-data')
+const { getAPARReportData } = require('../../report-data/get-AP-AR-report-data')
 
 module.exports = {
-  method: GET,
+  method: 'GET',
   path: '/ap-report-data',
   options: {
     handler: async (request, h) => {
@@ -14,10 +13,9 @@ module.exports = {
         ? new Date(request.query.endDate)
         : null
 
-      console.log(`Generating AR report from ${startDate} to ${endDate}`)
+      const reportLocation = await getAPARReportData(startDate, endDate, AP)
 
-      const reportFilePath = await saveAPARReportDataJson(startDate, endDate, AP)
-      return h.response({ file: reportFilePath })
+      return h.response({ file: reportLocation })
     }
   }
 }

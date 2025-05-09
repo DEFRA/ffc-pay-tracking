@@ -1,5 +1,4 @@
 const Hapi = require('@hapi/hapi')
-const { GET } = require('../../../../app/constants/methods')
 const { getFilteredReportData } = require('../../../../app/report-data/get-filtered-report-data')
 const paymentRequestsReport = require('../../../../app/server/routes/payment-requests')
 
@@ -22,7 +21,7 @@ describe('GET /payment-requests-report', () => {
     getFilteredReportData.mockResolvedValue(mockData)
 
     const options = {
-      method: GET,
+      method: 'GET',
       url: '/payment-requests-report',
       payload: {
         schemeId: 1,
