@@ -20,7 +20,7 @@ jest.mock('../../../../app/legacy-processing/calculate-delta-amount')
 jest.mock('../../../../app/legacy-processing/calculate-ledger-value')
 jest.mock('../../../../app/legacy-processing/check-if-revenue-or-capital')
 jest.mock('../../../../app/legacy-processing/get-last-updated-date')
-jest.mock('../../../../app/legacy-processing/get-status-dax-imported') // Updated to mock the correct function
+jest.mock('../../../../app/legacy-processing/get-status-dax-imported')
 jest.mock('../../../../app/legacy-processing/get-year')
 jest.mock('../../../../app/legacy-processing/calculate-dax-prn')
 jest.mock('../../../../app/legacy-processing/calculate-dax-value')
@@ -61,7 +61,7 @@ describe('process legacy payment requests', () => {
     calculateDAXValue.mockReturnValue(200)
     calculateDAXPRN.mockReturnValue(2)
     calculateDeltaAmount.mockReturnValue(300)
-    getStatusDaxImported.mockReturnValue({ status: 'Settled by payment ledger', daxImported: 'Y' }) // Adjusted mock return value
+    getStatusDaxImported.mockReturnValue({ status: 'Settled by payment ledger', daxImported: 'Y' })
     getLastUpdatedDate.mockReturnValue('2023-01-01T00:00:00Z')
     checkIfRevenueOrCapital.mockReturnValue(REVENUE)
     getYear.mockReturnValue(2023)
@@ -83,7 +83,7 @@ describe('process legacy payment requests', () => {
       batch: 'batch.csv',
       sourceSystem: 'sourceSystem',
       batchExportDate: null,
-      status: 'Settled by payment ledger', // Updated expected value
+      status: 'Settled by payment ledger',
       lastUpdated: '2023-01-01T00:00:00Z',
       revenueOrCapital: REVENUE,
       year: 2023,
@@ -93,7 +93,7 @@ describe('process legacy payment requests', () => {
       arValue: 500,
       debtType: 'Irregular',
       daxFileName: null,
-      daxImported: 'Y', // Updated expected value
+      daxImported: 'Y',
       settledValue: 1000,
       phError: null,
       daxError: null,
@@ -264,7 +264,7 @@ describe('process legacy payment requests', () => {
       daxError: null,
       receivedInRequestEditor: '2023-01-01T00:00:00Z',
       enriched: 'Y',
-      ledgerSplit: 'Y', // apValue and arValue are non-zero, so ledgerSplit is 'Y'
+      ledgerSplit: 'Y',
       releasedFromRequestEditor: '2023-01-01T00:00:00Z',
       daxPaymentRequestNumber: 2,
       daxValue: 200,
@@ -300,7 +300,7 @@ describe('process legacy payment requests', () => {
     calculateDAXValue.mockReturnValue(200)
     calculateDAXPRN.mockReturnValue(1)
     calculateDeltaAmount.mockReturnValue(300)
-    getStatusDaxImported.mockReturnValue({ status: 'Settled by payment ledger', daxImported: 'N' }) // Updated mock return value
+    getStatusDaxImported.mockReturnValue({ status: 'Settled by payment ledger', daxImported: 'N' })
     getLastUpdatedDate.mockReturnValue('2023-01-01T00:00:00Z')
     checkIfRevenueOrCapital.mockReturnValue(REVENUE)
     getYear.mockReturnValue(2023)
@@ -322,7 +322,7 @@ describe('process legacy payment requests', () => {
       batch: 'batch.csv',
       sourceSystem: 'sourceSystem',
       batchExportDate: null,
-      status: 'Settled by payment ledger', // Updated expected value
+      status: 'Settled by payment ledger',
       lastUpdated: '2023-01-01T00:00:00Z',
       revenueOrCapital: REVENUE,
       year: 2023,
@@ -332,7 +332,7 @@ describe('process legacy payment requests', () => {
       arValue: 500,
       debtType: null,
       daxFileName: null,
-      daxImported: 'N', // Updated expected value
+      daxImported: 'N',
       settledValue: 1000,
       phError: null,
       daxError: null,
@@ -377,7 +377,7 @@ describe('process legacy payment requests', () => {
     calculateDAXValue.mockReturnValue(200)
     calculateDAXPRN.mockReturnValue(2)
     calculateDeltaAmount.mockReturnValue(300)
-    getStatusDaxImported.mockReturnValue({ status: 'Settled by payment ledger', daxImported: 'N' }) // Updated mock return value
+    getStatusDaxImported.mockReturnValue({ status: 'Settled by payment ledger', daxImported: 'N' })
     getLastUpdatedDate.mockReturnValue('2023-01-01T00:00:00Z')
     checkIfRevenueOrCapital.mockReturnValue(REVENUE)
     getYear.mockReturnValue(2023)
@@ -399,7 +399,7 @@ describe('process legacy payment requests', () => {
       batch: 'batch.csv',
       sourceSystem: 'sourceSystem',
       batchExportDate: null,
-      status: 'Settled by payment ledger', // Updated expected value
+      status: 'Settled by payment ledger',
       lastUpdated: '2023-01-01T00:00:00Z',
       revenueOrCapital: REVENUE,
       year: 2023,
@@ -414,7 +414,7 @@ describe('process legacy payment requests', () => {
       phError: null,
       daxError: null,
       receivedInRequestEditor: '2023-01-01T00:00:00Z',
-      enriched: 'N', // Updated expected value
+      enriched: 'N',
       ledgerSplit: 'Y',
       releasedFromRequestEditor: undefined,
       daxPaymentRequestNumber: 2,
@@ -430,7 +430,6 @@ describe('process legacy payment requests', () => {
     expect(updateReportData).toHaveBeenCalledWith(expectedData, SFI)
   })
 
-  // Additional tests for 'releasedFromRequestEditor'
   test('should set releasedFromRequestEditor to null if sourceSystem is CS', async () => {
     const paymentRequest = {
       correlationId: 'correlationId',
