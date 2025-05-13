@@ -8,22 +8,17 @@ describe('GET /transaction-summary', () => {
     jest.clearAllMocks()
   })
 
-  test('should return transaction summary data when schemeId, year, prn, revenueOrCapital, and frn are provided', async () => {
-    const mockData = [{ id: 1, value: 'test data' }]
-    getFilteredReportData.mockResolvedValue(mockData)
+  test('should return file path when all query params are provided', async () => {
+    const mockFilePath = '/path/to/transaction-summary.csv'
+    getFilteredReportData.mockResolvedValue(mockFilePath)
 
-    const schemeId = 1
-    const year = 2023
-    const prn = 1
-    const revenueOrCapital = 'revenue'
-    const frn = 123456
     const mockRequest = {
       query: {
-        schemeId,
-        year,
-        prn,
-        revenueOrCapital,
-        frn
+        schemeId: 1,
+        year: 2023,
+        prn: 1,
+        revenueOrCapital: 'revenue',
+        frn: 123456
       }
     }
     const mockH = {
@@ -32,25 +27,20 @@ describe('GET /transaction-summary', () => {
 
     await options.handler(mockRequest, mockH)
 
-    expect(getFilteredReportData).toHaveBeenCalledWith(schemeId, year, prn, revenueOrCapital, frn)
-    expect(getFilteredReportData).toHaveBeenCalledTimes(1)
-    expect(mockH.response).toHaveBeenCalledWith({ reportData: mockData })
+    expect(getFilteredReportData).toHaveBeenCalledWith(1, 2023, 1, 'revenue', 123456)
+    expect(mockH.response).toHaveBeenCalledWith({ file: mockFilePath })
   })
 
-  test('should return transaction summary data when frn is not provided', async () => {
-    const mockData = [{ id: 1, value: 'test data' }]
-    getFilteredReportData.mockResolvedValue(mockData)
+  test('should return file path when frn is not provided', async () => {
+    const mockFilePath = '/path/to/transaction-summary.csv'
+    getFilteredReportData.mockResolvedValue(mockFilePath)
 
-    const schemeId = 1
-    const year = 2023
-    const prn = 1
-    const revenueOrCapital = 'capital'
     const mockRequest = {
       query: {
-        schemeId,
-        year,
-        prn,
-        revenueOrCapital
+        schemeId: 1,
+        year: 2023,
+        prn: 1,
+        revenueOrCapital: 'capital'
       }
     }
     const mockH = {
@@ -59,19 +49,17 @@ describe('GET /transaction-summary', () => {
 
     await options.handler(mockRequest, mockH)
 
-    expect(getFilteredReportData).toHaveBeenCalledWith(schemeId, year, prn, revenueOrCapital, undefined)
-    expect(getFilteredReportData).toHaveBeenCalledTimes(1)
-    expect(mockH.response).toHaveBeenCalledWith({ reportData: mockData })
+    expect(getFilteredReportData).toHaveBeenCalledWith(1, 2023, 1, 'capital', undefined)
+    expect(mockH.response).toHaveBeenCalledWith({ file: mockFilePath })
   })
 
-  test('should return transaction summary data when only schemeId is provided', async () => {
-    const mockData = [{ id: 1, value: 'test data' }]
-    getFilteredReportData.mockResolvedValue(mockData)
+  test('should return file path when only schemeId is provided', async () => {
+    const mockFilePath = '/path/to/transaction-summary.csv'
+    getFilteredReportData.mockResolvedValue(mockFilePath)
 
-    const schemeId = 1
     const mockRequest = {
       query: {
-        schemeId
+        schemeId: 1
       }
     }
     const mockH = {
@@ -80,8 +68,7 @@ describe('GET /transaction-summary', () => {
 
     await options.handler(mockRequest, mockH)
 
-    expect(getFilteredReportData).toHaveBeenCalledWith(schemeId, undefined, undefined, undefined, undefined)
-    expect(getFilteredReportData).toHaveBeenCalledTimes(1)
-    expect(mockH.response).toHaveBeenCalledWith({ reportData: mockData })
+    expect(getFilteredReportData).toHaveBeenCalledWith(1, undefined, undefined, undefined, undefined)
+    expect(mockH.response).toHaveBeenCalledWith({ file: mockFilePath })
   })
 })

@@ -1,6 +1,6 @@
 const { BPS, CS, FDMR } = require('../constants/source-systems')
 const { getSourceSystem } = require('../helpers/get-source-system')
-const { exportQueryToJsonFile } = require('./report-file-generator.js')
+const { exportQueryToJsonFile } = require('./report-file-generator')
 
 const generateReportSql = async (sourceSystem, year, revenueOrCapital, frn) => {
   let additionalProperty1 = 'agreementNumber'
@@ -31,35 +31,38 @@ const generateReportSql = async (sourceSystem, year, revenueOrCapital, frn) => {
     whereClause += ` AND "revenueOrCapital" = "${revenueOrCapital}"`
   }
 
+  const partitionColumns = ['"sourceSystem"', 'frn']
+  if (additionalProperty1) partitionColumns.push(`"${additionalProperty1}"`)
+  if (additionalProperty2) partitionColumns.push(`"${additionalProperty2}"`)
+
+  const partitionClause = `PARTITION BY ${partitionColumns.join(', ')}`
+
   return `WITH "rankedData" AS (
-        SELECT
-          *,
-          ROW_NUMBER() OVER (
-            PARTITION BY
-              "sourceSystem",
-              frn
-              ${additionalProperty1 ? `, "${additionalProperty1}"` : ''}
-              ${additionalProperty2 ? `, "${additionalProperty2}"` : ''}
-            ORDER BY
-              "paymentRequestNumber" DESC,
-              "lastUpdated" DESC
-          ) AS row_num
-        FROM
-        "reportData"
-        ${whereClause}
-      )
       SELECT
-        *
+        *,
+        ROW_NUMBER() OVER (
+          ${partitionClause}
+          ORDER BY
+            "paymentRequestNumber" DESC,
+            "lastUpdated" DESC
+        ) AS row_num
       FROM
-        "rankedData"
-      WHERE
-          row_num = 1`
+        "reportData"
+      ${whereClause}
+    )
+    SELECT
+      *
+    FROM
+      "rankedData"
+    WHERE
+      row_num = 1`
 }
 
 const getClaimLevelReportData = async (schemeId, year, revenueOrCapital, frn) => {
   const sourceSystem = getSourceSystem(schemeId)
-
-  console.log(sourceSystem)
+  if (!sourceSystem) {
+    throw new Error(`Source system not found for schemeId: ${schemeId}`)
+  }
 
   const sql = await generateReportSql(sourceSystem, year, revenueOrCapital, frn)
 

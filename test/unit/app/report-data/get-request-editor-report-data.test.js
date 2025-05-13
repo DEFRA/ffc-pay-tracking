@@ -1,29 +1,28 @@
-const db = require('../../../../app/data')
+const reportFileGenerator = require('../../../../app/report-data/report-file-generator')
 const { getRequestEditorReportData } = require('../../../../app/report-data/get-request-editor-report-data')
 
-jest.mock('../../../../app/data', () => ({
-  Sequelize: {
-    Op: {
-      ne: Symbol('ne'),
-      between: Symbol('between')
-    }
-  },
-  reportData: {
-    findAll: jest.fn()
-  }
+jest.mock('../../../../app/report-data/report-file-generator', () => ({
+  generateSqlQuery: jest.fn(),
+  exportQueryToJsonFile: jest.fn()
 }))
 
 describe('getRequestEditorReportData', () => {
-  test('should call findAll with correct where clause', async () => {
-    const expectedWhereClause = {
+  const mockSql = 'SELECT * FROM report WHERE routedToRequestEditor = "Y"'
+  const mockData = [{ id: 1, routedToRequestEditor: 'Y' }]
+
+  beforeEach(() => {
+    reportFileGenerator.generateSqlQuery.mockReturnValue(mockSql)
+    reportFileGenerator.exportQueryToJsonFile.mockResolvedValue(mockData)
+  })
+
+  test('should generate SQL with correct where clause and export JSON', async () => {
+    const result = await getRequestEditorReportData()
+
+    expect(reportFileGenerator.generateSqlQuery).toHaveBeenCalledWith({
       routedToRequestEditor: 'Y'
-    }
-
-    await getRequestEditorReportData()
-
-    expect(db.reportData.findAll).toHaveBeenCalledWith({
-      where: expectedWhereClause,
-      raw: true
     })
+
+    expect(reportFileGenerator.exportQueryToJsonFile).toHaveBeenCalledWith(mockSql)
+    expect(result).toEqual(mockData)
   })
 })

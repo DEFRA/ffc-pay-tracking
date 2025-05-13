@@ -37,23 +37,8 @@ const saveReportFile = async (filename, readableStream) => {
       }
     }
 
-    return new Promise((resolve, reject) => {
-      readableStream.on('error', (err) => {
-        reject(err)
-      })
-
-      client.uploadStream(
-        readableStream,
-        BUFFER_SIZE,
-        MAX_CONCURRENCY,
-        options
-      )
-        .then(() => {
-          console.debug('[STORAGE] Upload completed')
-          resolve()
-        })
-        .catch(reject)
-    })
+    await client.uploadStream(readableStream, BUFFER_SIZE, MAX_CONCURRENCY, options)
+    console.debug('[STORAGE] Upload completed')
   } catch (error) {
     console.error('[STORAGE] Error saving report file:', error)
     throw error
