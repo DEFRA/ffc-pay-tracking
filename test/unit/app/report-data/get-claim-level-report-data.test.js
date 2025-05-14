@@ -36,7 +36,7 @@ describe('getClaimLevelReportData', () => {
           "sourceSystem" = '${sourceSystem}'
           AND "year" = ${year}
           AND "frn" = ${frn}
-          AND "revenueOrCapital" = "${revenueOrCapital}"
+          AND "revenueOrCapital" = '${revenueOrCapital}'
       )
       SELECT
         *
