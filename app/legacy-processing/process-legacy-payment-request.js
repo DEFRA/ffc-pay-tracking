@@ -4,7 +4,7 @@ const { calculateDeltaAmount } = require('./calculate-delta-amount')
 const { calculateLedgerValue } = require('./calculate-ledger-value')
 const { checkIfRevenueOrCapital } = require('./check-if-revenue-or-capital')
 const { getLastUpdatedDate } = require('./get-last-updated-date')
-const { getStatus } = require('./get-status')
+const { getStatusDaxImported } = require('./get-status-dax-imported')
 const { getYear } = require('./get-year')
 const { calculateDAXPRN } = require('./calculate-dax-prn')
 const { calculateDAXValue } = require('./calculate-dax-value')
@@ -52,6 +52,7 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
   const deltaAmount = calculateDeltaAmount(paymentRequest)
   const daxValue = calculateDAXValue(deltaAmount, paymentRequest)
   const routedToRequestEditor = determineRoutedToRequestEditor(primaryPaymentRequest)
+  const { status, daxImported } = getStatusDaxImported(paymentRequest)
 
   const data = {
     correlationId: paymentRequest.correlationId,
@@ -67,7 +68,7 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
     batch: primaryPaymentRequest.batch,
     sourceSystem: primaryPaymentRequest.sourceSystem,
     batchExportDate: null,
-    status: getStatus(paymentRequest),
+    status,
     lastUpdated: getLastUpdatedDate(paymentRequest),
     revenueOrCapital: checkIfRevenueOrCapital(primaryPaymentRequest),
     year: getYear(primaryPaymentRequest, checkIfRevenueOrCapital(primaryPaymentRequest)),
@@ -77,7 +78,7 @@ const processLegacyPaymentRequest = async (paymentRequest) => {
     arValue,
     debtType: formatDebtType(primaryPaymentRequest.debtType),
     daxFileName: null,
-    daxImported: paymentRequest.completedPaymentRequests?.[0]?.acknowledged ? 'Y' : 'N',
+    daxImported,
     settledValue: primaryPaymentRequest.settledValue,
     phError: null,
     daxError: null,

@@ -19,6 +19,9 @@ describe('getAPARReportData', () => {
         apValue: {
           [db.Sequelize.Op.ne]: null
         },
+        daxFileName: {
+          [db.Sequelize.Op.ne]: null
+        },
         lastUpdated: {
           [db.Sequelize.Op.between]: [startDate, endDate]
         }
@@ -41,6 +44,9 @@ describe('getAPARReportData', () => {
         arValue: {
           [db.Sequelize.Op.ne]: null
         },
+        daxFileName: {
+          [db.Sequelize.Op.ne]: null
+        },
         lastUpdated: {
           [db.Sequelize.Op.between]: [startDate, endDate]
         }
@@ -60,6 +66,9 @@ describe('getAPARReportData', () => {
       where: {
         apValue: {
           [db.Sequelize.Op.ne]: null
+        },
+        daxFileName: {
+          [db.Sequelize.Op.ne]: null
         }
       },
       raw: true
@@ -76,6 +85,9 @@ describe('getAPARReportData', () => {
     expect(db.reportData.findAll).toHaveBeenCalledWith({
       where: {
         arValue: {
+          [db.Sequelize.Op.ne]: null
+        },
+        daxFileName: {
           [db.Sequelize.Op.ne]: null
         }
       },
