@@ -61,7 +61,9 @@ const generateSqlQuery = (whereClause = null) => {
   const tableName = db.reportData.getTableName()
   const baseQuery = `SELECT * FROM ${tableName}`
 
-  if (!whereClause) return baseQuery
+  if (!whereClause) {
+    return baseQuery
+  }
 
   const queryGenerator = db.sequelize.getQueryInterface().queryGenerator
   const whereSql = queryGenerator.getWhereConditions(whereClause, tableName)

@@ -32,8 +32,13 @@ const generateReportSql = async (sourceSystem, year, revenueOrCapital, frn) => {
   }
 
   const partitionColumns = ['"sourceSystem"', 'frn']
-  if (additionalProperty1) partitionColumns.push(`"${additionalProperty1}"`)
-  if (additionalProperty2) partitionColumns.push(`"${additionalProperty2}"`)
+  if (additionalProperty1) {
+    partitionColumns.push(`"${additionalProperty1}"`)
+  }
+
+  if (additionalProperty2) {
+    partitionColumns.push(`"${additionalProperty2}"`)
+  }
 
   const partitionClause = `PARTITION BY ${partitionColumns.join(', ')}`
 
