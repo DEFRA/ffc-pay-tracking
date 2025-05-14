@@ -28,7 +28,7 @@ const generateReportSql = async (sourceSystem, year, revenueOrCapital, frn) => {
   }
 
   if (revenueOrCapital) {
-    whereClause += ` AND "revenueOrCapital" = "${revenueOrCapital}"`
+    whereClause += ` AND "revenueOrCapital" = '${revenueOrCapital}'`
   }
 
   const partitionColumns = ['"sourceSystem"', 'frn']
