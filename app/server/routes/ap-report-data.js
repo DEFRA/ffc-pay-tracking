@@ -1,8 +1,9 @@
 const { AP } = require('../../constants/ledgers')
+const { GET } = require('../../constants/methods')
 const { getAPARReportData } = require('../../report-data/get-AP-AR-report-data')
 
 module.exports = {
-  method: 'GET',
+  method: GET,
   path: '/ap-report-data',
   options: {
     handler: async (request, h) => {

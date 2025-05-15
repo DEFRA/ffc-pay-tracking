@@ -1,7 +1,8 @@
+const { GET } = require('../../constants/methods')
 const { getFilteredReportData } = require('../../report-data/get-filtered-report-data')
 
 module.exports = {
-  method: 'GET',
+  method: GET,
   path: '/transaction-summary',
   options: {
     handler: async (request, h) => {

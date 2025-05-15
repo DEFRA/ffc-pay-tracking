@@ -31,6 +31,7 @@ describe('getAPARReportData', () => {
 
     expect(generateSqlQuery).toHaveBeenCalledWith({
       apValue: { NE_OP: null },
+      daxFileName: { NE_OP: null },
       lastUpdated: { BETWEEN_OP: [startDate, endDate] }
     })
     expect(exportQueryToJsonFile).toHaveBeenCalledWith(mockSql)
@@ -49,6 +50,7 @@ describe('getAPARReportData', () => {
 
     expect(generateSqlQuery).toHaveBeenCalledWith({
       arValue: { NE_OP: null },
+      daxFileName: { NE_OP: null },
       lastUpdated: { BETWEEN_OP: [startDate, endDate] }
     })
     expect(exportQueryToJsonFile).toHaveBeenCalledWith(mockSql)

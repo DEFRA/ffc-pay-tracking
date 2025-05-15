@@ -6,6 +6,7 @@ const generateReportSql = async (startDate, endDate, ledger) => {
   const valueToCheck = ledger === AP ? 'apValue' : 'arValue'
   const whereClause = {
     [valueToCheck]: { [db.Sequelize.Op.ne]: null },
+    daxFileName: { [db.Sequelize.Op.ne]: null },
     lastUpdated: { [db.Sequelize.Op.between]: [startDate, endDate] }
   }
 
