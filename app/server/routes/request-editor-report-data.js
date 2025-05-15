@@ -6,8 +6,9 @@ module.exports = {
   path: '/request-editor-report',
   options: {
     handler: async (request, h) => {
-      const reReportData = await getRequestEditorReportData()
-      return h.response({ reReportData })
+      const reportLocation = await getRequestEditorReportData()
+
+      return h.response({ file: reportLocation })
     }
   }
 }

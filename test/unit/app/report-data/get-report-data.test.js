@@ -1,18 +1,25 @@
-const db = require('../../../../app/data')
 const { getReportData } = require('../../../../app/report-data/get-report-data')
+const reportFileGenerator = require('../../../../app/report-data/report-file-generator')
 
-jest.mock('../../../../app/data', () => ({
-  reportData: {
-    findAll: jest.fn()
-  }
+jest.mock('../../../../app/report-data/report-file-generator', () => ({
+  generateSqlQuery: jest.fn(),
+  exportQueryToJsonFile: jest.fn()
 }))
 
-test('getReportData returns all report data', async () => {
-  const mockData = [{ id: 1 }, { id: 2 }, { id: 3 }]
-  db.reportData.findAll.mockResolvedValue(mockData)
+describe('getReportData', () => {
+  const mockSql = 'SELECT * FROM reports'
+  const mockJsonData = [{ id: 1, value: 'Test' }]
 
-  const result = await getReportData()
+  beforeEach(() => {
+    reportFileGenerator.generateSqlQuery.mockReturnValue(mockSql)
+    reportFileGenerator.exportQueryToJsonFile.mockResolvedValue(mockJsonData)
+  })
 
-  expect(result).toEqual(mockData)
-  expect(db.reportData.findAll).toHaveBeenCalledWith({ raw: true })
+  test('should generate SQL and export JSON data', async () => {
+    const result = await getReportData()
+
+    expect(reportFileGenerator.generateSqlQuery).toHaveBeenCalled()
+    expect(reportFileGenerator.exportQueryToJsonFile).toHaveBeenCalledWith(mockSql)
+    expect(result).toEqual(mockJsonData)
+  })
 })

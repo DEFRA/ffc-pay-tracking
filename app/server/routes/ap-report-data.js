@@ -7,10 +7,16 @@ module.exports = {
   path: '/ap-report-data',
   options: {
     handler: async (request, h) => {
-      const startDate = request.query.startDate ? new Date(request.query.startDate) : null
-      const endDate = request.query.endDate ? new Date(request.query.endDate) : null
-      const apReportData = await getAPARReportData(startDate, endDate, AP)
-      return h.response({ apReportData })
+      const startDate = request.query.startDate
+        ? new Date(request.query.startDate)
+        : null
+      const endDate = request.query.endDate
+        ? new Date(request.query.endDate)
+        : null
+
+      const reportLocation = await getAPARReportData(startDate, endDate, AP)
+
+      return h.response({ file: reportLocation })
     }
   }
 }
