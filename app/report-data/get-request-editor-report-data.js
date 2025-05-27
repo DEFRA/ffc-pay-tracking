@@ -1,14 +1,16 @@
-const db = require('../data')
+const { generateSqlQuery, exportQueryToJsonFile } = require('./report-file-generator.js')
 
-const getRequestEditorReportData = async () => {
+const generateReportSql = () => {
   const whereClause = {
     routedToRequestEditor: 'Y'
   }
 
-  return db.reportData.findAll({
-    where: whereClause,
-    raw: true
-  })
+  return generateSqlQuery(whereClause)
+}
+
+const getRequestEditorReportData = async () => {
+  const sql = generateReportSql()
+  return exportQueryToJsonFile(sql)
 }
 
 module.exports = {

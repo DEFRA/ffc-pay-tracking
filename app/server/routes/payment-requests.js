@@ -7,8 +7,10 @@ module.exports = {
   options: {
     handler: async (request, h) => {
       const { schemeId, year, revenueOrCapital, prn, frn } = request.query
-      const paymentRequestsReportData = await getFilteredReportData(schemeId, year, prn, revenueOrCapital, frn)
-      return h.response({ paymentRequestsReportData })
+
+      const reportLocation = await getFilteredReportData(schemeId, year, prn, revenueOrCapital, frn)
+
+      return h.response({ file: reportLocation })
     }
   }
 }

@@ -12,6 +12,14 @@ jest.mock('../../../../app/config', () => ({
   serverConfig: {
     port: 1234,
     isDev: false
+  },
+  storageConfig: {
+    useConnectionStr: true,
+    connectionStr: 'UseDevelopmentStorage=true;',
+    storageAccount: 'fakeaccount',
+    managedIdentityClientId: 'fake-client-id',
+    dataRequestContainer: 'mock-container',
+    createContainers: false
   }
 }))
 

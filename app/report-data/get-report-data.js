@@ -1,9 +1,9 @@
-const db = require('../data')
+const { generateSqlQuery, exportQueryToJsonFile } = require('./report-file-generator.js')
 
 const getReportData = async () => {
-  return db.reportData.findAll({
-    raw: true
-  })
+  const sql = generateSqlQuery()
+
+  return exportQueryToJsonFile(sql)
 }
 
 module.exports = {
