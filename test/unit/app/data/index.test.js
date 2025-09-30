@@ -1,64 +1,58 @@
-const fs = require('fs')
 const path = require('path')
-const Sequelize = require('sequelize')
 
-jest.mock('fs', () => ({
-  readdirSync: jest.fn(() => ['reportData.js'])
-}))
+jest.resetModules()
 
-jest.mock('sequelize', () => {
-  const mSequelize = {
-    define: jest.fn((modelName, modelDef) => ({
-      name: modelName,
-      associate: modelDef.associate
-    })),
-    authenticate: jest.fn()
-  }
-
-  const actualSequelize = jest.requireActual('sequelize')
-  actualSequelize.Sequelize = jest.fn(() => mSequelize)
-  return actualSequelize
-})
-
-jest.mock('@azure/identity', () => ({
-  DefaultAzureCredential: jest.fn()
-}))
-
-describe('Database', () => {
-  let db
+describe('db module', () => {
+  let mockConnectReturn
+  let MockDatabase
 
   beforeEach(() => {
-    db = require('../../../../app/data/index')
+    jest.resetModules()
+    jest.clearAllMocks()
+
+    mockConnectReturn = { query: jest.fn(), getRepository: jest.fn() }
+
+    MockDatabase = jest.fn(function (opts) {
+      this._opts = opts
+      this.connect = jest.fn().mockReturnValue(mockConnectReturn)
+    })
+
+    jest.doMock('ffc-database', () => ({ Database: MockDatabase }))
+
+    jest.doMock('../../../../app/config', () => ({ databaseConfig: { host: 'localhost', port: 1234 } }), { virtual: false })
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    jest.dontMock('ffc-database')
+    jest.dontMock('../../../../app/config')
   })
 
-  test('should initialize models', () => {
-    const modelPath = path.resolve(__dirname, '../../../../app/data/models')
+  test('constructs Database with dbConfig merged with modelPath and calls connect', () => {
+    const db = require('../../../../app/data/index')
 
-    expect(fs.readdirSync).toBeCalledWith(modelPath)
-    expect(Sequelize.Sequelize).toHaveBeenCalledTimes(1)
+    expect(MockDatabase).toHaveBeenCalledTimes(1)
+
+    const constructedOpts = MockDatabase.mock.calls[0][0]
+    expect(typeof constructedOpts).toBe('object')
+
+    const moduleDir = path.dirname(require.resolve('../../../../app/data/index'))
+    const expectedModelPath = path.join(moduleDir, 'models')
+    expect(constructedOpts.modelPath).toBe(expectedModelPath)
+
+    const instance = MockDatabase.mock.instances[0]
+    expect(instance.connect).toHaveBeenCalledTimes(1)
+
+    expect(db).toBe(mockConnectReturn)
   })
 
-  jest.mock('../../../../app/data/models/reportData.js', () => {
-    return () => ({
-      name: 'reportData',
-      associate: jest.fn()
-    })
-  })
+  test('forwards databaseConfig properties into Database constructor', () => {
+    require('../../../../app/data/index')
 
-  test('should call associate if it is defined in the model', () => {
-    fs.readdirSync.mockReturnValue(['reportData.js'])
-    const model = require('../../../../app/data/models/reportData.js')()
-    db[model.name] = model
-    Object.keys(db).forEach(modelName => {
-      if (db[modelName].associate) {
-        db[modelName].associate(db)
-      }
-    })
+    const constructedOpts = MockDatabase.mock.calls[0][0]
 
-    expect(model.associate).toHaveBeenCalledTimes(1)
+    expect(constructedOpts.host).toBe('localhost')
+    expect(constructedOpts.port).toBe(1234)
+
+    expect(typeof constructedOpts.modelPath).toBe('string')
   })
 })
