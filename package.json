@@ -23,10 +23,6 @@
     "Leigh Godson leigh.godson@atos.net"
   ],
   "license": "OGL-UK-3.0",
-  "audit": { "audit-level": "high" },
-  "overrides": {
-    "validator": "13.15.15"
-  },
   "dependencies": {
     "@azure/identity": "4.4.1",
     "@azure/storage-blob": "12.13.0",
