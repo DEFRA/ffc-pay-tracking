@@ -8,8 +8,8 @@ const createData = (event) => {
   const data = {
     status: getWarningStatus(event),
     lastUpdated: moment(event.time).format(),
-    phError: getPHError(event).substring(errorStartingIndex, errorEndIndex),
-    daxError: getDAXError(event).substring(errorStartingIndex, errorEndIndex)
+    phError: getPHError(event) ? getPHError(event).substring(errorStartingIndex, errorEndIndex) : null,
+    daxError: getDAXError(event) ? getDAXError(event).substring(errorStartingIndex, errorEndIndex) : null
   }
   const filteredData = Object.fromEntries(
     Object.entries(data).filter(([key, value]) => value !== null)
