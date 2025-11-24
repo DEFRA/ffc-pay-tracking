@@ -63,9 +63,8 @@ describe('report-file-generator', () => {
       db.sequelize.connectionManager.getConnection = jest.fn(() => Promise.resolve(mockClient))
       db.sequelize.connectionManager.releaseConnection = jest.fn(() => Promise.resolve())
 
-      // Properly drain the stream in the mock
       storage.saveReportFile.mockImplementation((_filename, stream) => {
-        stream.on('data', () => {}) // consume
+        stream.on('data', () => {})
         return new Promise((resolve) => {
           stream.on('end', resolve)
           stream.on('error', resolve)
@@ -76,7 +75,6 @@ describe('report-file-generator', () => {
     test('exports query results to storage as JSON array', async () => {
       const exportPromise = exportQueryToJsonFile('SELECT * FROM mock_table', 'test-report', 100)
 
-      // Emit data AFTER listeners are set up
       process.nextTick(() => {
         pgStream.emit('data', { id: 1, name: 'Alice' })
         pgStream.emit('data', { id: 2, name: 'Bob' })

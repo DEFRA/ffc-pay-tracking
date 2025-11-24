@@ -2,155 +2,37 @@ const { BPS, FDMR, CS } = require('../../../app/constants/schemes')
 const { getDataFilter } = require('../../../app/helpers/get-data-filter')
 
 describe('getDataFilter', () => {
-  test('should return correct filter for BPS scheme', () => {
-    const data = {
+  test.each([
+    {
       schemeId: BPS,
-      sourceSystem: 'system1',
-      frn: 'frn1',
-      marketingYear: '2022',
-      paymentRequestNumber: 2
-    }
-    const result = getDataFilter(data)
-
-    expect(result).toEqual({
-      paymentRequestNumber: 2,
-      sourceSystem: 'system1',
-      frn: 'frn1',
-      marketingYear: '2022'
-    })
-  })
-
-  test('should return correct filter for BPS scheme if previous', () => {
-    const data = {
-      schemeId: BPS,
-      sourceSystem: 'system1',
-      frn: 'frn1',
-      marketingYear: '2022',
-      paymentRequestNumber: 2
-    }
-    const result = getDataFilter(data, true)
-
-    expect(result).toEqual({
-      paymentRequestNumber: 1,
-      sourceSystem: 'system1',
-      frn: 'frn1',
-      marketingYear: '2022'
-    })
-  })
-
-  test('should return correct filter for FDMR scheme', () => {
-    const data = {
+      description: 'BPS scheme',
+      input: { schemeId: BPS, sourceSystem: 'system1', frn: 'frn1', marketingYear: '2022', paymentRequestNumber: 2 },
+      expected: { paymentRequestNumber: 2, sourceSystem: 'system1', frn: 'frn1', marketingYear: '2022' },
+      expectedPrevious: { paymentRequestNumber: 1, sourceSystem: 'system1', frn: 'frn1', marketingYear: '2022' }
+    },
+    {
       schemeId: FDMR,
-      sourceSystem: 'system1',
-      frn: 'frn1',
-      paymentRequestNumber: 2,
-      invoiceLines: [{ schemeCode: 'SOS270' }]
-    }
-    const result = getDataFilter(data)
-
-    expect(result).toEqual({
-      paymentRequestNumber: 2,
-      sourceSystem: 'system1',
-      frn: 'frn1',
-      fdmrSchemeCode: 'SOS270'
-    })
-  })
-
-  test('should return correct filter for FDMR scheme if previous', () => {
-    const data = {
-      schemeId: FDMR,
-      sourceSystem: 'system1',
-      frn: 'frn1',
-      paymentRequestNumber: 2,
-      invoiceLines: [{ schemeCode: 'SOS270' }]
-    }
-    const result = getDataFilter(data, true)
-
-    expect(result).toEqual({
-      paymentRequestNumber: 1,
-      sourceSystem: 'system1',
-      frn: 'frn1',
-      fdmrSchemeCode: 'SOS270'
-    })
-  })
-
-  test('should return correct filter for CS scheme', () => {
-    const data = {
+      description: 'FDMR scheme',
+      input: { schemeId: FDMR, sourceSystem: 'system1', frn: 'frn1', paymentRequestNumber: 2, invoiceLines: [{ schemeCode: 'SOS270' }] },
+      expected: { paymentRequestNumber: 2, sourceSystem: 'system1', frn: 'frn1', fdmrSchemeCode: 'SOS270' },
+      expectedPrevious: { paymentRequestNumber: 1, sourceSystem: 'system1', frn: 'frn1', fdmrSchemeCode: 'SOS270' }
+    },
+    {
       schemeId: CS,
-      sourceSystem: 'system1',
-      frn: 'frn1',
-      contractNumber: 'contract1',
-      paymentRequestNumber: 2
-    }
-
-    const result = getDataFilter(data)
-
-    expect(result).toEqual({
-      paymentRequestNumber: 2,
-      sourceSystem: 'system1',
-      frn: 'frn1',
-      claimNumber: 'contract1'
-    })
-  })
-
-  test('should return correct filter for CS scheme if previous', () => {
-    const data = {
-      schemeId: CS,
-      sourceSystem: 'system1',
-      frn: 'frn1',
-      contractNumber: 'contract1',
-      paymentRequestNumber: 2
-    }
-
-    const result = getDataFilter(data, true)
-
-    expect(result).toEqual({
-      paymentRequestNumber: 1,
-      sourceSystem: 'system1',
-      frn: 'frn1',
-      claimNumber: 'contract1'
-    })
-  })
-
-  test('should return correct filter for any other scheme', () => {
-    const data = {
+      description: 'CS scheme',
+      input: { schemeId: CS, sourceSystem: 'system1', frn: 'frn1', contractNumber: 'contract1', paymentRequestNumber: 2 },
+      expected: { paymentRequestNumber: 2, sourceSystem: 'system1', frn: 'frn1', claimNumber: 'contract1' },
+      expectedPrevious: { paymentRequestNumber: 1, sourceSystem: 'system1', frn: 'frn1', claimNumber: 'contract1' }
+    },
+    {
       schemeId: 'UNKNOWN',
-      sourceSystem: 'system1',
-      frn: 'frn1',
-      marketingYear: '2022',
-      agreementNumber: 'agreement1',
-      paymentRequestNumber: 2
+      description: 'any other scheme',
+      input: { schemeId: 'UNKNOWN', sourceSystem: 'system1', frn: 'frn1', marketingYear: '2022', agreementNumber: 'agreement1', paymentRequestNumber: 2 },
+      expected: { paymentRequestNumber: 2, sourceSystem: 'system1', frn: 'frn1', marketingYear: '2022', agreementNumber: 'agreement1' },
+      expectedPrevious: { paymentRequestNumber: 1, sourceSystem: 'system1', frn: 'frn1', marketingYear: '2022', agreementNumber: 'agreement1' }
     }
-
-    const result = getDataFilter(data)
-
-    expect(result).toEqual({
-      paymentRequestNumber: 2,
-      sourceSystem: 'system1',
-      frn: 'frn1',
-      marketingYear: '2022',
-      agreementNumber: 'agreement1'
-    })
-  })
-
-  test('should return correct filter for any other scheme if previous', () => {
-    const data = {
-      schemeId: 'UNKNOWN',
-      sourceSystem: 'system1',
-      frn: 'frn1',
-      marketingYear: '2022',
-      agreementNumber: 'agreement1',
-      paymentRequestNumber: 2
-    }
-
-    const result = getDataFilter(data, true)
-
-    expect(result).toEqual({
-      paymentRequestNumber: 1,
-      sourceSystem: 'system1',
-      frn: 'frn1',
-      marketingYear: '2022',
-      agreementNumber: 'agreement1'
-    })
+  ])('should return correct filter for $description', ({ input, expected, expectedPrevious }) => {
+    expect(getDataFilter(input)).toEqual(expected)
+    expect(getDataFilter(input, true)).toEqual(expectedPrevious)
   })
 })

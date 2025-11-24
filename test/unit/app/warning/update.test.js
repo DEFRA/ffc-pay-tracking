@@ -20,61 +20,44 @@ describe('updateWarning', () => {
     db.reportData = {
       update: jest.fn()
     }
-  })
-
-  afterEach(() => {
     jest.clearAllMocks()
   })
 
-  test('should skip update if event type is BATCH_REJECTED', async () => {
-    const event = { type: BATCH_REJECTED }
+  describe('should skip update for specific event types', () => {
+    test.each([
+      { type: BATCH_REJECTED },
+      { type: BATCH_QUARANTINED }
+    ])('skips update for event type: %s', async (event) => {
+      await updateWarning(event)
 
-    await updateWarning(event)
-
-    expect(createData).not.toHaveBeenCalled()
-    expect(db.reportData.update).not.toHaveBeenCalled()
+      expect(createData).not.toHaveBeenCalled()
+      expect(db.reportData.update).not.toHaveBeenCalled()
+      expect(transaction.commit).not.toHaveBeenCalled()
+    })
   })
 
-  test('should skip update if event type is BATCH_QUARANTINED', async () => {
-    const event = { type: BATCH_QUARANTINED }
-
-    await updateWarning(event)
-
-    expect(createData).not.toHaveBeenCalled()
-    expect(db.reportData.update).not.toHaveBeenCalled()
-  })
-
-  test('should update report data with subject', async () => {
-    const event = { type: 'someType', subject: 'subjectFile' }
+  test.each([
+    { description: 'update with subject', event: { type: 'someType', subject: 'subjectFile' }, expectedWhere: { daxFileName: 'subjectFile' } },
+    { description: 'update with where filter', event: { type: 'someType', data: { someData: 'someValue' } }, expectedWhere: { someField: 'someValue' }, useGetWhereFilter: true }
+  ])('should $description', async ({ event, expectedWhere, useGetWhereFilter }) => {
     const dbData = { id: 1 }
     createData.mockResolvedValue(dbData)
+
+    if (useGetWhereFilter) {
+      getWhereFilter.mockReturnValue(expectedWhere)
+    }
 
     await updateWarning(event)
 
     expect(createData).toHaveBeenCalledWith(event)
-    expect(db.reportData.update).toHaveBeenCalledWith({ ...dbData }, {
-      where: {
-        daxFileName: 'subjectFile'
-      }
-    })
-    expect(transaction.commit).toHaveBeenCalled()
-  })
 
-  test('should update report data with where filter', async () => {
-    const event = { type: 'someType', data: { someData: 'someValue' } }
-    const dbData = { id: 1 }
-    const where = { someField: 'someValue' }
-    createData.mockResolvedValue(dbData)
-    getWhereFilter.mockReturnValue(where)
+    expect(db.reportData.update).toHaveBeenCalledWith(
+      { ...dbData },
+      useGetWhereFilter
+        ? { where: expectedWhere, transaction }
+        : { where: expectedWhere }
+    )
 
-    await updateWarning(event)
-
-    expect(createData).toHaveBeenCalledWith(event)
-    expect(getWhereFilter).toHaveBeenCalledWith(event)
-    expect(db.reportData.update).toHaveBeenCalledWith({ ...dbData }, {
-      where,
-      transaction
-    })
     expect(transaction.commit).toHaveBeenCalled()
   })
 })
