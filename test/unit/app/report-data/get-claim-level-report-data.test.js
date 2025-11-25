@@ -67,8 +67,14 @@ describe('getClaimLevelReportData', () => {
     const year = 2023
 
     let expectedPartitionClause = 'PARTITION BY "sourceSystem", frn'
-    if (additionalProperty1) expectedPartitionClause += `, "${additionalProperty1}"`
-    if (additionalProperty2) expectedPartitionClause += `, "${additionalProperty2}"`
+
+    if (additionalProperty1) {
+      expectedPartitionClause += `, "${additionalProperty1}"`
+    }
+    if (additionalProperty2) {
+      expectedPartitionClause += `, "${additionalProperty2}"`
+    }
+    
     expectedPartitionClause = expectedPartitionClause.replace(/\s+/g, ' ').trim()
 
     const mockFilePath = '/path/to/claim-level-report.json'
