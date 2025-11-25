@@ -74,7 +74,7 @@ describe('getClaimLevelReportData', () => {
     if (additionalProperty2) {
       expectedPartitionClause += `, "${additionalProperty2}"`
     }
-    
+
     expectedPartitionClause = expectedPartitionClause.replace(/\s+/g, ' ').trim()
 
     const mockFilePath = '/path/to/claim-level-report.json'
