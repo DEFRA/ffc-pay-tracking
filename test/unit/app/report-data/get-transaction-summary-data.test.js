@@ -28,7 +28,7 @@ describe('getFilteredReportData', () => {
     generateSqlQuery.mockResolvedValue(mockSql)
     exportQueryToJsonFile.mockResolvedValue(mockData)
 
-    const result = await getFilteredReportData(schemeId, year, paymentRequestNumber, revenueOrCapital, frn)
+    const result = await getFilteredReportData(schemeId, year, paymentRequestNumber, revenueOrCapital, frn, true)
 
     expect(result).toEqual(mockData)
     expect(getSourceSystem).toHaveBeenCalledWith(schemeId)
@@ -54,7 +54,7 @@ describe('getFilteredReportData', () => {
     generateSqlQuery.mockResolvedValue(mockSql)
     exportQueryToJsonFile.mockResolvedValue(mockData)
 
-    const result = await getFilteredReportData(schemeId, year, paymentRequestNumber, revenueOrCapital)
+    const result = await getFilteredReportData(schemeId, year, paymentRequestNumber, revenueOrCapital, undefined, true)
 
     expect(result).toEqual(mockData)
     expect(generateSqlQuery).toHaveBeenCalledWith(expect.not.objectContaining({ frn: expect.anything() }))
@@ -70,7 +70,7 @@ describe('getFilteredReportData', () => {
     generateSqlQuery.mockResolvedValue(mockSql)
     exportQueryToJsonFile.mockResolvedValue(mockData)
 
-    const result = await getFilteredReportData(schemeId, undefined, undefined, undefined, frn)
+    const result = await getFilteredReportData(schemeId, undefined, undefined, undefined, frn, true)
 
     expect(result).toEqual(mockData)
     expect(generateSqlQuery).toHaveBeenCalledWith(expect.objectContaining({ frn }))
