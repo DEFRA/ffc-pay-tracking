@@ -13,6 +13,6 @@ module.exports = {
   SFI23: 12,
   DELINKED: 13,
   SFI_EXPANDED: 14,
-  COHTR: 15,
-  COHTC: 16
+  COHT_REVENUE: 15,
+  COHT_CAPITAL: 16
 }
