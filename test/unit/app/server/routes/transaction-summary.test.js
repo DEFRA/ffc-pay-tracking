@@ -27,7 +27,7 @@ describe('GET /transaction-summary', () => {
 
     await options.handler(mockRequest, mockH)
 
-    expect(getFilteredReportData).toHaveBeenCalledWith(1, 2023, 1, 'revenue', 123456)
+    expect(getFilteredReportData).toHaveBeenCalledWith(1, 2023, 1, 'revenue', 123456, true)
     expect(mockH.response).toHaveBeenCalledWith({ file: mockFilePath })
   })
 
@@ -49,7 +49,7 @@ describe('GET /transaction-summary', () => {
 
     await options.handler(mockRequest, mockH)
 
-    expect(getFilteredReportData).toHaveBeenCalledWith(1, 2023, 1, 'capital', undefined)
+    expect(getFilteredReportData).toHaveBeenCalledWith(1, 2023, 1, 'capital', undefined, true)
     expect(mockH.response).toHaveBeenCalledWith({ file: mockFilePath })
   })
 
@@ -68,7 +68,7 @@ describe('GET /transaction-summary', () => {
 
     await options.handler(mockRequest, mockH)
 
-    expect(getFilteredReportData).toHaveBeenCalledWith(1, undefined, undefined, undefined, undefined)
+    expect(getFilteredReportData).toHaveBeenCalledWith(1, undefined, undefined, undefined, undefined, true)
     expect(mockH.response).toHaveBeenCalledWith({ file: mockFilePath })
   })
 })
