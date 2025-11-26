@@ -7,18 +7,6 @@ const generateReportSql = async (sourceSystem, year, paymentRequestNumber, reven
     sourceSystem,
     value: {
       [db.Sequelize.Op.ne]: null
-    },
-    batch: {
-      [db.Sequelize.Op.ne]: null
-    },
-    routedToRequestEditor: {
-      [db.Sequelize.Op.ne]: null
-    },
-    apValue: {
-      [db.Sequelize.Op.ne]: null
-    },
-    arValue: {
-      [db.Sequelize.Op.ne]: null
     }
   }
 
