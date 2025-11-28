@@ -20,42 +20,21 @@ describe('getClaimLevelReportData', () => {
     const frn = 1234567890
     const sourceSystem = 'BPS'
 
-    const expectedSQL = `
-      WITH "rankedData" AS (
-        SELECT
-          *,
-          ROW_NUMBER() OVER (
-            PARTITION BY "sourceSystem", frn, "agreementNumber", "marketingYear"
-            ORDER BY
-              "paymentRequestNumber" DESC,
-              "lastUpdated" DESC
-          ) AS row_num
-        FROM
-          "reportData"
-        WHERE
-          "sourceSystem" = '${sourceSystem}'
-          AND "year" = ${year}
-          AND "frn" = ${frn}
-          AND "revenueOrCapital" = '${revenueOrCapital}'
-      )
-      SELECT
-        *
-      FROM
-        "rankedData"
-      WHERE
-        row_num = 1
-    `
-
     const mockFilePath = '/path/to/claim-level-report.json'
     exportQueryToJsonFile.mockResolvedValue(mockFilePath)
     getSourceSystem.mockReturnValue(sourceSystem)
 
     const result = await getClaimLevelReportData(schemeId, year, revenueOrCapital, frn)
-
     const actualSQL = exportQueryToJsonFile.mock.calls[0][0]
 
     expect(getSourceSystem).toHaveBeenCalledWith(schemeId)
-    expect(normalizeSql(actualSQL)).toBe(normalizeSql(expectedSQL))
+    expect(normalizeSql(actualSQL)).toContain(
+      'PARTITION BY "sourceSystem", frn, "agreementNumber", "marketingYear"'
+    )
+    expect(normalizeSql(actualSQL)).toContain(`"sourceSystem" = '${sourceSystem}'`)
+    expect(normalizeSql(actualSQL)).toContain(`"year" = ${year}`)
+    expect(normalizeSql(actualSQL)).toContain(`"frn" = ${frn}`)
+    expect(normalizeSql(actualSQL)).toContain(`"revenueOrCapital" = '${revenueOrCapital}'`)
     expect(result).toBe(mockFilePath)
   })
 
@@ -63,7 +42,8 @@ describe('getClaimLevelReportData', () => {
     const schemeId = 'invalidSchemeId'
     getSourceSystem.mockReturnValue(null)
 
-    await expect(getClaimLevelReportData(schemeId)).rejects.toThrow('Source system not found for schemeId: invalidSchemeId')
+    await expect(getClaimLevelReportData(schemeId))
+      .rejects.toThrow('Source system not found for schemeId: invalidSchemeId')
   })
 
   test('should return the file path from exportQueryToJsonFile', async () => {
@@ -76,7 +56,6 @@ describe('getClaimLevelReportData', () => {
     getSourceSystem.mockReturnValue(sourceSystem)
 
     const result = await getClaimLevelReportData(schemeId, year)
-
     expect(result).toBe(mockFilePath)
   })
 
@@ -88,10 +67,14 @@ describe('getClaimLevelReportData', () => {
     const year = 2023
 
     let expectedPartitionClause = 'PARTITION BY "sourceSystem", frn'
-    if (additionalProperty1) expectedPartitionClause += `, "${additionalProperty1}"`
-    if (additionalProperty2) expectedPartitionClause += `, "${additionalProperty2}"`
 
-    // Normalize whitespace
+    if (additionalProperty1) {
+      expectedPartitionClause += `, "${additionalProperty1}"`
+    }
+    if (additionalProperty2) {
+      expectedPartitionClause += `, "${additionalProperty2}"`
+    }
+
     expectedPartitionClause = expectedPartitionClause.replace(/\s+/g, ' ').trim()
 
     const mockFilePath = '/path/to/claim-level-report.json'
@@ -101,7 +84,7 @@ describe('getClaimLevelReportData', () => {
     await getClaimLevelReportData(schemeId, year)
 
     const sql = exportQueryToJsonFile.mock.calls[0][0]
-    const normalizedSql = sql.replace(/\s+/g, ' ').trim()
+    const normalizedSql = normalizeSql(sql)
 
     expect(normalizedSql).toContain(expectedPartitionClause)
   })

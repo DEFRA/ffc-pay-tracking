@@ -1,48 +1,20 @@
 const { calculateDAXPRN } = require('../../../../app/legacy-processing/calculate-dax-prn')
 
-describe('calculate PRN in DAX for migrated data', () => {
-  test('should return paymentRequestNumber when the first completed payment request is acknowledged', () => {
-    const paymentRequest = {
-      completedPaymentRequests: [{ acknowledged: true }],
-      paymentRequestNumber: 3
+describe('calculateDAXPRN', () => {
+  function buildPaymentRequest (overrides = {}) {
+    return {
+      paymentRequestNumber: 3,
+      ...overrides
     }
-    const relatedPaymentRequests = []
-    expect(calculateDAXPRN(paymentRequest, relatedPaymentRequests)).toBe(3)
-  })
+  }
 
-  test('should return 0 when the first completed payment request is not acknowledged', () => {
-    const paymentRequest = {
-      completedPaymentRequests: [{ acknowledged: false }],
-      paymentRequestNumber: 3
-    }
-    const relatedPaymentRequests = []
-    expect(calculateDAXPRN(paymentRequest, relatedPaymentRequests)).toBe(0)
-  })
-
-  test('should return 0 when there are no completed payment requests', () => {
-    const paymentRequest = {
-      completedPaymentRequests: [],
-      paymentRequestNumber: 3
-    }
-    const relatedPaymentRequests = []
-    expect(calculateDAXPRN(paymentRequest, relatedPaymentRequests)).toBe(0)
-  })
-
-  test('should return 0 when completedPaymentRequests is undefined', () => {
-    const paymentRequest = {
-      completedPaymentRequests: undefined,
-      paymentRequestNumber: 3
-    }
-    const relatedPaymentRequests = []
-    expect(calculateDAXPRN(paymentRequest, relatedPaymentRequests)).toBe(0)
-  })
-
-  test('should return 0 when completedPaymentRequests is null', () => {
-    const paymentRequest = {
-      completedPaymentRequests: null,
-      paymentRequestNumber: 3
-    }
-    const relatedPaymentRequests = []
-    expect(calculateDAXPRN(paymentRequest, relatedPaymentRequests)).toBe(0)
+  test.each([
+    ['acknowledged first completed request returns PRN', buildPaymentRequest({ completedPaymentRequests: [{ acknowledged: true }] }), 3],
+    ['first completed request not acknowledged returns 0', buildPaymentRequest({ completedPaymentRequests: [{ acknowledged: false }] }), 0],
+    ['no completed payment requests returns 0', buildPaymentRequest({ completedPaymentRequests: [] }), 0],
+    ['completedPaymentRequests undefined returns 0', buildPaymentRequest({ completedPaymentRequests: undefined }), 0],
+    ['completedPaymentRequests null returns 0', buildPaymentRequest({ completedPaymentRequests: null }), 0]
+  ])('%s', (_, paymentRequest, expected) => {
+    expect(calculateDAXPRN(paymentRequest)).toBe(expected)
   })
 })
