@@ -2,8 +2,6 @@ const { processingConfig } = require('../../../app/config')
 
 jest.mock('../../../app/messaging')
 const { start: mockStartMessaging } = require('../../../app/messaging')
-jest.mock('../../../app/legacy-processing')
-const { start: mockStartProcessing } = require('../../../app/legacy-processing')
 jest.mock('../../../app/server/server')
 const { start: mockStartServer } = require('../../../app/server/server')
 
@@ -15,7 +13,6 @@ describe('app start', () => {
   })
 
   test.each([
-    { service: 'processing', startMock: mockStartProcessing, activeRequired: true },
     { service: 'messaging', startMock: mockStartMessaging, activeRequired: true },
     { service: 'server', startMock: mockStartServer, activeRequired: false }
   ])(
