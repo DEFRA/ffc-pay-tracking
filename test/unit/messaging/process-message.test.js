@@ -12,7 +12,8 @@ describe('processMessage', () => {
 
   beforeEach(() => {
     mockReceiver = {
-      completeMessage: jest.fn()
+      completeMessage: jest.fn(),
+      deadLetterMessage: jest.fn()
     }
 
     mockMessage = {
@@ -41,5 +42,17 @@ describe('processMessage', () => {
     await processMessage(mockMessage, mockReceiver)
     expect(updateWarning).toHaveBeenCalledWith(mockMessage.body)
     expect(mockReceiver.completeMessage).toHaveBeenCalledWith(mockMessage)
+  })
+
+  test('handles error when warning processing throws', async () => {
+    mockMessage.body.type = WARNING_EVENT_PREFIX
+    const error = new Error('Warning processing failed')
+    updateWarning.mockImplementation(() => {
+      throw error
+    })
+    await processMessage(mockMessage, mockReceiver)
+    expect(updateWarning).toHaveBeenCalledWith(mockMessage.body)
+    expect(mockReceiver.deadLetterMessage).toHaveBeenCalledWith(mockMessage)
+    expect(mockReceiver.completeMessage).not.toHaveBeenCalled()
   })
 })
