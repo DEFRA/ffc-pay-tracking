@@ -3,17 +3,13 @@ const Joi = require('joi')
 const schema = Joi.object({
   processingActive: Joi.boolean().default(true),
   processingCap: Joi.number().default(2500),
-  paymentsEndpoint: Joi.string().uri().required(),
-  legacyProcessingActive: Joi.boolean().default(false),
-  legacyProcessingInterval: Joi.number().default(60000)
+  paymentsEndpoint: Joi.string().uri().required()
 })
 
 const config = {
   processingActive: process.env.PROCESSING_ACTIVE,
   processingCap: process.env.PROCESSING_CAP,
-  paymentsEndpoint: process.env.PAYMENTS_SERVICE_ENDPOINT,
-  legacyProcessingActive: process.env.LEGACY_PROCESSING_ACTIVE,
-  legacyProcessingInterval: process.env.LEGACY_PROCESSING_INTERVAL
+  paymentsEndpoint: process.env.PAYMENTS_SERVICE_ENDPOINT
 }
 
 const result = schema.validate(config, {

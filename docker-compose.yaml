@@ -23,8 +23,6 @@ services:
       POSTGRES_USERNAME: ${POSTGRES_SCHEMA_USERNAME:-postgres}
       PAYMENTS_SERVICE_ENDPOINT: http://ffc-pay-processing:3008
       PROCESSING_ACTIVE: ${PROCESSING_ACTIVE:-true}
-      LEGACY_PROCESSING_ACTIVE: ${LEGACY_PROCESSING_ACTIVE:-false}
-      LEGACY_PROCESSING_INTERVAL: ${LEGACY_PROCESSING_INTERVAL:-60000}
       AZURE_STORAGE_USE_CONNECTION_STRING: "true"
       AZURE_STORAGE_CONNECTION_STRING: DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://ffc-pay-event-store-azurite:10000/devstoreaccount1;TableEndpoint=http://ffc-pay-event-store-azurite:10002/devstoreaccount1;
       AZURE_STORAGE_ACCOUNT_NAME: ${AZURE_STORAGE_ACCOUNT_NAME:-devstoreaccount1}
