@@ -30,8 +30,6 @@ container:
   eventsSubscriptionAddress: ffc-pay-tracking
   paymentsEndpoint: http://ffc-pay-processing.ffc-pay
   processingActive: true
-  legacyProcessingActive: false
-  legacyProcessingInterval: 60000
   azureStorageConnectionString: dummy
   azureStorageUseConnectionString: false
   azureStorageCreateContainers: false
