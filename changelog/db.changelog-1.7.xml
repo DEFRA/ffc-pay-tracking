@@ -1,0 +1,185 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog 
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog" 
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" 
+    xmlns:pro="http://www.liquibase.org/xml/ns/pro" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd 
+                        http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.9.xsd 
+                        http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+
+  <changeSet author="Sam Plackett" id="1">
+    <tagDatabase tag="v1.7.0" />
+  </changeSet>
+
+  <changeSet author="Sam Plackett" id="2">
+    <sql>
+      UPDATE "reportData" rd
+      SET value = "deltaAmount"
+      WHERE value IS NULL
+        AND NOT EXISTS (
+          SELECT 1
+          FROM "reportData" prev
+          WHERE prev."paymentRequestNumber" = rd."paymentRequestNumber" - 1
+            AND prev."sourceSystem" = rd."sourceSystem"
+            AND prev."frn" = rd."frn"
+            AND (
+              (rd."sourceSystem" = 'SITI AGRI SYS' AND prev."marketingYear" = rd."marketingYear")
+              OR
+              (rd."sourceSystem" = 'SITI AGRI CS SYS' AND prev."claimNumber" = rd."claimNumber")
+              OR
+              (
+                rd."sourceSystem" NOT IN ('SITI AGRI SYS', 'SITI AGRI CS SYS')
+                AND prev."marketingYear" = rd."marketingYear"
+                AND prev."agreementNumber" = rd."agreementNumber"
+              )
+            )
+        );
+    </sql>
+  </changeSet>
+
+  <changeSet author="Sam Plackett" id="3">
+    <sql>
+      UPDATE "reportData" rd
+      SET value = (
+        (
+          SELECT prev."deltaAmount"
+          FROM "reportData" prev
+          WHERE prev."sourceSystem" = rd."sourceSystem"
+            AND prev."frn" = rd."frn"
+            AND (
+              (rd."sourceSystem" = 'SITI AGRI SYS' AND prev."marketingYear" = rd."marketingYear")
+              OR
+              (rd."sourceSystem" = 'SITI AGRI CS SYS' AND prev."claimNumber" = rd."claimNumber")
+              OR
+              (
+                rd."sourceSystem" NOT IN ('SITI AGRI SYS', 'SITI AGRI CS SYS')
+                AND prev."marketingYear" = rd."marketingYear"
+                AND prev."agreementNumber" = rd."agreementNumber"
+              )
+            )
+          ORDER BY prev."paymentRequestNumber" ASC
+          LIMIT 1
+        )
+        + rd."deltaAmount"
+      )
+      WHERE rd.value IS NULL
+        AND EXISTS (
+          SELECT 1
+          FROM "reportData" prev
+          WHERE prev."sourceSystem" = rd."sourceSystem"
+            AND prev."frn" = rd."frn"
+            AND (
+              (rd."sourceSystem" = 'SITI AGRI SYS' AND prev."marketingYear" = rd."marketingYear")
+              OR
+              (rd."sourceSystem" = 'SITI AGRI CS SYS' AND prev."claimNumber" = rd."claimNumber")
+              OR
+              (
+                rd."sourceSystem" NOT IN ('SITI AGRI SYS', 'SITI AGRI CS SYS')
+                AND prev."marketingYear" = rd."marketingYear"
+                AND prev."agreementNumber" = rd."agreementNumber"
+              )
+            )
+        );
+    </sql>
+  </changeSet>
+
+  <changeSet author="Sam Plackett" id="4">
+    <sql>
+      DELETE FROM "reportData" rd
+      WHERE EXISTS (
+        SELECT 1
+        FROM "reportData" rd2
+        WHERE rd."correlationId" = rd2."correlationId"
+          AND rd.frn = rd2.frn
+          AND (
+            (
+              CASE rd."status"
+                WHEN 'Batch received' THEN 1
+                WHEN 'Request enriched with mandatory data' THEN 2
+                WHEN 'Waiting for Cross Border calculation' THEN 3
+                WHEN 'Waiting for debt data' THEN 4
+                WHEN 'Debt data attached' THEN 5
+                WHEN 'Waiting for ledger assignment' THEN 6
+                WHEN 'Ledger assigned' THEN 7
+                WHEN 'Waiting for ledger assignment quality check' THEN 8
+                WHEN 'Ledger assignment quality check failed, waiting for correction' THEN 9
+                WHEN 'Ledger assignment quality check passed' THEN 10
+                WHEN 'Reset to be recalculated' THEN 11
+                WHEN 'Calculation of final state completed' THEN 12
+                WHEN 'Submitted to payment ledger' THEN 13
+                WHEN 'Acknowledged by payment ledger' THEN 14
+                WHEN 'Settled by payment ledger' THEN 15
+                ELSE 0
+              END
+            ) &gt;
+            (
+              CASE rd2."status"
+                WHEN 'Batch received' THEN 1
+                WHEN 'Request enriched with mandatory data' THEN 2
+                WHEN 'Waiting for Cross Border calculation' THEN 3
+                WHEN 'Waiting for debt data' THEN 4
+                WHEN 'Debt data attached' THEN 5
+                WHEN 'Waiting for ledger assignment' THEN 6
+                WHEN 'Ledger assigned' THEN 7
+                WHEN 'Waiting for ledger assignment quality check' THEN 8
+                WHEN 'Ledger assignment quality check failed, waiting for correction' THEN 9
+                WHEN 'Ledger assignment quality check passed' THEN 10
+                WHEN 'Reset to be recalculated' THEN 11
+                WHEN 'Calculation of final state completed' THEN 12
+                WHEN 'Submitted to payment ledger' THEN 13
+                WHEN 'Acknowledged by payment ledger' THEN 14
+                WHEN 'Settled by payment ledger' THEN 15
+                ELSE 0
+              END
+            )
+            OR
+            (
+              (
+                CASE rd."status"
+                  WHEN 'Batch received' THEN 1
+                  WHEN 'Request enriched with mandatory data' THEN 2
+                  WHEN 'Waiting for Cross Border calculation' THEN 3
+                  WHEN 'Waiting for debt data' THEN 4
+                  WHEN 'Debt data attached' THEN 5
+                  WHEN 'Waiting for ledger assignment' THEN 6
+                  WHEN 'Ledger assigned' THEN 7
+                  WHEN 'Waiting for ledger assignment quality check' THEN 8
+                  WHEN 'Ledger assignment quality check failed, waiting for correction' THEN 9
+                  WHEN 'Ledger assignment quality check passed' THEN 10
+                  WHEN 'Reset to be recalculated' THEN 11
+                  WHEN 'Calculation of final state completed' THEN 12
+                  WHEN 'Submitted to payment ledger' THEN 13
+                  WHEN 'Acknowledged by payment ledger' THEN 14
+                  WHEN 'Settled by payment ledger' THEN 15
+                  ELSE 0
+                END
+              ) =
+              (
+                CASE rd2."status"
+                  WHEN 'Batch received' THEN 1
+                  WHEN 'Request enriched with mandatory data' THEN 2
+                  WHEN 'Waiting for Cross Border calculation' THEN 3
+                  WHEN 'Waiting for debt data' THEN 4
+                  WHEN 'Debt data attached' THEN 5
+                  WHEN 'Waiting for ledger assignment' THEN 6
+                  WHEN 'Ledger assigned' THEN 7
+                  WHEN 'Waiting for ledger assignment quality check' THEN 8
+                  WHEN 'Ledger assignment quality check failed, waiting for correction' THEN 9
+                  WHEN 'Ledger assignment quality check passed' THEN 10
+                  WHEN 'Reset to be recalculated' THEN 11
+                  WHEN 'Calculation of final state completed' THEN 12
+                  WHEN 'Submitted to payment ledger' THEN 13
+                  WHEN 'Acknowledged by payment ledger' THEN 14
+                  WHEN 'Settled by payment ledger' THEN 15
+                  ELSE 0
+                END
+              )
+              AND rd."reportDataId" &lt; rd2."reportDataId"
+            )
+          )
+      );
+    </sql>
+  </changeSet>
+
+</databaseChangeLog>
