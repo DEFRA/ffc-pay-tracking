@@ -15,20 +15,10 @@
   <changeSet author="Sam Plackett" id="2">
     <sql>
       UPDATE "reportData" rd
-      SET status = 'Settled by payment ledger'
+      SET status = 'Settled by payment ledger', "routedToRequestEditor" = 'N', "apValue" = "deltaAmount", "arValue" = 0, "daxImported" = 'Y', "settledValue" = "deltaAmount", "ledgerSplit" = 'N', "daxValue" = "deltaAmount", "overallStatus" = 'Complete', "valueStillToProcess" = 0
       WHERE status != 'Settled by payment ledger'
-      AND "settledValue" IS NOT NULL;
-    </sql>
-  </changeSet>
-
-  <changeSet author="Sam Plackett" id="3">
-    <sql>
-      UPDATE "reportData" rd
-      SET status = 'Acknowledged by payment ledger'
-      WHERE status != 'Settled by payment ledger'
-      AND status != 'Acknowledged by payment ledger'
-      AND "settledValue" IS NULL
-      AND "daxImported" = 'Y';
+      AND "sourceSystem" = 'Injection'
+      AND "paymentRequestNumber" = 0;
     </sql>
   </changeSet>
 
