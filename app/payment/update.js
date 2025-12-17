@@ -4,6 +4,8 @@ const { getExistingDataFull } = require('../helpers/get-existing-data-full')
 const { isNewSplitInvoiceNumber } = require('./is-new-split-invoice-number')
 const { createDBFromExisting } = require('./create-db-from-existing')
 const { getWhereFilter } = require('../helpers/get-where-filter')
+const { sendUpdateFailureEvent } = require('../event/send-update-failure')
+const { TRACKING_UPDATE_PAYMENT_FAILURE } = require('../constants/events')
 
 const updatePayment = async (event) => {
   const transaction = await db.sequelize.transaction()
@@ -21,6 +23,7 @@ const updatePayment = async (event) => {
     await transaction.commit()
   } catch (error) {
     await transaction.rollback()
+    await sendUpdateFailureEvent(event?.type, TRACKING_UPDATE_PAYMENT_FAILURE, error.message)
     throw error
   }
 }
