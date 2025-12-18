@@ -112,7 +112,7 @@
                 WHEN 'Settled by payment ledger' THEN 15
                 ELSE 0
               END
-            ) &gt;
+            ) &lt;
             (
               CASE rd2."status"
                 WHEN 'Batch received' THEN 1
