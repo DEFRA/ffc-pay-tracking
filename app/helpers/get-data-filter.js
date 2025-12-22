@@ -1,4 +1,4 @@
-const { BPS, CS, FDMR } = require('../constants/schemes')
+const { BPS, CS } = require('../constants/schemes')
 
 const getDataFilter = (data, previous) => {
   const defaultFilter = {
@@ -12,13 +12,6 @@ const getDataFilter = (data, previous) => {
         sourceSystem: data.sourceSystem,
         frn: data.frn,
         marketingYear: data.marketingYear
-      }
-    case FDMR:
-      return {
-        ...defaultFilter,
-        sourceSystem: data.sourceSystem,
-        frn: data.frn,
-        fdmrSchemeCode: data.invoiceLines[0].schemeCode
       }
     case CS:
       return {

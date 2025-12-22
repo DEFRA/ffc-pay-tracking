@@ -1,7 +1,7 @@
 const moment = require('moment')
 const { createData } = require('../../../../app/payment/create-data')
 const { getARAmount, getDebtType, getFileName, getBatch, getBatchExportDate, getStatus, getValue, getRevenue, getYear, routedToRequestEditor, getDeltaAmount, getAPAmount, isImported, getSettledValue, getOriginalInvoiceNumber, getRequestEditorDate, isEnriched, getRequestEditorReleased, checkDAXPRN, checkDAXValue, getOverallStatus, getCrossBorderFlag } = require('../../../../app/data-generation')
-const { FDMR, SFI23 } = require('../../../../app/constants/schemes')
+const { SFI23 } = require('../../../../app/constants/schemes')
 
 jest.mock('../../../../app/data-generation/index')
 
@@ -114,51 +114,5 @@ describe('createData', () => {
     const data = await createData(mockEvent, mockTransaction)
 
     expect(data.valueStillToProcess).toBeUndefined()
-  })
-
-  test('should include fdmrSchemeCode when scheme is FDMR', async () => {
-    const mockEvent = {
-      data: {
-        correlationId: 'testCorrelationId',
-        frn: 1234567890,
-        contractNumber: 'testContractNumber',
-        agreementNumber: 'testAgreementNumber',
-        marketingYear: 2023,
-        invoiceNumber: 'testInvoiceNumber',
-        currency: 'testCurrency',
-        paymentRequestNumber: 2,
-        sourceSystem: 'testSourceSystem',
-        schemeId: FDMR,
-        invoiceLines: [
-          { schemeCode: 'SOS270' }
-        ]
-      },
-      time: new Date()
-    }
-    const mockTransaction = {}
-
-    getOriginalInvoiceNumber.mockReturnValue('testOriginalInvoiceNumber')
-    getValue.mockReturnValue(2500)
-    checkDAXValue.mockResolvedValue(2000)
-    getDeltaAmount.mockResolvedValue(500)
-    getAPAmount.mockReturnValue(500)
-    getARAmount.mockReturnValue(0)
-    getDebtType.mockReturnValue('testDebtType')
-    getRevenue.mockReturnValue('testRevenueOrCapital')
-    routedToRequestEditor.mockReturnValue('testRoutedToRequestEditor')
-    isEnriched.mockReturnValue('testEnriched')
-    getRequestEditorDate.mockReturnValue('testRequestEditorDate')
-    getRequestEditorReleased.mockReturnValue('testRequestEditorReleased')
-    getOverallStatus.mockReturnValue('testOverallStatus')
-    getCrossBorderFlag.mockReturnValue('testCrossBorderFlag')
-
-    const data = await createData(mockEvent, mockTransaction)
-
-    expect(data).toEqual(expect.objectContaining({
-      fdmrSchemeCode: 'SOS270',
-      debtType: 'testDebtType',
-      valueStillToProcess: 500,
-      prStillToProcess: 1
-    }))
   })
 })

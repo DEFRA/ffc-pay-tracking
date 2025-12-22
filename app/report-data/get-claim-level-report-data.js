@@ -1,4 +1,4 @@
-const { BPS, CS, FDMR } = require('../constants/source-systems')
+const { BPS, CS } = require('../constants/source-systems')
 const { getSourceSystem } = require('../helpers/get-source-system')
 const { exportQueryToJsonFile } = require('./report-file-generator')
 
@@ -10,10 +10,6 @@ const generateReportSql = async (sourceSystem, year, revenueOrCapital, frn) => {
   }
   if (sourceSystem === CS) {
     additionalProperty1 = 'claimNumber'
-    additionalProperty2 = null
-  }
-  if (sourceSystem === FDMR) {
-    additionalProperty1 = null
     additionalProperty2 = null
   }
 

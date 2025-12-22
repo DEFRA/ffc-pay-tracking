@@ -5,7 +5,6 @@ module.exports = {
   VET_VISITS: 'AHWR',
   CS: 'SITI AGRI CS SYS',
   BPS: 'SITI AGRI SYS',
-  FDMR: 'FDMR',
   MANUAL: 'Injection',
   ES: 'Genesis',
   FC: 'GLOS',

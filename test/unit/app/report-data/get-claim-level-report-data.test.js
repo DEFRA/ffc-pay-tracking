@@ -1,5 +1,5 @@
 const { getClaimLevelReportData } = require('../../../../app/report-data/get-claim-level-report-data')
-const { BPS, CS, FDMR } = require('../../../../app/constants/source-systems')
+const { BPS, CS } = require('../../../../app/constants/source-systems')
 const { getSourceSystem } = require('../../../../app/helpers/get-source-system')
 const { exportQueryToJsonFile } = require('../../../../app/report-data/report-file-generator')
 
@@ -62,7 +62,6 @@ describe('getClaimLevelReportData', () => {
   test.each([
     { schemeId: BPS, sourceSystem: 'BPS', additionalProperty1: 'agreementNumber', additionalProperty2: 'marketingYear' },
     { schemeId: CS, sourceSystem: 'SITI AGRI CS SYS', additionalProperty1: 'claimNumber', additionalProperty2: null },
-    { schemeId: FDMR, sourceSystem: 'FDMR', additionalProperty1: null, additionalProperty2: null }
   ])('should generate SQL with correct partitioning for $sourceSystem source system', async ({ schemeId, sourceSystem, additionalProperty1, additionalProperty2 }) => {
     const year = 2023
 

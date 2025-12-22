@@ -1,4 +1,4 @@
-const { BPS, FDMR, CS } = require('../../../app/constants/schemes')
+const { BPS, CS } = require('../../../app/constants/schemes')
 const { getDataFilter } = require('../../../app/helpers/get-data-filter')
 
 describe('getDataFilter', () => {
@@ -9,13 +9,6 @@ describe('getDataFilter', () => {
       input: { schemeId: BPS, sourceSystem: 'system1', frn: 'frn1', marketingYear: '2022', paymentRequestNumber: 2 },
       expected: { paymentRequestNumber: 2, sourceSystem: 'system1', frn: 'frn1', marketingYear: '2022' },
       expectedPrevious: { paymentRequestNumber: 1, sourceSystem: 'system1', frn: 'frn1', marketingYear: '2022' }
-    },
-    {
-      schemeId: FDMR,
-      description: 'FDMR scheme',
-      input: { schemeId: FDMR, sourceSystem: 'system1', frn: 'frn1', paymentRequestNumber: 2, invoiceLines: [{ schemeCode: 'SOS270' }] },
-      expected: { paymentRequestNumber: 2, sourceSystem: 'system1', frn: 'frn1', fdmrSchemeCode: 'SOS270' },
-      expectedPrevious: { paymentRequestNumber: 1, sourceSystem: 'system1', frn: 'frn1', fdmrSchemeCode: 'SOS270' }
     },
     {
       schemeId: CS,
