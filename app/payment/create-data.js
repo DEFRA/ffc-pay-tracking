@@ -1,6 +1,5 @@
 const moment = require('moment')
 const { getARAmount, getDebtType, getFileName, getBatch, getBatchExportDate, getStatus, getValue, getRevenue, getYear, routedToRequestEditor, getDeltaAmount, getAPAmount, isImported, getSettledValue, getOriginalInvoiceNumber, getRequestEditorDate, isEnriched, getRequestEditorReleased, checkDAXPRN, checkDAXValue, getOverallStatus, getCrossBorderFlag } = require('../data-generation')
-const { FDMR } = require('../constants/schemes')
 
 const createData = async (event, transaction) => {
   const paymentRequestNumber = event.data.paymentRequestNumber
@@ -42,8 +41,7 @@ const createData = async (event, transaction) => {
     overallStatus: getOverallStatus(value, daxValue, paymentRequestNumber, daxPaymentRequestNumber),
     crossBorderFlag: getCrossBorderFlag(event),
     valueStillToProcess: value ? value - daxValue : null,
-    prStillToProcess: paymentRequestNumber - daxPaymentRequestNumber,
-    fdmrSchemeCode: event.data.schemeId === FDMR ? event.data.invoiceLines[0].schemeCode : null
+    prStillToProcess: paymentRequestNumber - daxPaymentRequestNumber
   }
   const filteredData = Object.fromEntries(
     Object.entries(data).filter(([key, value]) => value !== null)
