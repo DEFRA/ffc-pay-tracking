@@ -96,7 +96,6 @@ describe('getFilteredReportData', () => {
     [schemes.VET_VISITS, sourceSystems.VET_VISITS],
     [schemes.CS, sourceSystems.CS],
     [schemes.BPS, sourceSystems.BPS],
-    [schemes.FDMR, sourceSystems.FDMR],
     [schemes.MANUAL, sourceSystems.MANUAL],
     [schemes.ES, sourceSystems.ES],
     [schemes.FC, sourceSystems.FC],
