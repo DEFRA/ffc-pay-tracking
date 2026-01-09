@@ -1,6 +1,6 @@
 const { BPS, CS } = require('../constants/schemes')
 
-const getDataFilter = (data, previous) => {
+const getDataFilter = (data, previous = false) => {
   const defaultFilter = {
     paymentRequestNumber: previous ? data.paymentRequestNumber - 1 : data.paymentRequestNumber
   }

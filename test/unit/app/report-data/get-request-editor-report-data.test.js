@@ -1,6 +1,16 @@
 const reportFileGenerator = require('../../../../app/report-data/report-file-generator')
 const { getRequestEditorReportData } = require('../../../../app/report-data/get-request-editor-report-data')
 
+const Sequelize = {
+  Op: {
+    ne: 'ne'
+  }
+}
+
+jest.mock('../../../../app/data/index.js', () => ({
+  Sequelize
+}))
+
 jest.mock('../../../../app/report-data/report-file-generator', () => ({
   generateSqlQuery: jest.fn(),
   exportQueryToJsonFile: jest.fn()
@@ -19,7 +29,8 @@ describe('getRequestEditorReportData', () => {
     const result = await getRequestEditorReportData()
 
     expect(reportFileGenerator.generateSqlQuery).toHaveBeenCalledWith({
-      routedToRequestEditor: 'Y'
+      routedToRequestEditor: 'Y',
+      receivedInRequestEditor: { [Sequelize.Op.ne]: null }
     })
 
     expect(reportFileGenerator.exportQueryToJsonFile).toHaveBeenCalledWith(mockSql)
