@@ -10,7 +10,7 @@ const processMessage = async (message, receiver) => {
       console.log(`Event processed: ${message.body.type} for FRN ${message.body.data.frn}, agreement number ${message.body.data.agreementNumber}`)
     }
     if (message.body.type.includes(WARNING_EVENT_PREFIX)) {
-      updateWarning(message.body)
+      await updateWarning(message.body)
       console.log(`Warning processed: ${message.body.type} for subject ${message.body.subject}`)
     }
     await receiver.completeMessage(message)
