@@ -5,5 +5,4 @@ helm/**/*.lock
 .vscode
 .env
 *.DS_Store
-
 .gitleaks-shared/
