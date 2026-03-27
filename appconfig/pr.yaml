@@ -1,0 +1,6 @@
+---
+environment: production
+environmentCode: snd
+container:
+  azureStorageAccountName: snd2ffcpayst2001
+  messageQueueHost: SNDFFCINFSB2001.servicebus.windows.net
