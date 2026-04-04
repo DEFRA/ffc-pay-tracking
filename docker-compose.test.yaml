@@ -27,8 +27,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  sqledge:
-    container_name: "sqledge"
+  ffc-pay-tracking-sqledge:
+    container_name: "ffc-pay-tracking-sqledge"
     image: "mcr.microsoft.com/azure-sql-edge:latest"
     environment:
       ACCEPT_EULA: "Y"
@@ -43,11 +43,11 @@ services:
     ports:
       - "5672:5672"
     environment:
-      SQL_SERVER: sqledge
+      SQL_SERVER: ffc-pay-tracking-sqledge
       MSSQL_SA_PASSWORD: "DummyStrongPa$$w0rd" # Password should be same as what is set for SQL Edge
       ACCEPT_EULA: "Y"
     depends_on:
-      - sqledge
+      - ffc-pay-tracking-sqledge
 
     healthcheck:
       test: ["CMD-SHELL", "nc -z localhost 5672"]
