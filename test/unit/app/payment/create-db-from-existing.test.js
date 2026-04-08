@@ -17,7 +17,11 @@ describe('create a new database entry from existing related data', () => {
       batch: 'existingBatchName',
       batchExportDate: 'existingBatchExportDate',
       originalInvoiceNumber: 'existingOriginalInvoiceNumber',
-      deltaAmount: 'existingDeltaAmount'
+      deltaAmount: 'existingDeltaAmount',
+      routedToRequestEditor: 'existingRouted',
+      receivedInRequestEditor: 'existingReceived',
+      releasedFromRequestEditor: 'existingReleased',
+      enriched: 'existingEnriched'
     }
     const mockTransaction = {}
 
@@ -31,6 +35,10 @@ describe('create a new database entry from existing related data', () => {
       batchExportDate: 'existingBatchExportDate',
       originalInvoiceNumber: 'existingOriginalInvoiceNumber',
       deltaAmount: 'existingDeltaAmount',
+      routedToRequestEditor: 'existingRouted',
+      receivedInRequestEditor: 'existingReceived',
+      releasedFromRequestEditor: 'existingReleased',
+      enriched: 'existingEnriched',
       ledgerSplit: 'Y'
     }, { transaction: mockTransaction })
   })
