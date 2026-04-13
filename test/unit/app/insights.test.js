@@ -1,41 +1,38 @@
-const appInsights = require('applicationinsights')
-const { setup } = require('../../../app/insights')
+describe('Application Insights', () => {
+  const DEFAULT_ENV = process.env
+  let useAzureMonitor
 
-jest.mock('applicationinsights', () => ({
-  setup: jest.fn().mockReturnThis(),
-  start: jest.fn(),
-  defaultClient: {
-    context: {
-      keys: {
-        cloudRole: 'cloudRoleKey'
-      },
-      tags: {}
-    }
-  }
-}))
-
-describe('insights', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    jest.resetModules()
+
+    jest.mock('@azure/monitor-opentelemetry', () => ({
+      useAzureMonitor: jest.fn(),
+    }))
+
+    useAzureMonitor = require('@azure/monitor-opentelemetry').useAzureMonitor
+
+    process.env = { ...DEFAULT_ENV }
   })
 
-  test('should setup App Insights if connection string is provided', () => {
-    process.env.APPINSIGHTS_CONNECTIONSTRING = 'TestConnectionString'
-    process.env.APPINSIGHTS_CLOUDROLE = 'TestAppName'
-
-    setup()
-
-    expect(appInsights.setup).toHaveBeenCalledWith('TestConnectionString')
-    expect(appInsights.start).toHaveBeenCalled()
-    expect(appInsights.defaultClient.context.tags.cloudRoleKey).toBe('TestAppName')
+  afterAll(() => {
+    process.env = DEFAULT_ENV
   })
 
-  test('should not setup App Insights if connection string is not provided', () => {
-    delete process.env.APPINSIGHTS_CONNECTIONSTRING
+  test('does not setup application insights if no connection string', () => {
+    process.env.APPINSIGHTS_CONNECTIONSTRING = undefined
+    const appInsights = require('../../app/insights')
 
-    setup()
+    appInsights.setup()
 
-    expect(appInsights.setup).not.toHaveBeenCalled()
-    expect(appInsights.start).not.toHaveBeenCalled()
+    expect(useAzureMonitor).not.toHaveBeenCalled()
+  })
+
+  test('does setup application insights if connection string present', () => {
+    process.env.APPINSIGHTS_CONNECTIONSTRING = 'test-connection-string'
+    const appInsights = require('../../app/insights')
+
+    appInsights.setup()
+
+    expect(useAzureMonitor).toHaveBeenCalledTimes(1)
   })
 })
