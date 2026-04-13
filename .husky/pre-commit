@@ -1,4 +1,3 @@
-npm test
 #!/bin/sh
 
 GITLEAKS_VERSION="8.30.0"
