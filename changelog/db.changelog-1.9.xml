@@ -12,10 +12,10 @@
     <tagDatabase tag="v1.9.0" />
   </changeSet>
 
-  <changeSet author="Leigh Godson" id="2" runOnChange="true">
+  <changeSet author="Leigh Godson" id="2">
     <sql>
       UPDATE public."reportData"
-      SET value = ABS(value)
+      SET value = value * -1
       WHERE "sourceSystem" = 'FPTT'
         AND "lastUpdated"::date &lt;= CURRENT_DATE
         AND value &lt; 0;

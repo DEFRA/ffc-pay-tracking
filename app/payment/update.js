@@ -7,14 +7,12 @@ const { getWhereFilter } = require('../helpers/get-where-filter')
 const { sendUpdateFailureEvent } = require('../event/send-update-failure')
 const { TRACKING_UPDATE_FAILURE } = require('../constants/events')
 const { updateExistingRecord } = require('./update-existing-record')
-const { swapAbsoluteValue } = require('./swap-absolute-value')
 
 const updatePayment = async (event) => {
   const transaction = await db.sequelize.transaction()
 
   try {
     const dbData = await createData(event, transaction)
-    dbData.value = dbData.value * swapAbsoluteValue(event.data.schemeId)
     const existingData = await getExistingDataFull(event.data, transaction)
     if (existingData) {
       await handleExistingData(event, dbData, existingData, transaction)
