@@ -2,15 +2,32 @@ resources:
   identity: pay-tracking
   postgreSql:
     name: ffc-pay-tracking
-  topics:
-    - name: ffc-pay-events
-      role: receiver
-      subscriptions:
-        - name: ffc-pay-tracking
-    - name: ffc-pay-events
-      role: sender
-      subscriptions:
-        - name: ffc-pay-tracking
+  service_bus:
+    topics:
+      - name: ffc-pay-events
+        defaultMessageTimeToLive: P3650D
+        duplicateDetectionHistoryTimeWindow: PT10M30S
+        requiresDuplicateDetection: true
+        roles: 
+        - name: receiver
+        subscriptions:
+          - name: ffc-pay-tracking
+            deadLetteringOnMessageExpiration: true
+            defaultMessageTimeToLive: P3650D
+            lockDuration: PT5M
+            maxDeliveryCount: 2000
+      - name: fcp-pds-data-retention
+        defaultMessageTimeToLive: P3650D
+        duplicateDetectionHistoryTimeWindow: PT10M30S
+        requiresDuplicateDetection: true
+        roles: 
+        - name: receiver
+        subscriptions:
+          - name: ffc-pay-tracking
+            deadLetteringOnMessageExpiration: true
+            defaultMessageTimeToLive: P3650D
+            lockDuration: PT5M
+            maxDeliveryCount: 2000
   storage_accounts:
     - name: pay
       containers:
