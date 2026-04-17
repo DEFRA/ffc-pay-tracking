@@ -22,6 +22,8 @@ services:
       MESSAGE_QUEUE_HOST: servicebus-emulator
       MESSAGE_QUEUE_USER: RootManageSharedAccessKey
       MESSAGE_QUEUE_PASSWORD: SAS_KEY_VALUE
+      RETENTION_TOPIC_ADDRESS: fcp-pds-data-retention
+      RETENTION_SUBSCRIPTION_ADDRESS: ffc-pay-tracking
 
   ffc-pay-tracking-postgres:
     volumes:

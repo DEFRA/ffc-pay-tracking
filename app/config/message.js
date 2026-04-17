@@ -14,6 +14,11 @@ const schema = Joi.object({
     address: Joi.string().required(),
     topic: Joi.string().required(),
     type: Joi.string().default('subscription')
+  },
+  retentionSubscription: {
+    address: Joi.string().required(),
+    topic: Joi.string().required(),
+    type: Joi.string().default('subscription')
   }
 })
 
@@ -29,6 +34,10 @@ const config = {
   eventsSubscription: {
     address: process.env.EVENTS_SUBSCRIPTION_ADDRESS,
     topic: process.env.EVENTS_TOPIC_ADDRESS
+  },
+  retentionSubscription: {
+    address: process.env.RETENTION_SUBSCRIPTION_ADDRESS,
+    topic: process.env.RETENTION_TOPIC_ADDRESS
   }
 }
 
@@ -41,7 +50,9 @@ if (result.error) {
 }
 
 const eventsSubscription = { ...result.value.messageQueue, ...result.value.eventsSubscription }
+const retentionSubscription = { ...result.value.messageQueue, ...result.value.retentionSubscription }
 
 module.exports = {
-  eventsSubscription
+  eventsSubscription,
+  retentionSubscription
 }
