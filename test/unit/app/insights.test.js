@@ -20,7 +20,7 @@ describe('Application Insights', () => {
 
   test('does not setup application insights if no connection string', () => {
     process.env.APPINSIGHTS_CONNECTIONSTRING = undefined
-    const appInsights = require('../../app/insights')
+    const appInsights = require('../../../app/insights')
 
     appInsights.setup()
 
@@ -29,7 +29,7 @@ describe('Application Insights', () => {
 
   test('does setup application insights if connection string present', () => {
     process.env.APPINSIGHTS_CONNECTIONSTRING = 'test-connection-string'
-    const appInsights = require('../../app/insights')
+    const appInsights = require('../../../app/insights')
 
     appInsights.setup()
 
