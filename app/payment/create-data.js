@@ -1,9 +1,11 @@
 const moment = require('moment')
 const { getARAmount, getDebtType, getFileName, getBatch, getBatchExportDate, getStatus, getValue, getRevenue, getYear, routedToRequestEditor, getDeltaAmount, getAPAmount, isImported, getSettledValue, getOriginalInvoiceNumber, getRequestEditorDate, isEnriched, getRequestEditorReleased, checkDAXPRN, checkDAXValue, getOverallStatus, getCrossBorderFlag } = require('../data-generation')
+const { swapAbsoluteValue } = require('./swap-absolute-value')
 
 const createData = async (event, transaction) => {
   const paymentRequestNumber = event.data.paymentRequestNumber
-  const value = await getValue(event)
+  const rawValue = await getValue(event)
+  const value = rawValue !== null && rawValue !== undefined ? rawValue * swapAbsoluteValue(event.data.schemeId) : rawValue
   const deltaAmount = await getDeltaAmount(event, transaction)
   const daxPaymentRequestNumber = await checkDAXPRN(event, transaction)
   const daxValue = await checkDAXValue(event, transaction)
@@ -38,9 +40,9 @@ const createData = async (event, transaction) => {
     releasedFromRequestEditor: getRequestEditorReleased(event),
     daxPaymentRequestNumber,
     daxValue,
-    overallStatus: getOverallStatus(value, daxValue, paymentRequestNumber, daxPaymentRequestNumber),
+    overallStatus: getOverallStatus(rawValue, daxValue, paymentRequestNumber, daxPaymentRequestNumber),
     crossBorderFlag: getCrossBorderFlag(event),
-    valueStillToProcess: value ? value - daxValue : null,
+    valueStillToProcess: rawValue ? rawValue - daxValue : null,
     prStillToProcess: paymentRequestNumber - daxPaymentRequestNumber
   }
   const filteredData = Object.fromEntries(

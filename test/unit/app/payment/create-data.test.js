@@ -1,9 +1,11 @@
 const moment = require('moment')
 const { createData } = require('../../../../app/payment/create-data')
 const { getARAmount, getDebtType, getFileName, getBatch, getBatchExportDate, getStatus, getValue, getRevenue, getYear, routedToRequestEditor, getDeltaAmount, getAPAmount, isImported, getSettledValue, getOriginalInvoiceNumber, getRequestEditorDate, isEnriched, getRequestEditorReleased, checkDAXPRN, checkDAXValue, getOverallStatus, getCrossBorderFlag } = require('../../../../app/data-generation')
-const { SFI23 } = require('../../../../app/constants/schemes')
+const { FPTT, SFI23 } = require('../../../../app/constants/schemes')
+const { swapAbsoluteValue } = require('../../../../app/payment/swap-absolute-value')
 
 jest.mock('../../../../app/data-generation/index')
+jest.mock('../../../../app/payment/swap-absolute-value')
 
 describe('createData', () => {
   test('should create and return the expected data object', async () => {
@@ -46,6 +48,7 @@ describe('createData', () => {
     checkDAXValue.mockResolvedValue(2000)
     getOverallStatus.mockReturnValue('testOverallStatus')
     getCrossBorderFlag.mockReturnValue('testCrossBorderFlag')
+    swapAbsoluteValue.mockReturnValue(1)
 
     const expectedData = {
       correlationId: 'testCorrelationId',
@@ -114,5 +117,35 @@ describe('createData', () => {
     const data = await createData(mockEvent, mockTransaction)
 
     expect(data.valueStillToProcess).toBeUndefined()
+  })
+
+  test('should negate value for FPTT scheme', async () => {
+    const mockEvent = {
+      data: {
+        correlationId: 'testCorrelationId',
+        frn: 1234567890,
+        contractNumber: 'testContractNumber',
+        agreementNumber: 'testAgreementNumber',
+        marketingYear: 2023,
+        invoiceNumber: 'testInvoiceNumber',
+        currency: 'testCurrency',
+        paymentRequestNumber: 2,
+        sourceSystem: 'testSourceSystem',
+        schemeId: FPTT
+      },
+      time: new Date()
+    }
+    const mockTransaction = {}
+
+    getValue.mockReturnValue(2500)
+    checkDAXValue.mockResolvedValue(2000)
+    checkDAXPRN.mockResolvedValue(1)
+    swapAbsoluteValue.mockReturnValue(-1)
+
+    const data = await createData(mockEvent, mockTransaction)
+
+    expect(swapAbsoluteValue).toHaveBeenCalledWith(FPTT)
+    expect(data.value).toBe(-2500)
+    expect(data.valueStillToProcess).toBe(500)
   })
 })
