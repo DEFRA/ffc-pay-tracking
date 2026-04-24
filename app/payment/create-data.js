@@ -1,11 +1,13 @@
 const moment = require('moment')
 const { getARAmount, getDebtType, getFileName, getBatch, getBatchExportDate, getStatus, getValue, getRevenue, getYear, routedToRequestEditor, getDeltaAmount, getAPAmount, isImported, getSettledValue, getOriginalInvoiceNumber, getRequestEditorDate, isEnriched, getRequestEditorReleased, checkDAXPRN, checkDAXValue, getOverallStatus, getCrossBorderFlag } = require('../data-generation')
 const { swapAbsoluteValue } = require('./swap-absolute-value')
+const { PAYMENT_EXTRACTED, PAYMENT_ENRICHED } = require('../constants/events')
+const isFreshUpstreamValue = (eventType) => eventType === PAYMENT_EXTRACTED || eventType === PAYMENT_ENRICHED
 
 const createData = async (event, transaction) => {
   const paymentRequestNumber = event.data.paymentRequestNumber
   const rawValue = await getValue(event)
-  const value = rawValue !== null && rawValue !== undefined ? rawValue * swapAbsoluteValue(event.data.schemeId) : rawValue
+  const value = rawValue && isFreshUpstreamValue(event.type) ? rawValue * swapAbsoluteValue(event.data.schemeId) : rawValue
   const deltaAmount = await getDeltaAmount(event, transaction)
   const daxPaymentRequestNumber = await checkDAXPRN(event, transaction)
   const daxValue = await checkDAXValue(event, transaction)
