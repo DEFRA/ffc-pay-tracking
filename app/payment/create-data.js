@@ -7,8 +7,9 @@ const isFreshUpstreamValue = (eventType) => eventType === PAYMENT_EXTRACTED || e
 const createData = async (event, transaction) => {
   const paymentRequestNumber = event.data.paymentRequestNumber
   const rawValue = await getValue(event)
-  const value = rawValue && isFreshUpstreamValue(event.type) ? rawValue * swapAbsoluteValue(event.data.schemeId) : rawValue
-  const deltaAmount = await getDeltaAmount(event, transaction)
+  const value = rawValue != null && isFreshUpstreamValue(event.type) ? rawValue * swapAbsoluteValue(event.data.sourceSystem) || 0 : rawValue
+  const rawDeltaAmount = await getDeltaAmount(event, transaction)
+  const deltaAmount = rawDeltaAmount != null ? rawDeltaAmount * swapAbsoluteValue(event.data.sourceSystem) : rawDeltaAmount
   const daxPaymentRequestNumber = await checkDAXPRN(event, transaction)
   const daxValue = await checkDAXValue(event, transaction)
   const data = {
@@ -42,9 +43,9 @@ const createData = async (event, transaction) => {
     releasedFromRequestEditor: getRequestEditorReleased(event),
     daxPaymentRequestNumber,
     daxValue,
-    overallStatus: getOverallStatus(rawValue, daxValue, paymentRequestNumber, daxPaymentRequestNumber),
+    overallStatus: getOverallStatus(value, daxValue, paymentRequestNumber, daxPaymentRequestNumber),
     crossBorderFlag: getCrossBorderFlag(event),
-    valueStillToProcess: rawValue ? rawValue - daxValue : null,
+    valueStillToProcess: value ? value - daxValue : null,
     prStillToProcess: paymentRequestNumber - daxPaymentRequestNumber
   }
   const filteredData = Object.fromEntries(

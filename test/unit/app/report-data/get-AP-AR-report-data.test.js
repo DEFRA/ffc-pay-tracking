@@ -22,7 +22,7 @@ describe('getAPARReportData', () => {
   test('should generate SQL and export AP data when start and end dates are provided', async () => {
     const mockSql = 'SELECT * FROM reportData WHERE ...'
     const mockData = [{ apValue: 1 }, { apValue: 2 }]
-    generateSqlQuery.mockResolvedValue(mockSql)
+    generateSqlQuery.mockReturnValue(mockSql)
     exportQueryToJsonFile.mockResolvedValue(mockData)
 
     const startDate = '2022-01-01'
@@ -41,7 +41,7 @@ describe('getAPARReportData', () => {
   test('should generate SQL and export AR data when start and end dates are provided', async () => {
     const mockSql = 'SELECT * FROM reportData WHERE ...'
     const mockData = [{ arValue: 1 }, { arValue: 2 }]
-    generateSqlQuery.mockResolvedValue(mockSql)
+    generateSqlQuery.mockReturnValue(mockSql)
     exportQueryToJsonFile.mockResolvedValue(mockData)
 
     const startDate = '2022-01-01'
