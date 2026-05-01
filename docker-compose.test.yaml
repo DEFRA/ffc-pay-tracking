@@ -6,7 +6,7 @@ services:
     build:
       target: development
     depends_on:
-      - servicebus-emulator
+      - ffc-pay-tracking-servicebus-emulator
     image: ffc-pay-tracking-development
     container_name: ffc-pay-tracking-test
     command: npm run test
@@ -19,7 +19,7 @@ services:
     environment:
       PROCESSING_ACTIVE: true
       AZURE_STORAGE_CONNECTION_STRING: DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://ffc-pay-event-store-azurite:10000/devstoreaccount1;
-      MESSAGE_QUEUE_HOST: servicebus-emulator
+      MESSAGE_QUEUE_HOST: ffc-pay-tracking-servicebus-emulator
       MESSAGE_QUEUE_USER: RootManageSharedAccessKey
       MESSAGE_QUEUE_PASSWORD: SAS_KEY_VALUE
 
@@ -34,8 +34,8 @@ services:
       ACCEPT_EULA: "Y"
       MSSQL_SA_PASSWORD: "DummyStrongPa$$w0rd" # To be filled by user as per policy : https://learn.microsoft.com/en-us/sql/relational-databases/security/strong-passwords?view=sql-server-linux-ver16
 
-  servicebus-emulator:
-    container_name: "servicebus-emulator"
+  ffc-pay-tracking-servicebus-emulator:
+    container_name: "ffc-pay-tracking-servicebus-emulator"
     image: mcr.microsoft.com/azure-messaging/servicebus-emulator:latest
     pull_policy: always
     volumes:
