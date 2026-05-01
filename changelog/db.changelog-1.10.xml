@@ -1,0 +1,133 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog 
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog" 
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" 
+    xmlns:pro="http://www.liquibase.org/xml/ns/pro" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd 
+                        http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.9.xsd 
+                        http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+
+  <changeSet author="Sam Plackett" id="1">
+    <tagDatabase tag="v1.10.0" />
+  </changeSet>
+
+  <changeSet author="Sam Plackett" id="2">
+    <sql><![CDATA[
+      WITH grouped AS (
+        SELECT
+          "correlationId",
+          COUNT(*) AS correlation_count,
+          COUNT(DISTINCT "sourceSystem") AS distinct_sourceSystem_count,
+          COUNT(DISTINCT value) AS distinct_value_count
+        FROM public."reportData"
+        WHERE "correlationId" IS NOT NULL
+        GROUP BY "correlationId"
+        HAVING
+          COUNT(*) = 3
+          AND COUNT(DISTINCT "sourceSystem") = 1
+          AND COUNT(DISTINCT value) = 1
+      ),
+
+      base_records AS (
+        SELECT rd.*
+        FROM public."reportData" rd
+        JOIN grouped g ON rd."correlationId" = g."correlationId"
+        WHERE rd.status = 'Ledger assignment quality check passed'
+      ),
+
+      source_ap AS (
+        SELECT DISTINCT ON (br."reportDataId") 
+          br."reportDataId" AS target_id,
+          s."daxFileName" AS src_daxFileName,
+          s.status AS src_status,
+          s."apValue" AS src_apValue,
+          s."daxImported" AS src_daxImported,
+          s."settledValue" AS src_settledValue,
+          s."ledgerSplit" AS src_ledgerSplit,
+          s."daxPaymentRequestNumber" AS src_daxPaymentRequestNumber,
+          s."daxValue" AS src_daxValue,
+          s."overallStatus" AS src_overallStatus,
+          s."prStillToProcess" AS src_prStillToProcess,
+          s."lastUpdated" AS src_lastUpdated
+        FROM base_records br
+        JOIN public."reportData" s
+          ON s."correlationId" = br."correlationId"
+        AND s."sourceSystem" = br."sourceSystem"
+        AND s."apValue" IS NOT NULL
+        ORDER BY br."reportDataId", s."lastUpdated" DESC NULLS LAST
+      ),
+
+      source_ar AS (
+        SELECT DISTINCT ON (br."reportDataId") 
+          br."reportDataId" AS target_id,
+          s."arValue" AS src_arValue
+        FROM base_records br
+        JOIN public."reportData" s
+          ON s."correlationId" = br."correlationId"
+        AND s."sourceSystem" = br."sourceSystem"
+        AND s."arValue" IS NOT NULL
+        ORDER BY br."reportDataId", s."lastUpdated" DESC NULLS LAST
+      )
+
+      UPDATE public."reportData" rd
+      SET
+        "daxFileName" = COALESCE(sa.src_daxFileName, rd."daxFileName"),
+        status = COALESCE(sa.src_status, rd.status),
+        "apValue" = COALESCE(sa.src_apValue, rd."apValue"),
+        "arValue" = COALESCE(sar.src_arValue, rd."arValue"),
+        "daxImported" = COALESCE(sa.src_daxImported, rd."daxImported"),
+        "settledValue" = COALESCE(sa.src_settledValue, rd."settledValue"),
+        "ledgerSplit" = COALESCE(sa.src_ledgerSplit, rd."ledgerSplit"),
+        "daxPaymentRequestNumber" = COALESCE(sa.src_daxPaymentRequestNumber, rd."daxPaymentRequestNumber"),
+        "daxValue" = COALESCE(sa.src_daxValue, rd."daxValue"),
+        "overallStatus" = COALESCE(sa.src_overallStatus, rd."overallStatus"),
+        "prStillToProcess" = COALESCE(sa.src_prStillToProcess, rd."prStillToProcess"),
+        "lastUpdated" = COALESCE(sa.src_lastUpdated, rd."lastUpdated"),
+        "enriched" = 'Y'
+      FROM base_records br
+      LEFT JOIN source_ap sa ON br."reportDataId" = sa.target_id
+      LEFT JOIN source_ar sar ON br."reportDataId" = sar.target_id
+      WHERE rd."reportDataId" = br."reportDataId";
+    ]]></sql>
+  </changeSet>
+  <changeSet author="Sam Plackett" id="3">
+    <sql><![CDATA[
+      WITH grouped AS (
+        SELECT
+          "correlationId"
+        FROM public."reportData"
+        WHERE "correlationId" IS NOT NULL
+        GROUP BY "correlationId"
+        HAVING
+          COUNT(*) = 3
+          AND COUNT(DISTINCT "sourceSystem") = 1
+          AND COUNT(DISTINCT value) = 1
+      ),
+
+      master_records AS (
+        SELECT rd.*
+        FROM public."reportData" rd
+        JOIN grouped g ON rd."correlationId" = g."correlationId"
+        WHERE rd."apValue" IS NOT NULL
+          AND rd."arValue" IS NOT NULL 
+      )
+
+      UPDATE public."reportData" rd
+      SET
+        "debtType" = mr."debtType",
+        "receivedInRequestEditor" = mr."receivedInRequestEditor",
+        "enriched" = mr."enriched",
+        "releasedFromRequestEditor" = mr."releasedFromRequestEditor"
+      FROM master_records mr
+      WHERE rd."correlationId" = mr."correlationId"
+        AND rd."reportDataId" != mr."reportDataId"
+        AND (
+          (rd."apValue" IS NOT NULL AND rd."arValue" IS NULL)
+          OR
+          (rd."arValue" IS NOT NULL AND rd."apValue" IS NULL)
+        )
+        AND rd."sourceSystem" = mr."sourceSystem";
+    ]]></sql>
+  </changeSet>
+</databaseChangeLog>
