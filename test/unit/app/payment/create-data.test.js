@@ -1,15 +1,21 @@
 const moment = require('moment')
 const { createData } = require('../../../../app/payment/create-data')
 const { getARAmount, getDebtType, getFileName, getBatch, getBatchExportDate, getStatus, getValue, getRevenue, getYear, routedToRequestEditor, getDeltaAmount, getAPAmount, isImported, getSettledValue, getOriginalInvoiceNumber, getRequestEditorDate, isEnriched, getRequestEditorReleased, checkDAXPRN, checkDAXValue, getOverallStatus, getCrossBorderFlag } = require('../../../../app/data-generation')
-const { FPTT, SFI23 } = require('../../../../app/constants/schemes')
+const { FPTT, SFI23 } = require('../../../../app/constants/source-systems')
+const { PAYMENT_EXTRACTED, PAYMENT_ACKNOWLEDGED } = require('../../../../app/constants/events')
 const { swapAbsoluteValue } = require('../../../../app/payment/swap-absolute-value')
 
 jest.mock('../../../../app/data-generation/index')
 jest.mock('../../../../app/payment/swap-absolute-value')
 
 describe('createData', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
   test('should create and return the expected data object', async () => {
     const mockEvent = {
+      type: PAYMENT_EXTRACTED,
       data: {
         correlationId: 'testCorrelationId',
         frn: 1234567890,
@@ -19,8 +25,7 @@ describe('createData', () => {
         invoiceNumber: 'testInvoiceNumber',
         currency: 'testCurrency',
         paymentRequestNumber: 2,
-        sourceSystem: 'testSourceSystem',
-        schemeId: SFI23
+        sourceSystem: SFI23
       },
       time: new Date()
     }
@@ -62,7 +67,7 @@ describe('createData', () => {
       paymentRequestNumber: 2,
       value: 2500,
       batch: 'testBatch',
-      sourceSystem: 'testSourceSystem',
+      sourceSystem: SFI23,
       batchExportDate: 'testBatchExportDate',
       status: 'testStatus',
       lastUpdated: moment(mockEvent.time).format(),
@@ -119,8 +124,9 @@ describe('createData', () => {
     expect(data.valueStillToProcess).toBeUndefined()
   })
 
-  test('should negate value for FPTT scheme', async () => {
+  test('should negate value for FPTT scheme when event is a fresh upstream event', async () => {
     const mockEvent = {
+      type: PAYMENT_EXTRACTED,
       data: {
         correlationId: 'testCorrelationId',
         frn: 1234567890,
@@ -130,8 +136,37 @@ describe('createData', () => {
         invoiceNumber: 'testInvoiceNumber',
         currency: 'testCurrency',
         paymentRequestNumber: 2,
-        sourceSystem: 'testSourceSystem',
-        schemeId: FPTT
+        sourceSystem: FPTT
+      },
+      time: new Date()
+    }
+    const mockTransaction = {}
+
+    getValue.mockReturnValue(-2500)
+    checkDAXValue.mockResolvedValue(2000)
+    checkDAXPRN.mockResolvedValue(1)
+    swapAbsoluteValue.mockReturnValue(-1)
+
+    const data = await createData(mockEvent, mockTransaction)
+
+    expect(swapAbsoluteValue).toHaveBeenCalledWith(FPTT)
+    expect(data.value).toBe(2500)
+    expect(data.valueStillToProcess).toBe(500)
+  })
+
+  test('should not apply swapAbsoluteValue when event is not a fresh upstream event', async () => {
+    const mockEvent = {
+      type: PAYMENT_ACKNOWLEDGED,
+      data: {
+        correlationId: 'testCorrelationId',
+        frn: 1234567890,
+        contractNumber: 'testContractNumber',
+        agreementNumber: 'testAgreementNumber',
+        marketingYear: 2023,
+        invoiceNumber: 'testInvoiceNumber',
+        currency: 'testCurrency',
+        paymentRequestNumber: 2,
+        sourceSystem: FPTT
       },
       time: new Date()
     }
@@ -140,12 +175,10 @@ describe('createData', () => {
     getValue.mockReturnValue(2500)
     checkDAXValue.mockResolvedValue(2000)
     checkDAXPRN.mockResolvedValue(1)
-    swapAbsoluteValue.mockReturnValue(-1)
 
     const data = await createData(mockEvent, mockTransaction)
 
     expect(swapAbsoluteValue).toHaveBeenCalledWith(FPTT)
-    expect(data.value).toBe(-2500)
-    expect(data.valueStillToProcess).toBe(500)
+    expect(data.value).toBe(2500)
   })
 })
