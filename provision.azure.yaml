@@ -11,4 +11,11 @@ resources:
       role: sender
       subscriptions:
         - name: ffc-pay-tracking
-        
+  storage_accounts:
+    - name: pay
+      containers:
+        - name: data-requests
+          roles:
+            - name: blobContributor
+      roles:
+        - name: storageAccountContributor
