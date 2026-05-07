@@ -3,6 +3,7 @@ const db = require('../data')
 const { PAYMENT_EXTRACTED, PAYMENT_ENRICHED } = require('../constants/events')
 const { convertToPence } = require('../helpers/currency-convert')
 const { getDataFilter } = require('../helpers/get-data-filter')
+const { FPTT } = require('../constants/source-systems')
 
 const getValue = async (event, transaction) => {
   if (event.type === PAYMENT_EXTRACTED) {
@@ -12,6 +13,9 @@ const getValue = async (event, transaction) => {
     return event.data.value
   }
   const where = getDataFilter(event.data)
+  if (event.data.sourceSystem === FPTT) {
+    where.correlationId = event.data.correlationId
+  }
   const existingRequest = await db.reportData.findOne({
     where,
     transaction

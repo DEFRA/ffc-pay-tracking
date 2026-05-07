@@ -1,4 +1,4 @@
-const { FPTT, SFI } = require('../../../../app/constants/schemes')
+const { FPTT, SFI } = require('../../../../app/constants/source-systems')
 const { swapAbsoluteValue } = require('../../../../app/payment/swap-absolute-value')
 
 describe('swapAbsoluteValue', () => {
