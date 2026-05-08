@@ -6,7 +6,7 @@ services:
     build:
       target: development
     depends_on:
-      - tracking-servicebus-emulator
+      - ffc-pay-tracking-servicebus-emulator
     image: ffc-pay-tracking-development
     container_name: ffc-pay-tracking-test
     command: npm run test
@@ -27,15 +27,15 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  tracking-sqledge:
-    container_name: "tracking-sqledge"
+  ffc-pay-tracking-sqledge:
+    container_name: "ffc-pay-tracking-sqledge"
     image: "mcr.microsoft.com/azure-sql-edge:latest"
     environment:
       ACCEPT_EULA: "Y"
       MSSQL_SA_PASSWORD: "DummyStrongPa$$w0rd" # To be filled by user as per policy : https://learn.microsoft.com/en-us/sql/relational-databases/security/strong-passwords?view=sql-server-linux-ver16
 
-  tracking-servicebus-emulator:
-    container_name: "tracking-servicebus-emulator"
+  ffc-pay-tracking-servicebus-emulator:
+    container_name: "ffc-pay-tracking-servicebus-emulator"
     image: mcr.microsoft.com/azure-messaging/servicebus-emulator:latest
     pull_policy: always
     volumes:
@@ -43,11 +43,11 @@ services:
     ports:
       - "5672:5672"
     environment:
-      SQL_SERVER: tracking-sqledge
+      SQL_SERVER: ffc-pay-tracking-sqledge
       MSSQL_SA_PASSWORD: "DummyStrongPa$$w0rd" # Password should be same as what is set for SQL Edge
       ACCEPT_EULA: "Y"
     depends_on:
-      - tracking-sqledge
+      - ffc-pay-tracking-sqledge
 
     healthcheck:
       test: ["CMD-SHELL", "nc -z localhost 5672"]
