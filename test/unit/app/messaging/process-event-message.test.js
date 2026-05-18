@@ -1,12 +1,12 @@
-const { processMessage } = require('../../../app/messaging/process-message')
-const { updatePayment } = require('../../../app/payment')
-const { updateWarning } = require('../../../app/warning')
-const { PAYMENT_EVENT_PREFIX, WARNING_EVENT_PREFIX } = require('../../../app/constants/event-prefixes')
+const { processEventMessage } = require('../../../../app/messaging/process-event-message')
+const { updatePayment } = require('../../../../app/payment')
+const { updateWarning } = require('../../../../app/warning')
+const { PAYMENT_EVENT_PREFIX, WARNING_EVENT_PREFIX } = require('../../../../app/constants/event-prefixes')
 
-jest.mock('../../../app/payment')
-jest.mock('../../../app/warning')
+jest.mock('../../../../app/payment')
+jest.mock('../../../../app/warning')
 
-describe('processMessage', () => {
+describe('processEventMessage', () => {
   let mockReceiver
   let mockMessage
 
@@ -32,14 +32,14 @@ describe('processMessage', () => {
 
   test('processes payment event', async () => {
     mockMessage.body.type = PAYMENT_EVENT_PREFIX
-    await processMessage(mockMessage, mockReceiver)
+    await processEventMessage(mockMessage, mockReceiver)
     expect(updatePayment).toHaveBeenCalledWith(mockMessage.body)
     expect(mockReceiver.completeMessage).toHaveBeenCalledWith(mockMessage)
   })
 
   test('processes warning event', async () => {
     mockMessage.body.type = WARNING_EVENT_PREFIX
-    await processMessage(mockMessage, mockReceiver)
+    await processEventMessage(mockMessage, mockReceiver)
     expect(updateWarning).toHaveBeenCalledWith(mockMessage.body)
     expect(mockReceiver.completeMessage).toHaveBeenCalledWith(mockMessage)
   })
@@ -50,7 +50,7 @@ describe('processMessage', () => {
     updateWarning.mockImplementation(() => {
       throw error
     })
-    await processMessage(mockMessage, mockReceiver)
+    await processEventMessage(mockMessage, mockReceiver)
     expect(updateWarning).toHaveBeenCalledWith(mockMessage.body)
     expect(mockReceiver.deadLetterMessage).toHaveBeenCalledWith(mockMessage)
     expect(mockReceiver.completeMessage).not.toHaveBeenCalled()

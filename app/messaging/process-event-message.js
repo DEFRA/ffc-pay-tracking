@@ -2,7 +2,7 @@ const { PAYMENT_EVENT_PREFIX, WARNING_EVENT_PREFIX } = require('../constants/eve
 const { updatePayment } = require('../payment')
 const { updateWarning } = require('../warning')
 
-const processMessage = async (message, receiver) => {
+const processEventMessage = async (message, receiver) => {
   console.log('Event received: ', message.body)
   try {
     if (message.body.type.includes(PAYMENT_EVENT_PREFIX)) {
@@ -21,5 +21,5 @@ const processMessage = async (message, receiver) => {
 }
 
 module.exports = {
-  processMessage
+  processEventMessage
 }
