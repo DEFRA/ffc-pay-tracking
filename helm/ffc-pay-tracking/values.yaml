@@ -36,6 +36,7 @@ container:
   azureStorageAccountName: ffcpay
   retentionTopicAddress: fcp-pds-data-retention
   retentionSubscriptionAddress: ffc-pay-tracking
+  azureLogLevel: error
 
 postgresService:
   postgresDb: ffc_pay_tracking
