@@ -25,6 +25,7 @@ data:
   POSTGRES_PORT: {{ quote .Values.postgresService.postgresPort }}
   POSTGRES_SCHEMA_NAME: {{ quote .Values.postgresService.postgresSchema }}
   POSTGRES_USERNAME: {{ .Values.postgresService.postgresUser | quote }}
+  AZURE_LOG_LEVEL: {{ quote .Values.container.azureLogLevel }}
   {{- if and (.Values.environmentCode) (not .Values.pr) }}
     {{- if ne .Values.environmentCode "snd" }}
   PAYMENTS_SERVICE_ENDPOINT: {{ .Values.container.paymentsEndpoint }}-{{ .Values.environmentCode }}
