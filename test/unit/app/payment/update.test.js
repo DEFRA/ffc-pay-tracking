@@ -25,7 +25,17 @@ describe('update from a payment message', () => {
       commit: jest.fn(),
       rollback: jest.fn()
     }
+
     db.sequelize.transaction.mockResolvedValue(transaction)
+    db.Sequelize = {
+      Op: {
+        and: 'and',
+        or: 'or',
+        like: 'like',
+        notIn: 'notIn'
+      }
+    }
+
     db.reportData = {
       destroy: jest.fn(),
       update: jest.fn(),
@@ -42,6 +52,7 @@ describe('update from a payment message', () => {
   test('should create new report data when there is no existing data', async () => {
     const event = { data: { someData: 'someValue' } }
     const dbData = { reportDataId: 1 }
+
     createData.mockResolvedValue(dbData)
     getExistingDataFull.mockResolvedValue(null)
 
@@ -54,9 +65,9 @@ describe('update from a payment message', () => {
   })
 
   test('should create new split invoice and update original when split invoice number is detected', async () => {
-    const event = { data: { invoiceNumber: 'INV123AV' } }
-    const dbData = { invoiceNumber: 'INV123AV', value: 100 }
-    const existingData = { invoiceNumber: 'INV123', value: 200 }
+    const event = { data: { invoiceNumber: 'INV123456AV01' } }
+    const dbData = { invoiceNumber: 'INV123456AV01', sourceSystem: 'FPTT', value: 100 }
+    const existingData = { invoiceNumber: 'INV123456V001', sourceSystem: 'FPTT', value: 200 }
 
     createData.mockResolvedValue(dbData)
     getExistingDataFull.mockResolvedValue(existingData)
@@ -67,15 +78,15 @@ describe('update from a payment message', () => {
     await updatePayment(event)
 
     expect(createDBFromExisting).toHaveBeenCalledWith(dbData, existingData, transaction)
-    expect(updateExistingRecord).toHaveBeenCalledWith(dbData, 'INV123V0', transaction)
+    expect(updateExistingRecord).toHaveBeenCalledWith(dbData, 'INV123456V001', transaction)
     expect(transaction.commit).toHaveBeenCalled()
   })
 
   test('should update existing data when not a new split invoice', async () => {
-    const event = { data: { invoiceNumber: 'INV123' } }
-    const dbData = { invoiceNumber: 'INV123', value: 100 }
-    const existingData = { invoiceNumber: 'INV123', value: 200 }
-    const where = { invoiceNumber: 'INV123' }
+    const event = { data: { invoiceNumber: 'INV123456V001' } }
+    const dbData = { invoiceNumber: 'INV123456V001', sourceSystem: 'FPTT', value: 100 }
+    const existingData = { invoiceNumber: 'INV123456V001', sourceSystem: 'FPTT', value: 200 }
+    const where = { invoiceNumber: 'INV123456V001' }
 
     createData.mockResolvedValue(dbData)
     getExistingDataFull.mockResolvedValue(existingData)
@@ -89,11 +100,11 @@ describe('update from a payment message', () => {
   })
 
   test('should handle split invoice with AV suffix in update', async () => {
-    const event = { data: { invoiceNumber: 'INV123AV' } }
-    const dbData = { invoiceNumber: 'INV123AV', value: 100 }
-    const existingData = { invoiceNumber: 'INV123', value: 200 }
-    const where = { invoiceNumber: 'INV123AV' }
-    const originalRecord = { invoiceNumber: 'INV123V0', value: 200 }
+    const event = { data: { invoiceNumber: 'INV123456AV01' } }
+    const dbData = { invoiceNumber: 'INV123456AV01', sourceSystem: 'FPTT', value: 100 }
+    const existingData = { invoiceNumber: 'INV123456V001', sourceSystem: 'FPTT', value: 200 }
+    const where = { invoiceNumber: 'INV123456AV01' }
+    const originalRecord = { invoiceNumber: 'INV123456V001', value: 200 }
 
     createData.mockResolvedValue(dbData)
     getExistingDataFull.mockResolvedValue(existingData)
@@ -105,17 +116,26 @@ describe('update from a payment message', () => {
     await updatePayment(event)
 
     expect(db.reportData.update).toHaveBeenCalledWith({ ...dbData }, { where, transaction })
-    expect(db.reportData.findOne).toHaveBeenCalled()
-    expect(updateExistingRecord).toHaveBeenCalledWith(dbData, 'INV123V0', transaction)
+    expect(db.reportData.findOne).toHaveBeenCalledTimes(1)
+
+    const findOneArg = db.reportData.findOne.mock.calls[0][0]
+    expect(findOneArg).toHaveProperty('where')
+    expect(findOneArg.where[db.Sequelize.Op.and]).toEqual(expect.arrayContaining([
+      expect.objectContaining({}),
+      expect.objectContaining({ invoiceNumber: expect.objectContaining({ [db.Sequelize.Op.like]: 'INV123456%' }) }),
+      expect.objectContaining({ invoiceNumber: expect.objectContaining({ [db.Sequelize.Op.notIn]: ['INV123456AV01', 'INV123456BV01'] }) })
+    ]))
+
+    expect(updateExistingRecord).toHaveBeenCalledWith(dbData, 'INV123456V001', transaction)
     expect(transaction.commit).toHaveBeenCalled()
   })
 
   test('should handle split invoice with BV suffix in update', async () => {
-    const event = { data: { invoiceNumber: 'INV456BV' } }
-    const dbData = { invoiceNumber: 'INV456BV', value: 150 }
-    const existingData = { invoiceNumber: 'INV456', value: 300 }
-    const where = { invoiceNumber: 'INV456BV' }
-    const originalRecord = { invoiceNumber: 'INV456V0', value: 300 }
+    const event = { data: { invoiceNumber: 'INV123456BV01' } }
+    const dbData = { invoiceNumber: 'INV123456BV01', sourceSystem: 'FPTT', value: 150 }
+    const existingData = { invoiceNumber: 'INV123456V001', sourceSystem: 'FPTT', value: 300 }
+    const where = { invoiceNumber: 'INV123456BV01' }
+    const originalRecord = { invoiceNumber: 'INV123456V001', value: 300 }
 
     createData.mockResolvedValue(dbData)
     getExistingDataFull.mockResolvedValue(existingData)
@@ -126,7 +146,16 @@ describe('update from a payment message', () => {
 
     await updatePayment(event)
 
-    expect(updateExistingRecord).toHaveBeenCalledWith(dbData, 'INV456V0', transaction)
+    expect(db.reportData.findOne).toHaveBeenCalledTimes(1)
+
+    const findOneArg = db.reportData.findOne.mock.calls[0][0]
+    expect(findOneArg.where[db.Sequelize.Op.and]).toEqual(expect.arrayContaining([
+      expect.objectContaining({}),
+      expect.objectContaining({ invoiceNumber: expect.objectContaining({ [db.Sequelize.Op.like]: 'INV123456%' }) }),
+      expect.objectContaining({ invoiceNumber: expect.objectContaining({ [db.Sequelize.Op.notIn]: ['INV123456BV01', 'INV123456AV01'] }) })
+    ]))
+
+    expect(updateExistingRecord).toHaveBeenCalledWith(dbData, 'INV123456V001', transaction)
     expect(transaction.commit).toHaveBeenCalled()
   })
 
