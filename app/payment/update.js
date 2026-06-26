@@ -7,6 +7,8 @@ const { getWhereFilter } = require('../helpers/get-where-filter')
 const { sendUpdateFailureEvent } = require('../event/send-update-failure')
 const { TRACKING_UPDATE_FAILURE } = require('../constants/events')
 const { updateExistingRecord } = require('./update-existing-record')
+const { getOriginalInvoiceNumberLike } = require('./get-original-invoice-number-like')
+const { getSiblingSplitVariant } = require('./get-sibling-split-variant')
 
 const updatePayment = async (event) => {
   const transaction = await db.sequelize.transaction()
@@ -50,12 +52,28 @@ const handleUpdateExistingData = async (event, dbData, transaction) => {
     await db.reportData.update({ ...dbData }, { where, transaction })
   }
 
-  if (dbData.invoiceNumber?.includes('AV') || dbData.invoiceNumber?.includes('BV')) {
-    const originalWhere = { ...where }
-    originalWhere.invoiceNumber = dbData.invoiceNumber.replace('AV', 'V0').replace('BV', 'V0')
+  const originalInvoiceNumberLike = getOriginalInvoiceNumberLike(dbData.invoiceNumber, dbData.sourceSystem)
+
+  if (originalInvoiceNumberLike) {
+    const baseWhere = { ...where }
+
+    delete baseWhere.invoiceNumber
+
+    const sibling = getSiblingSplitVariant(dbData.invoiceNumber, dbData.sourceSystem)
+    const excludeList = [dbData.invoiceNumber]
+    if (sibling) {
+      excludeList.push(sibling)
+    }
+    const originalWhere = {
+      [db.Sequelize.Op.and]: [
+        baseWhere,
+        { invoiceNumber: { [db.Sequelize.Op.like]: originalInvoiceNumberLike } },
+        { invoiceNumber: { [db.Sequelize.Op.notIn]: excludeList } }
+      ]
+    }
     const originalRecord = await db.reportData.findOne({ where: originalWhere, transaction })
     if (originalRecord) {
-      await updateExistingRecord(dbData, originalWhere.invoiceNumber, transaction)
+      await updateExistingRecord(dbData, originalRecord.invoiceNumber, transaction)
     }
   }
 }
