@@ -20,7 +20,8 @@ const getSiblingSplitVariant = (splitInvoiceNumber, sourceSystem) => {
   let other = null
   if (ch === 'A') {
     other = 'B'
-  } else if (ch === 'B') {
+  }
+  if (ch === 'B') {
     other = 'A'
   }
   if (!other) {

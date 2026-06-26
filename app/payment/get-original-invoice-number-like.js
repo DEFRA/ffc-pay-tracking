@@ -7,18 +7,22 @@ const getOriginalInvoiceNumberLike = (invoiceNumber, sourceSystem) => {
   }
 
   if (SITI_AGRI_SCHEMES.has(sourceSystem)) {
-    if (invoiceNumber.length < 10) {
+    const sitiMininumInvoiceNumberLength = 10
+    if (invoiceNumber.length < sitiMininumInvoiceNumberLength) {
       return null
     }
     // keep everything up to first element (8 chars)
-    return `${invoiceNumber.slice(0, 8)}%`
+    const firstElementLength = 8
+    return `${invoiceNumber.slice(0, firstElementLength)}%`
   }
 
-  if (invoiceNumber.length < 4) {
+  const minimumInvoiceNumberLength = 4
+  if (invoiceNumber.length < minimumInvoiceNumberLength) {
     return null
   }
   // cut off before the final element (final element index length = 4)
-  return `${invoiceNumber.slice(0, -4)}%`
+  const finalElementIndex = -4
+  return `${invoiceNumber.slice(0, finalElementIndex)}%`
 }
 
 module.exports = {
