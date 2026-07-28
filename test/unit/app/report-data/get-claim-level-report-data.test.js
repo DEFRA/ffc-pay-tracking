@@ -1,5 +1,5 @@
 const { getClaimLevelReportData } = require('../../../../app/report-data/get-claim-level-report-data')
-const { BPS, CS } = require('../../../../app/constants/source-systems')
+const { BPS, CS, DELINKED } = require('../../../../app/constants/source-systems')
 const { getSourceSystem } = require('../../../../app/helpers/get-source-system')
 const { exportQueryToJsonFile } = require('../../../../app/report-data/report-file-generator')
 
@@ -86,5 +86,80 @@ describe('getClaimLevelReportData', () => {
     const normalizedSql = normalizeSql(sql)
 
     expect(normalizedSql).toContain(expectedPartitionClause)
+  })
+
+  test('should generate SQL with correct partitioning for DELINKED source system', async () => {
+    const schemeId = DELINKED
+    const sourceSystem = 'DP'
+    const mockFilePath = '/path/to/claim-level-report.json'
+
+    exportQueryToJsonFile.mockResolvedValue(mockFilePath)
+    getSourceSystem.mockReturnValue(sourceSystem)
+
+    await getClaimLevelReportData(schemeId, 2023)
+
+    const sql = exportQueryToJsonFile.mock.calls[0][0]
+    const normalizedSql = normalizeSql(sql)
+
+    expect(normalizedSql).toContain('PARTITION BY "sourceSystem", frn')
+    expect(normalizedSql).not.toContain('"agreementNumber"')
+    expect(normalizedSql).not.toContain('"claimNumber"')
+  })
+
+  test('should generate SQL without year filter when year is not provided', async () => {
+    const schemeId = BPS
+    const sourceSystem = 'BPS'
+    const mockFilePath = '/path/to/claim-level-report.json'
+
+    exportQueryToJsonFile.mockResolvedValue(mockFilePath)
+    getSourceSystem.mockReturnValue(sourceSystem)
+
+    await getClaimLevelReportData(schemeId)
+
+    const sql = exportQueryToJsonFile.mock.calls[0][0]
+    const normalizedSql = normalizeSql(sql)
+
+    expect(normalizedSql).not.toContain('"year" =')
+    expect(normalizedSql).toContain(`"sourceSystem" = '${sourceSystem}'`)
+  })
+
+  test('should generate SQL without frn filter when frn is not provided', async () => {
+    const schemeId = BPS
+    const year = 2023
+    const sourceSystem = 'BPS'
+    const mockFilePath = '/path/to/claim-level-report.json'
+
+    exportQueryToJsonFile.mockResolvedValue(mockFilePath)
+    getSourceSystem.mockReturnValue(sourceSystem)
+
+    await getClaimLevelReportData(schemeId, year, null, null)
+
+    const sql = exportQueryToJsonFile.mock.calls[0][0]
+    const normalizedSql = normalizeSql(sql)
+
+    expect(normalizedSql).not.toContain('"frn" =')
+    expect(normalizedSql).toContain(`"year" = ${year}`)
+    expect(normalizedSql).toContain(`"sourceSystem" = '${sourceSystem}'`)
+  })
+
+  test('should generate SQL without revenueOrCapital filter when it is not provided', async () => {
+    const schemeId = BPS
+    const year = 2023
+    const frn = 1234567890
+    const sourceSystem = 'BPS'
+    const mockFilePath = '/path/to/claim-level-report.json'
+
+    exportQueryToJsonFile.mockResolvedValue(mockFilePath)
+    getSourceSystem.mockReturnValue(sourceSystem)
+
+    await getClaimLevelReportData(schemeId, year, null, frn)
+
+    const sql = exportQueryToJsonFile.mock.calls[0][0]
+    const normalizedSql = normalizeSql(sql)
+
+    expect(normalizedSql).not.toContain('"revenueOrCapital" =')
+    expect(normalizedSql).toContain(`"year" = ${year}`)
+    expect(normalizedSql).toContain(`"frn" = ${frn}`)
+    expect(normalizedSql).toContain(`"sourceSystem" = '${sourceSystem}'`)
   })
 })
