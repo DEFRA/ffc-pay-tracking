@@ -11,7 +11,7 @@ module.exports = {
         ? new Date(request.query.startDate)
         : null
       const endDate = request.query.endDate
-        ? new Date(request.query.endDate)
+        ? new Date(new Date(request.query.endDate).setHours(23, 59, 59, 999))
         : null
 
       const reportLocation = await getAPARReportData(startDate, endDate, AP)

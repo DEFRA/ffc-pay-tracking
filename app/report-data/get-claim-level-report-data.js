@@ -1,11 +1,11 @@
-const { BPS, CS } = require('../constants/source-systems')
+const { BPS, CS, DELINKED } = require('../constants/source-systems')
 const { getSourceSystem } = require('../helpers/get-source-system')
 const { exportQueryToJsonFile } = require('./report-file-generator')
 
 const generateReportSql = async (sourceSystem, year, revenueOrCapital, frn) => {
   let additionalProperty1 = 'agreementNumber'
   let additionalProperty2 = 'marketingYear'
-  if (sourceSystem === BPS) {
+  if (sourceSystem === BPS || sourceSystem === DELINKED) {
     additionalProperty1 = null
   }
   if (sourceSystem === CS) {
