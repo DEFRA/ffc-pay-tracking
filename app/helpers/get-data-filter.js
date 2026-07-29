@@ -1,4 +1,4 @@
-const { BPS, CS } = require('../constants/schemes')
+const { BPS, CS, DELINKED } = require('../constants/schemes')
 
 const getDataFilter = (data, previous = false) => {
   const defaultFilter = {
@@ -7,6 +7,7 @@ const getDataFilter = (data, previous = false) => {
 
   switch (data.schemeId) {
     case BPS:
+    case DELINKED:
       return {
         ...defaultFilter,
         sourceSystem: data.sourceSystem,

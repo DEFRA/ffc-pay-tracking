@@ -56,4 +56,20 @@ describe('getAPARReportData', () => {
     expect(exportQueryToJsonFile).toHaveBeenCalledWith(mockSql)
     expect(result).toEqual(mockData)
   })
+
+  test('should generate SQL without date filtering when dates are not provided', async () => {
+    const mockSql = 'SELECT * FROM reportData WHERE ...'
+    const mockData = [{ apValue: 1 }, { apValue: 2 }]
+    generateSqlQuery.mockReturnValue(mockSql)
+    exportQueryToJsonFile.mockResolvedValue(mockData)
+
+    const result = await getAPARReportData(null, null, AP)
+
+    expect(generateSqlQuery).toHaveBeenCalledWith({
+      apValue: { NE_OP: null },
+      daxFileName: { NE_OP: null }
+    })
+    expect(exportQueryToJsonFile).toHaveBeenCalledWith(mockSql)
+    expect(result).toEqual(mockData)
+  })
 })

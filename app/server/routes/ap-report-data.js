@@ -1,6 +1,10 @@
 const { AP } = require('../../constants/ledgers')
 const { GET } = require('../../constants/methods')
 const { getAPARReportData } = require('../../report-data/get-AP-AR-report-data')
+const HOUR = 23
+const MINUTE = 59
+const SECOND = 59
+const MILLISECOND = 999
 
 module.exports = {
   method: GET,
@@ -11,7 +15,7 @@ module.exports = {
         ? new Date(request.query.startDate)
         : null
       const endDate = request.query.endDate
-        ? new Date(request.query.endDate)
+        ? new Date(new Date(request.query.endDate).setHours(HOUR, MINUTE, SECOND, MILLISECOND))
         : null
 
       const reportLocation = await getAPARReportData(startDate, endDate, AP)
