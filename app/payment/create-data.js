@@ -7,7 +7,7 @@ const isFreshUpstreamValue = (eventType) => eventType === PAYMENT_EXTRACTED || e
 const createData = async (event, transaction) => {
   const paymentRequestNumber = event.data.paymentRequestNumber
   const rawValue = await getValue(event)
-  const value = rawValue != null && isFreshUpstreamValue(event.type) ? rawValue * swapAbsoluteValue(event.data.sourceSystem) || 0 : rawValue
+  const value = rawValue != null && isFreshUpstreamValue(event.type) ? rawValue * swapAbsoluteValue(event.data.providesAccountingValues) || 0 : rawValue
   const rawDeltaAmount = await getDeltaAmount(event, transaction)
   const deltaAmount = rawDeltaAmount == null ? null : rawDeltaAmount * swapAbsoluteValue(event.data.sourceSystem)
   const daxPaymentRequestNumber = await checkDAXPRN(event, transaction)
