@@ -124,7 +124,7 @@ describe('createData', () => {
     expect(data.valueStillToProcess).toBeUndefined()
   })
 
-  test('should negate value for FPTT scheme when event is a fresh upstream event', async () => {
+  test('should negate value for providesAccountingValues scheme when event is a fresh upstream event', async () => {
     const mockEvent = {
       type: PAYMENT_EXTRACTED,
       data: {
@@ -136,7 +136,8 @@ describe('createData', () => {
         invoiceNumber: 'testInvoiceNumber',
         currency: 'testCurrency',
         paymentRequestNumber: 2,
-        sourceSystem: FPTT
+        sourceSystem: FPTT,
+        providesAccountingValues: true
       },
       time: new Date()
     }
@@ -149,7 +150,7 @@ describe('createData', () => {
 
     const data = await createData(mockEvent, mockTransaction)
 
-    expect(swapAbsoluteValue).toHaveBeenCalledWith(FPTT)
+    expect(swapAbsoluteValue).toHaveBeenCalledWith(true)
     expect(data.value).toBe(2500)
     expect(data.valueStillToProcess).toBe(500)
   })
@@ -166,7 +167,8 @@ describe('createData', () => {
         invoiceNumber: 'testInvoiceNumber',
         currency: 'testCurrency',
         paymentRequestNumber: 2,
-        sourceSystem: FPTT
+        sourceSystem: FPTT,
+        providesAccountingValues: true
       },
       time: new Date()
     }
@@ -178,7 +180,7 @@ describe('createData', () => {
 
     const data = await createData(mockEvent, mockTransaction)
 
-    expect(swapAbsoluteValue).toHaveBeenCalledWith(FPTT)
+    expect(swapAbsoluteValue).toHaveBeenCalledWith(true)
     expect(data.value).toBe(2500)
   })
 })
