@@ -1,7 +1,8 @@
-const { removeAgreementData } = require('../../../../app/retention')
-const db = require('../../../../app/data')
-const schemes = require('../../../../app/constants/schemes')
-const sourceSystems = require('../../../../app/constants/source-systems')
+const mockGetSourceSystemFromSchemeId = jest.fn()
+
+jest.mock('ffc-pay-schemes', () => ({
+  getSourceSystemFromSchemeId: mockGetSourceSystemFromSchemeId
+}))
 
 jest.mock('../../../../app/data', () => ({
   sequelize: {
@@ -13,13 +14,16 @@ jest.mock('../../../../app/retention/remove-report-data', () => ({
   removeReportData: jest.fn()
 }))
 
+const { removeAgreementData } = require('../../../../app/retention')
+const db = require('../../../../app/data')
 const { removeReportData } = require('../../../../app/retention/remove-report-data')
+const { UNKNOWN } = require('../../../../app/constants/unknown')
 
 describe('removeAgreementData', () => {
   const agreementNumber = 'AGR123'
   const frn = 456789
-  const knownSchemeId = Object.values(schemes)[0]
-  const unknownSchemeId = 999999
+  const schemeId = 6
+  const sourceSystem = 'BPS'
 
   let transaction
 
@@ -30,54 +34,64 @@ describe('removeAgreementData', () => {
       commit: jest.fn().mockResolvedValue(),
       rollback: jest.fn().mockResolvedValue()
     }
+
     db.sequelize.transaction.mockResolvedValue(transaction)
+    mockGetSourceSystemFromSchemeId.mockReturnValue(sourceSystem)
   })
 
-  test('removes data from all tables with correct source system', async () => {
-    removeReportData.mockResolvedValue()
-
-    const schemeName = Object.entries(schemes).find(([, id]) => id === knownSchemeId)[0]
-    const expectedSourceSystem = sourceSystems[schemeName]
-
+  test('removes data using the source system returned by ffc-pay-schemes', async () => {
     const retentionData = {
       agreementNumber,
       frn,
-      schemeId: knownSchemeId
+      schemeId
     }
 
     await removeAgreementData(retentionData)
 
     expect(db.sequelize.transaction).toHaveBeenCalledTimes(1)
-    expect(removeReportData).toHaveBeenCalledWith(agreementNumber, frn, expectedSourceSystem, transaction)
+    expect(mockGetSourceSystemFromSchemeId).toHaveBeenCalledWith(schemeId)
+    expect(removeReportData).toHaveBeenCalledWith(
+      agreementNumber,
+      frn,
+      sourceSystem,
+      transaction
+    )
     expect(transaction.commit).toHaveBeenCalledTimes(1)
     expect(transaction.rollback).not.toHaveBeenCalled()
   })
 
-  test('rolls back transaction and throws error if removeReportData throws', async () => {
+  test('rolls back the transaction when removeReportData throws', async () => {
     const error = new Error('removeReportData failure')
     removeReportData.mockRejectedValue(error)
 
     const retentionData = {
       agreementNumber,
       frn,
-      schemeId: Object.values(schemes)[0]
+      schemeId
     }
 
-    await expect(removeAgreementData(retentionData)).rejects.toThrow('removeReportData failure')
+    await expect(removeAgreementData(retentionData))
+      .rejects
+      .toThrow('removeReportData failure')
 
     expect(transaction.rollback).toHaveBeenCalledTimes(1)
     expect(transaction.commit).not.toHaveBeenCalled()
   })
 
-  test('throws error and rolls back if schemeId is unknown', async () => {
+  test('throws and rolls back when the source system is UNKNOWN', async () => {
+    mockGetSourceSystemFromSchemeId.mockReturnValue(UNKNOWN)
+
     const retentionData = {
       agreementNumber,
       frn,
-      schemeId: unknownSchemeId
+      schemeId
     }
 
-    await expect(removeAgreementData(retentionData)).rejects.toThrow(`Unknown schemeId: ${unknownSchemeId}`)
+    await expect(removeAgreementData(retentionData))
+      .rejects
+      .toThrow(`Unknown schemeId: ${schemeId}`)
 
+    expect(mockGetSourceSystemFromSchemeId).toHaveBeenCalledWith(schemeId)
     expect(transaction.rollback).toHaveBeenCalledTimes(1)
     expect(transaction.commit).not.toHaveBeenCalled()
     expect(removeReportData).not.toHaveBeenCalled()

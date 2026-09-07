@@ -4,7 +4,7 @@ module.exports = {
       reportDataId: 528,
       correlationId: '1526c473-18c2-4bb0-8206-5e845f647309',
       frn: '1100011111',
-      claimNumber: null,
+      contractNumber: null,
       agreementNumber: 'REBC-7008-B3C1',
       marketingYear: 2024,
       originalInvoiceNumber: null,

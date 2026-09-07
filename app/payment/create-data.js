@@ -15,7 +15,7 @@ const createData = async (event, transaction) => {
   const data = {
     correlationId: event.data.correlationId,
     frn: event.data.frn,
-    claimNumber: event.data.contractNumber,
+    contractNumber: event.data.contractNumber,
     agreementNumber: event.data.agreementNumber,
     marketingYear: event.data.marketingYear,
     originalInvoiceNumber: getOriginalInvoiceNumber(event),

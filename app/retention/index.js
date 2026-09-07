@@ -1,28 +1,14 @@
-const schemes = require('../constants/schemes')
-const sourceSystems = require('../constants/source-systems')
+const { getSourceSystemFromSchemeId } = require('ffc-pay-schemes')
 const db = require('../data')
 const { removeReportData } = require('./remove-report-data')
-
-const schemeIdToNameMap = Object.entries(schemes)
-  .reduce((acc, [key, value]) => {
-    acc[value] = key
-    return acc
-  }, {})
-
-const getSourceSystemBySchemeId = (schemeId) => {
-  const schemeName = schemeIdToNameMap[schemeId]
-  if (!schemeName) {
-    return undefined
-  }
-  return sourceSystems[schemeName]
-}
+const { UNKNOWN } = require('../constants/unknown')
 
 const removeAgreementData = async (retentionData) => {
   const transaction = await db.sequelize.transaction()
   try {
     const { agreementNumber, frn, schemeId } = retentionData
-    const sourceSystem = getSourceSystemBySchemeId(schemeId)
-    if (!sourceSystem) {
+    const sourceSystem = getSourceSystemFromSchemeId(schemeId)
+    if (sourceSystem === UNKNOWN) {
       throw new Error(`Unknown schemeId: ${schemeId}`)
     }
 

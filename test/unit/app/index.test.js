@@ -1,8 +1,14 @@
 const { processingConfig } = require('../../../app/config')
 
-jest.mock('../../../app/messaging')
+jest.mock('../../../app/messaging', () => ({
+  start: jest.fn(),
+  stop: jest.fn()
+}))
 const { start: mockStartMessaging } = require('../../../app/messaging')
-jest.mock('../../../app/server/server')
+
+jest.mock('../../../app/server/server', () => ({
+  start: jest.fn()
+}))
 const { start: mockStartServer } = require('../../../app/server/server')
 
 const startApp = require('../../../app')
@@ -10,6 +16,7 @@ const startApp = require('../../../app')
 describe('app start', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    processingConfig.processingActive = true
   })
 
   test.each([
@@ -17,7 +24,7 @@ describe('app start', () => {
     { service: 'server', startMock: mockStartServer, activeRequired: false }
   ])(
     'should start $service correctly based on processingActive flag',
-    async ({ service, startMock, activeRequired }) => {
+    async ({ startMock, activeRequired }) => {
       processingConfig.processingActive = true
       await startApp()
       expect(startMock).toHaveBeenCalledTimes(1)
@@ -30,7 +37,7 @@ describe('app start', () => {
   )
 
   test('should log console.info only when processingActive is false', async () => {
-    const consoleInfoSpy = jest.spyOn(console, 'info').mockImplementation(() => {})
+    const consoleInfoSpy = jest.spyOn(console, 'info').mockImplementation(() => { })
 
     processingConfig.processingActive = true
     await startApp()

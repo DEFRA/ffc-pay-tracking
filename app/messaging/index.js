@@ -1,5 +1,5 @@
-const { messageConfig } = require('../config')
 const { MessageReceiver } = require('ffc-messaging')
+const { messageConfig } = require('../config')
 const { processEventMessage } = require('./process-event-message')
 const { processRetentionMessage } = require('./process-retention-message')
 
