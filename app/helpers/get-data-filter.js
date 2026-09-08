@@ -1,35 +1,18 @@
-const { BPS, CS, DELINKED } = require('../constants/schemes')
+const { getReportingDataFilter } = require('ffc-pay-schemes')
 
 const getDataFilter = (data, previous = false) => {
-  const defaultFilter = {
-    paymentRequestNumber: previous ? data.paymentRequestNumber - 1 : data.paymentRequestNumber
+  const filter = {
+    paymentRequestNumber: previous ? data.paymentRequestNumber - 1 : data.paymentRequestNumber,
+    sourceSystem: data.sourceSystem,
+    frn: data.frn
   }
 
-  switch (data.schemeId) {
-    case BPS:
-    case DELINKED:
-      return {
-        ...defaultFilter,
-        sourceSystem: data.sourceSystem,
-        frn: data.frn,
-        marketingYear: data.marketingYear
-      }
-    case CS:
-      return {
-        ...defaultFilter,
-        sourceSystem: data.sourceSystem,
-        frn: data.frn,
-        claimNumber: data.contractNumber
-      }
-    default:
-      return {
-        ...defaultFilter,
-        sourceSystem: data.sourceSystem,
-        frn: data.frn,
-        marketingYear: data.marketingYear,
-        agreementNumber: data.agreementNumber
-      }
+  const reportingDataFields = getReportingDataFilter(data.schemeId)
+  for (const field of reportingDataFields) {
+    filter[field] = data[field]
   }
+
+  return filter
 }
 
 module.exports = {

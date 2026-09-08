@@ -1,116 +1,102 @@
+const mockCreateSplitInvoiceNumber = jest.fn()
+const mockGetSchemeIdFromSourceSystem = jest.fn()
+
+jest.mock('ffc-pay-schemes', () => ({
+  createSplitInvoiceNumber: mockCreateSplitInvoiceNumber,
+  getSchemeIdFromSourceSystem: mockGetSchemeIdFromSourceSystem
+}))
+
 const { PAYMENT_PROCESSED } = require('../../../../app/constants/events')
-const { FPTT, SFI } = require('../../../../app/constants/source-systems')
-
-jest.mock('../../../../app/payment/create-split-invoice-number')
-
-const createSplitInvoiceNumber = require('../../../../app/payment/create-split-invoice-number')
 const { isNewSplitInvoiceNumber } = require('../../../../app/payment/is-new-split-invoice-number')
 
 describe('check if new split invoice number', () => {
   beforeEach(() => {
     jest.resetAllMocks()
+    mockGetSchemeIdFromSourceSystem.mockReturnValue(6)
   })
 
-  test('returns true when the invoice matches the A split transform for default source', () => {
-    createSplitInvoiceNumber.mockImplementation((existingInvoice, splitId) => {
-      if (splitId === 'A') {
-        return 'INV123456AV01'
-      }
-      if (splitId === 'B') {
-        return 'INV123456BV01'
-      }
-      return null
-    })
+  test('returns true when the invoice matches the A split transform', () => {
+    mockCreateSplitInvoiceNumber.mockImplementation((existingInvoice, splitId) =>
+      splitId === 'A' ? 'INV123456AV01' : 'INV123456BV01'
+    )
 
-    const mockEvent = {
+    const event = {
       type: PAYMENT_PROCESSED,
-      data: {
-        invoiceNumber: 'INV123456AV01'
-      }
+      data: { invoiceNumber: 'INV123456AV01' }
     }
-    const mockExistingData = {
+    const existingData = {
       invoiceNumber: 'INV123456V001',
-      sourceSystem: FPTT
+      sourceSystem: 'FPTT'
     }
 
-    expect(isNewSplitInvoiceNumber(mockEvent, mockExistingData)).toBe(true)
-    expect(createSplitInvoiceNumber).toHaveBeenCalledWith('INV123456V001', 'A', FPTT)
+    expect(isNewSplitInvoiceNumber(event, existingData)).toBe(true)
+    expect(mockGetSchemeIdFromSourceSystem).toHaveBeenCalledWith('FPTT')
+    expect(mockCreateSplitInvoiceNumber).toHaveBeenCalledWith(
+      'INV123456V001', 'A', 6
+    )
   })
 
-  test('returns true when the invoice matches the B split transform for SITI_AGRI source', () => {
-    createSplitInvoiceNumber.mockImplementation((existingInvoice, splitId) => {
-      if (splitId === 'A') {
-        return 'S0000001AABC01'
-      }
-      if (splitId === 'B') return 'S0000001BABC01'
-      return null
-    })
+  test('returns true when the invoice matches the B split transform', () => {
+    mockCreateSplitInvoiceNumber.mockImplementation((existingInvoice, splitId) =>
+      splitId === 'A' ? 'S0000001AABC01' : 'S0000001BABC01'
+    )
 
-    const mockEvent = {
+    const event = {
       type: PAYMENT_PROCESSED,
-      data: {
-        invoiceNumber: 'S0000001BABC01'
-      }
+      data: { invoiceNumber: 'S0000001BABC01' }
     }
-    const mockExistingData = {
+    const existingData = {
       invoiceNumber: 'S0000001ABC001',
-      sourceSystem: SFI
+      sourceSystem: 'FPTT'
     }
 
-    expect(isNewSplitInvoiceNumber(mockEvent, mockExistingData)).toBe(true)
-    expect(createSplitInvoiceNumber).toHaveBeenCalledWith('S0000001ABC001', 'B', SFI)
+    expect(isNewSplitInvoiceNumber(event, existingData)).toBe(true)
+    expect(mockGetSchemeIdFromSourceSystem).toHaveBeenCalledWith('FPTT')
+    expect(mockCreateSplitInvoiceNumber).toHaveBeenCalledWith(
+      'S0000001ABC001', 'B', 6
+    )
   })
 
-  test('returns false when the invoice number is identical to existingData.invoiceNumber', () => {
-    const mockEvent = {
+  test('returns false when the invoice number is unchanged', () => {
+    const event = {
       type: PAYMENT_PROCESSED,
-      data: {
-        invoiceNumber: 'INV123456V001'
-      }
+      data: { invoiceNumber: 'INV123456V001' }
     }
-    const mockExistingData = {
+    const existingData = {
       invoiceNumber: 'INV123456V001',
-      sourceSystem: FPTT
+      sourceSystem: 'FPTT'
     }
 
-    expect(isNewSplitInvoiceNumber(mockEvent, mockExistingData)).toBe(false)
-    expect(createSplitInvoiceNumber).not.toHaveBeenCalled()
+    expect(isNewSplitInvoiceNumber(event, existingData)).toBe(false)
+    expect(mockCreateSplitInvoiceNumber).not.toHaveBeenCalled()
   })
 
-  test('returns false when the invoice does not match either transformed A or B value', () => {
-    createSplitInvoiceNumber.mockImplementation((existingInvoice, splitId) => {
-      if (splitId === 'A') return 'INV123456AV01'
-      if (splitId === 'B') return 'INV123456BV01'
-      return null
-    })
+  test('returns false when the invoice matches neither split transform', () => {
+    mockCreateSplitInvoiceNumber.mockReturnValue(null)
 
-    const mockEvent = {
+    const event = {
       type: PAYMENT_PROCESSED,
-      data: {
-        invoiceNumber: 'INV123456CV01'
-      }
+      data: { invoiceNumber: 'INV123456CV01' }
     }
-    const mockExistingData = {
+    const existingData = {
       invoiceNumber: 'INV123456V001',
-      sourceSystem: FPTT
+      sourceSystem: 'FPTT'
     }
 
-    expect(isNewSplitInvoiceNumber(mockEvent, mockExistingData)).toBe(false)
+    expect(isNewSplitInvoiceNumber(event, existingData)).toBe(false)
   })
 
-  test('returns false if the event type is not PAYMENT_PROCESSED', () => {
-    const mockEvent = {
+  test('returns false when the event type is not PAYMENT_PROCESSED', () => {
+    const event = {
       type: 'SOME_OTHER_TYPE',
-      data: {
-        invoiceNumber: 'INV123456AV01'
-      }
+      data: { invoiceNumber: 'INV123456AV01' }
     }
-    const mockExistingData = {
+    const existingData = {
       invoiceNumber: 'INV123456V001',
-      sourceSystem: FPTT
+      sourceSystem: 'FPTT'
     }
 
-    expect(isNewSplitInvoiceNumber(mockEvent, mockExistingData)).toBe(false)
-    expect(createSplitInvoiceNumber).not.toHaveBeenCalled()
+    expect(isNewSplitInvoiceNumber(event, existingData)).toBe(false)
+    expect(mockCreateSplitInvoiceNumber).not.toHaveBeenCalled()
   })
 })

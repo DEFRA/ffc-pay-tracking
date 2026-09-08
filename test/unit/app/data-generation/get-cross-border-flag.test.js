@@ -1,5 +1,14 @@
+jest.mock('ffc-pay-schemes', () => ({
+  getSchemeIds: () => ({
+    CS: 5,
+    BPS: 6
+  })
+}))
+const { getSchemeIds } = require('ffc-pay-schemes')
+
 const { getCrossBorderFlag } = require('../../../../app/data-generation/get-cross-border-flag')
-const { BPS, CS } = require('../../../../app/constants/schemes')
+
+const { BPS, CS } = getSchemeIds()
 
 describe('getCrossBorderFlag', () => {
   test('returns null when schemeId is not BPS', () => {

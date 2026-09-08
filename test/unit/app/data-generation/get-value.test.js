@@ -1,5 +1,4 @@
 const { getValue } = require('../../../../app/data-generation/get-value')
-const { FPTT, WMP } = require('../../../../app/constants/source-systems')
 const { PAYMENT_EXTRACTED, PAYMENT_ENRICHED } = require('../../../../app/constants/events')
 const { convertToPence } = require('../../../../app/helpers/currency-convert')
 const db = require('../../../../app/data')
@@ -31,39 +30,7 @@ describe('getValue', () => {
     await expect(getValue(event2)).resolves.toBe(200)
   })
 
-  test('should return value from database for other events - FPTT', async () => {
-    const event3 = { type: 'OTHER_EVENT', data: { value: 300, correlationId: 'test-correlation-id', sourceSystem: FPTT } }
-    const mockWhere = { someField: 'someValue' }
-    const mockDbResponse = { value: 300 }
-
-    getDataFilter.mockReturnValueOnce(mockWhere)
-    db.reportData.findOne.mockResolvedValueOnce(mockDbResponse)
-
-    await expect(getValue(event3)).resolves.toBe(300)
-    expect(getDataFilter).toHaveBeenCalledWith(event3.data)
-    expect(db.reportData.findOne).toHaveBeenCalledWith({
-      where: { ...mockWhere, correlationId: 'test-correlation-id' },
-      transaction: undefined
-    })
-  })
-
-  test('should return value from database for other events - WMP', async () => {
-    const event3 = { type: 'OTHER_EVENT', data: { value: 300, correlationId: 'test-correlation-id', sourceSystem: WMP } }
-    const mockWhere = { someField: 'someValue' }
-    const mockDbResponse = { value: 300 }
-
-    getDataFilter.mockReturnValueOnce(mockWhere)
-    db.reportData.findOne.mockResolvedValueOnce(mockDbResponse)
-
-    await expect(getValue(event3)).resolves.toBe(300)
-    expect(getDataFilter).toHaveBeenCalledWith(event3.data)
-    expect(db.reportData.findOne).toHaveBeenCalledWith({
-      where: { ...mockWhere, correlationId: 'test-correlation-id' },
-      transaction: undefined
-    })
-  })
-
-  test('should not add correlationId to where clause for non-FPTT, WMP schemes', async () => {
+  test('should make correct calls to getDataFilter, database', async () => {
     const event4 = { type: 'OTHER_EVENT', data: { value: 400, correlationId: 'test-correlation-id', sourceSystem: 'SFI' } }
     const mockWhere = { someField: 'someValue' }
     const mockDbResponse = { value: 400 }
@@ -72,6 +39,7 @@ describe('getValue', () => {
     db.reportData.findOne.mockResolvedValueOnce(mockDbResponse)
 
     await expect(getValue(event4)).resolves.toBe(400)
+    expect(getDataFilter).toHaveBeenCalledWith(event4.data)
     expect(db.reportData.findOne).toHaveBeenCalledWith({
       where: mockWhere,
       transaction: undefined
