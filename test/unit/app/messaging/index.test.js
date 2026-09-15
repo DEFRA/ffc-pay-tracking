@@ -1,106 +1,158 @@
+jest.mock('../../../../app/config', () => ({
+  messageConfig: {
+    eventsSubscription: { host: 'events-host', address: 'events-sub', topic: 'events-topic' },
+    retentionSubscription: { host: 'retention-host', address: 'retention-sub', topic: 'retention-topic' }
+  }
+}))
+jest.mock('../../../../app/messaging/service-bus')
+jest.mock('../../../../app/messaging/process-event-message', () => ({
+  processEventMessage: jest.fn()
+}))
+jest.mock('../../../../app/messaging/process-retention-message', () => ({
+  processRetentionMessage: jest.fn()
+}))
+
 const { messageConfig } = require('../../../../app/config')
-const { MessageReceiver } = require('ffc-messaging')
-const { processEventMessage } = require('../../../../app/messaging/process-event-message')
-const { processRetentionMessage } = require('../../../../app/messaging/process-retention-message')
-const { start, stop } = require('../../../../app/messaging')
 
-jest.mock('ffc-messaging')
-jest.mock('../../../../app/config')
-jest.mock('../../../../app/messaging/process-event-message')
-jest.mock('../../../../app/messaging/process-retention-message')
-
-describe('Message Receivers Module', () => {
-  let mockEventsSubscribe, mockRetentionSubscribe, mockEventsClose, mockRetentionClose
+describe('messaging index', () => {
+  let mockSbClient
+  let mockEventsReceiver
+  let mockRetentionReceiver
+  let serviceBus
+  let processEventMessage
+  let processRetentionMessage
+  let start
+  let stop
 
   beforeEach(() => {
     jest.clearAllMocks()
+    jest.resetModules()
 
-    mockEventsSubscribe = jest.fn().mockResolvedValue()
-    mockRetentionSubscribe = jest.fn().mockResolvedValue()
-    mockEventsClose = jest.fn().mockResolvedValue()
-    mockRetentionClose = jest.fn().mockResolvedValue()
+    mockSbClient = { close: jest.fn().mockResolvedValue() }
+    mockEventsReceiver = { name: 'events-receiver' }
+    mockRetentionReceiver = { name: 'retention-receiver' }
 
-    MessageReceiver.mockImplementation((subscription, action) => {
-      if (subscription === messageConfig.eventsSubscription) {
-        return {
-          subscribe: mockEventsSubscribe,
-          closeConnection: mockEventsClose,
-          subscription,
-          action,
-        }
-      }
-      if (subscription === messageConfig.retentionSubscription) {
-        return {
-          subscribe: mockRetentionSubscribe,
-          closeConnection: mockRetentionClose,
-          subscription,
-          action,
-        }
-      }
-      return {}
-    })
+    serviceBus = require('../../../../app/messaging/service-bus')
+    serviceBus.createServiceBusClient.mockReturnValue(mockSbClient)
+    serviceBus.createReceiver
+      .mockReturnValueOnce(mockEventsReceiver)
+      .mockReturnValueOnce(mockRetentionReceiver)
+    serviceBus.subscribeReceiver.mockResolvedValue()
+    serviceBus.closeSenders.mockResolvedValue()
 
-    messageConfig.eventsSubscription = 'events-subscription'
-    messageConfig.retentionSubscription = 'retention-subscription'
+    const processEventModule = require('../../../../app/messaging/process-event-message')
+    processEventMessage = processEventModule.processEventMessage
+
+    const processRetentionModule = require('../../../../app/messaging/process-retention-message')
+    processRetentionMessage = processRetentionModule.processRetentionMessage
+
+    const messaging = require('../../../../app/messaging')
+    start = messaging.start
+    stop = messaging.stop
   })
 
   describe('start', () => {
-    test('should instantiate MessageReceiver for events and retention with correct subscriptions and actions, then subscribe', async () => {
+    test('creates Service Bus client from events subscription config', async () => {
       await start()
 
-      expect(MessageReceiver).toHaveBeenCalledTimes(2)
-
-      const eventsCall = MessageReceiver.mock.calls[0]
-      expect(eventsCall[0]).toBe(messageConfig.eventsSubscription)
-      expect(typeof eventsCall[1]).toBe('function')
-
-      const retentionCall = MessageReceiver.mock.calls[1]
-      expect(retentionCall[0]).toBe(messageConfig.retentionSubscription)
-      expect(typeof retentionCall[1]).toBe('function')
-
-      expect(mockEventsSubscribe).toHaveBeenCalledTimes(1)
-      expect(mockRetentionSubscribe).toHaveBeenCalledTimes(1)
+      expect(serviceBus.createServiceBusClient).toHaveBeenCalledWith(messageConfig.eventsSubscription)
     })
 
-    test('should call processEventMessage with the message and eventsReceiver when event message action is triggered', async () => {
+    test('creates and subscribes events receiver with config and action', async () => {
       await start()
 
-      const processingAction = MessageReceiver.mock.calls[0][1]
-
-      const fakeMessage = { id: 'event1' }
-      processingAction(fakeMessage)
-
-      expect(processEventMessage).toHaveBeenCalledWith(fakeMessage, expect.any(Object))
+      expect(serviceBus.createReceiver).toHaveBeenNthCalledWith(1, mockSbClient, messageConfig.eventsSubscription)
+      expect(serviceBus.subscribeReceiver).toHaveBeenNthCalledWith(
+        1,
+        mockEventsReceiver,
+        expect.any(Function),
+        expect.any(Function),
+        messageConfig.eventsSubscription
+      )
     })
 
-    test('should call processRetentionMessage with the message and retentionReceiver when retention message action is triggered', async () => {
+    test('creates and subscribes retention receiver with config and action', async () => {
       await start()
 
-      const retentionAction = MessageReceiver.mock.calls[1][1]
-
-      const fakeMessage = { id: 'retention1' }
-      retentionAction(fakeMessage)
-
-      expect(processRetentionMessage).toHaveBeenCalledWith(fakeMessage, expect.any(Object))
+      expect(serviceBus.createReceiver).toHaveBeenNthCalledWith(2, mockSbClient, messageConfig.retentionSubscription)
+      expect(serviceBus.subscribeReceiver).toHaveBeenNthCalledWith(
+        2,
+        mockRetentionReceiver,
+        expect.any(Function),
+        expect.any(Function),
+        messageConfig.retentionSubscription
+      )
     })
 
-    test('should log readiness message', async () => {
-      console.log = jest.fn()
+    test('wrapped events action calls processEventMessage with message and receiver', async () => {
+      const message = { body: { id: 1 } }
+      await start()
+
+      const wrappedAction = serviceBus.subscribeReceiver.mock.calls[0][1]
+      await wrappedAction(message)
+
+      expect(processEventMessage).toHaveBeenCalledWith(message, mockEventsReceiver)
+    })
+
+    test('wrapped retention action calls processRetentionMessage with message and receiver', async () => {
+      const message = { body: { id: 2 } }
+      await start()
+
+      const wrappedAction = serviceBus.subscribeReceiver.mock.calls[1][1]
+      await wrappedAction(message)
+
+      expect(processRetentionMessage).toHaveBeenCalledWith(message, mockRetentionReceiver)
+    })
+
+    test('error handler logs errors to console', async () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
+      const error = new Error('receive failed')
+      await start()
+
+      const errorHandler = serviceBus.subscribeReceiver.mock.calls[0][2]
+      errorHandler(error)
+
+      expect(consoleSpy).toHaveBeenCalledWith('Error receiving message:', error)
+      consoleSpy.mockRestore()
+    })
+
+    test('logs readiness message', async () => {
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation()
 
       await start()
 
-      expect(console.log).toHaveBeenCalledWith('Ready to receive messages')
+      expect(consoleSpy).toHaveBeenCalledWith('Ready to receive messages')
+      consoleSpy.mockRestore()
     })
   })
 
   describe('stop', () => {
-    test('should call closeConnection on both eventsReceiver and retentionReceiver', async () => {
+    test('closes Service Bus client and senders', async () => {
       await start()
 
       await stop()
 
-      expect(mockEventsClose).toHaveBeenCalledTimes(1)
-      expect(mockRetentionClose).toHaveBeenCalledTimes(1)
+      expect(mockSbClient.close).toHaveBeenCalledTimes(1)
+      expect(serviceBus.closeSenders).toHaveBeenNthCalledWith(1, mockEventsReceiver)
+      expect(serviceBus.closeSenders).toHaveBeenNthCalledWith(2, mockRetentionReceiver)
+    })
+
+    test('continues stop when Service Bus client close throws', async () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
+      mockSbClient.close.mockRejectedValue(new Error('close failed'))
+
+      await start()
+      await stop()
+
+      expect(serviceBus.closeSenders).toHaveBeenCalledTimes(2)
+      consoleSpy.mockRestore()
+    })
+
+    test('handles stop when start has not been called', async () => {
+      await stop()
+
+      expect(serviceBus.closeSenders).toHaveBeenNthCalledWith(1, undefined)
+      expect(serviceBus.closeSenders).toHaveBeenNthCalledWith(2, undefined)
     })
   })
 })
