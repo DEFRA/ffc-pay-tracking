@@ -1,11 +1,11 @@
-const { SFI, SFI_PILOT, LUMP_SUMS, CS, BPS, SFI23, DELINKED, SFI_EXPANDED, COHT_REVENUE, COHT_CAPITAL } = require('../constants/source-systems')
-const SITI_AGRI_SCHEMES = new Set([SFI, SFI_PILOT, LUMP_SUMS, CS, BPS, SFI23, DELINKED, SFI_EXPANDED, COHT_REVENUE, COHT_CAPITAL])
+const { getSchemeIdFromSourceSystem, isSitiAgri } = require('ffc-pay-schemes')
 
 const getInsertIndex = (invoiceNumber, sourceSystem) => {
   if (!invoiceNumber) {
     return -1
   }
-  if (SITI_AGRI_SCHEMES.has(sourceSystem)) {
+  const schemeId = getSchemeIdFromSourceSystem(sourceSystem)
+  if (isSitiAgri(schemeId)) {
     return 8
   }
   return invoiceNumber.length - 4

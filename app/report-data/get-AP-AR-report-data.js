@@ -1,5 +1,5 @@
 const db = require('../data')
-const { generateSqlQuery, exportQueryToJsonFile } = require('./report-file-generator.js')
+const { generateSqlQuery, exportQueryToJsonFile } = require('./report-file-generator')
 const { AP } = require('../constants/ledgers')
 
 const getAPARReportData = async (startDate, endDate, ledger) => {

@@ -1,18 +1,8 @@
-const { BPS, CS, DELINKED } = require('../constants/source-systems')
-const { getSourceSystem } = require('../helpers/get-source-system')
+const { getReportingDataFilter, getSourceSystemFromSchemeId } = require('ffc-pay-schemes')
 const { exportQueryToJsonFile } = require('./report-file-generator')
+const { UNKNOWN } = require('../constants/unknown')
 
-const generateReportSql = async (sourceSystem, year, revenueOrCapital, frn) => {
-  let additionalProperty1 = 'agreementNumber'
-  let additionalProperty2 = 'marketingYear'
-  if (sourceSystem === BPS || sourceSystem === DELINKED) {
-    additionalProperty1 = null
-  }
-  if (sourceSystem === CS) {
-    additionalProperty1 = 'claimNumber'
-    additionalProperty2 = null
-  }
-
+const generateReportSql = async (schemeId, sourceSystem, year, revenueOrCapital, frn) => {
   let whereClause = `WHERE "sourceSystem" = '${sourceSystem}'`
 
   if (year) {
@@ -28,12 +18,9 @@ const generateReportSql = async (sourceSystem, year, revenueOrCapital, frn) => {
   }
 
   const partitionColumns = ['"sourceSystem"', 'frn']
-  if (additionalProperty1) {
-    partitionColumns.push(`"${additionalProperty1}"`)
-  }
-
-  if (additionalProperty2) {
-    partitionColumns.push(`"${additionalProperty2}"`)
+  const additionalProperties = getReportingDataFilter(schemeId)
+  for (const property of additionalProperties) {
+    partitionColumns.push(`"${property}"`)
   }
 
   const partitionClause = `PARTITION BY ${partitionColumns.join(', ')}`
@@ -60,12 +47,12 @@ const generateReportSql = async (sourceSystem, year, revenueOrCapital, frn) => {
 }
 
 const getClaimLevelReportData = async (schemeId, year, revenueOrCapital, frn) => {
-  const sourceSystem = getSourceSystem(schemeId)
-  if (!sourceSystem) {
+  const sourceSystem = getSourceSystemFromSchemeId(schemeId)
+  if (sourceSystem === UNKNOWN) {
     throw new Error(`Source system not found for schemeId: ${schemeId}`)
   }
 
-  const sql = await generateReportSql(sourceSystem, year, revenueOrCapital, frn)
+  const sql = await generateReportSql(schemeId, sourceSystem, year, revenueOrCapital, frn)
 
   return exportQueryToJsonFile(sql, sourceSystem)
 }

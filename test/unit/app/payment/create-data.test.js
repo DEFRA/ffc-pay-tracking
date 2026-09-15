@@ -1,246 +1,214 @@
 const moment = require('moment')
 const { createData } = require('../../../../app/payment/create-data')
-const { getARAmount, getDebtType, getFileName, getBatch, getBatchExportDate, getStatus, getValue, getRevenue, getYear, routedToRequestEditor, getDeltaAmount, getAPAmount, isImported, getSettledValue, getOriginalInvoiceNumber, getRequestEditorDate, isEnriched, getRequestEditorReleased, checkDAXPRN, checkDAXValue, getOverallStatus, getCrossBorderFlag } = require('../../../../app/data-generation')
-const { FPTT, SFI23 } = require('../../../../app/constants/source-systems')
-const { PAYMENT_EXTRACTED, PAYMENT_ACKNOWLEDGED } = require('../../../../app/constants/events')
+const {
+  getARAmount,
+  getDebtType,
+  getFileName,
+  getBatch,
+  getBatchExportDate,
+  getStatus,
+  getValue,
+  getRevenue,
+  getYear,
+  routedToRequestEditor,
+  getDeltaAmount,
+  getAPAmount,
+  isImported,
+  getSettledValue,
+  getOriginalInvoiceNumber,
+  getRequestEditorDate,
+  isEnriched,
+  getRequestEditorReleased,
+  checkDAXPRN,
+  checkDAXValue,
+  getOverallStatus,
+  getCrossBorderFlag
+} = require('../../../../app/data-generation')
 const { swapAbsoluteValue } = require('../../../../app/payment/swap-absolute-value')
+const {
+  PAYMENT_EXTRACTED,
+  PAYMENT_ACKNOWLEDGED
+} = require('../../../../app/constants/events')
 
 jest.mock('../../../../app/data-generation/index')
 jest.mock('../../../../app/payment/swap-absolute-value')
 
+const FPTT = 'FPTT'
+const SFI23 = 'SFIA'
+
+const createEvent = (dataOverrides = {}, eventOverrides = {}) => ({
+  type: PAYMENT_EXTRACTED,
+  data: {
+    correlationId: 'correlation-id',
+    frn: 1234567890,
+    contractNumber: 'contract-number',
+    agreementNumber: 'agreement-number',
+    marketingYear: 2023,
+    invoiceNumber: 'invoice-number',
+    currency: 'GBP',
+    paymentRequestNumber: 2,
+    sourceSystem: SFI23,
+    ...dataOverrides
+  },
+  time: new Date('2026-01-01T12:00:00.000Z'),
+  ...eventOverrides
+})
+
 describe('createData', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-  })
 
-  test('should create and return the expected data object', async () => {
-    const mockEvent = {
-      type: PAYMENT_EXTRACTED,
-      data: {
-        correlationId: 'testCorrelationId',
-        frn: 1234567890,
-        contractNumber: 'testContractNumber',
-        agreementNumber: 'testAgreementNumber',
-        marketingYear: 2023,
-        invoiceNumber: 'testInvoiceNumber',
-        currency: 'testCurrency',
-        paymentRequestNumber: 2,
-        sourceSystem: SFI23
-      },
-      time: new Date()
-    }
-    const mockTransaction = {}
-
+    getValue.mockResolvedValue(2500)
     getDeltaAmount.mockResolvedValue(500)
-    getOriginalInvoiceNumber.mockReturnValue('testOriginalInvoiceNumber')
-    getValue.mockReturnValue(2500)
-    getBatch.mockReturnValue('testBatch')
-    getBatchExportDate.mockReturnValue('testBatchExportDate')
-    getStatus.mockReturnValue('testStatus')
-    getRevenue.mockReturnValue('testRevenueOrCapital')
+    getOriginalInvoiceNumber.mockReturnValue('original-invoice-number')
+    getBatch.mockReturnValue('batch')
+    getBatchExportDate.mockReturnValue('batch-export-date')
+    getStatus.mockReturnValue('status')
+    getRevenue.mockReturnValue('revenue')
     getYear.mockReturnValue(2022)
-    routedToRequestEditor.mockReturnValue('testRoutedToRequestEditor')
+    routedToRequestEditor.mockReturnValue(false)
     getAPAmount.mockReturnValue(500)
     getARAmount.mockReturnValue(0)
-    getDebtType.mockReturnValue('testDebtType')
-    getFileName.mockReturnValue('testDaxFileName')
-    isImported.mockReturnValue('testDaxImported')
-    getSettledValue.mockReturnValue('testSettledValue')
-    getRequestEditorDate.mockReturnValue('testRequestEditorDate')
-    isEnriched.mockReturnValue('testEnriched')
-    getRequestEditorReleased.mockReturnValue('testRequestEditorReleased')
+    getDebtType.mockReturnValue('debt-type')
+    getFileName.mockReturnValue('file-name')
+    isImported.mockReturnValue(false)
+    getSettledValue.mockReturnValue(2500)
+    getRequestEditorDate.mockReturnValue(null)
+    isEnriched.mockReturnValue(false)
+    getRequestEditorReleased.mockReturnValue(null)
     checkDAXPRN.mockResolvedValue(1)
     checkDAXValue.mockResolvedValue(2000)
-    getOverallStatus.mockReturnValue('testOverallStatus')
-    getCrossBorderFlag.mockReturnValue('testCrossBorderFlag')
+    getOverallStatus.mockReturnValue('status')
+    getCrossBorderFlag.mockReturnValue(false)
     swapAbsoluteValue.mockReturnValue(1)
+  })
 
-    const expectedData = {
-      correlationId: 'testCorrelationId',
+  test('creates the expected payment data', async () => {
+    const event = createEvent()
+    const transaction = {}
+
+    const result = await createData(event, transaction)
+
+    expect(result).toEqual({
+      correlationId: 'correlation-id',
       frn: 1234567890,
-      claimNumber: 'testContractNumber',
-      agreementNumber: 'testAgreementNumber',
+      contractNumber: 'contract-number',
+      agreementNumber: 'agreement-number',
       marketingYear: 2023,
-      originalInvoiceNumber: 'testOriginalInvoiceNumber',
-      invoiceNumber: 'testInvoiceNumber',
-      currency: 'testCurrency',
+      originalInvoiceNumber: 'original-invoice-number',
+      invoiceNumber: 'invoice-number',
+      currency: 'GBP',
       paymentRequestNumber: 2,
       value: 2500,
-      batch: 'testBatch',
+      batch: 'batch',
       sourceSystem: SFI23,
-      batchExportDate: 'testBatchExportDate',
-      status: 'testStatus',
-      lastUpdated: moment(mockEvent.time).format(),
-      revenueOrCapital: 'testRevenueOrCapital',
+      batchExportDate: 'batch-export-date',
+      status: 'status',
+      lastUpdated: moment(event.time).format(),
+      revenueOrCapital: 'revenue',
       year: 2022,
-      routedToRequestEditor: 'testRoutedToRequestEditor',
+      routedToRequestEditor: false,
       deltaAmount: 500,
       apValue: 500,
       arValue: 0,
-      debtType: 'testDebtType',
-      daxFileName: 'testDaxFileName',
-      daxImported: 'testDaxImported',
-      settledValue: 'testSettledValue',
-      receivedInRequestEditor: 'testRequestEditorDate',
-      enriched: 'testEnriched',
-      releasedFromRequestEditor: 'testRequestEditorReleased',
+      debtType: 'debt-type',
+      daxFileName: 'file-name',
+      daxImported: false,
+      settledValue: 2500,
+      receivedInRequestEditor: undefined,
+      enriched: false,
+      releasedFromRequestEditor: undefined,
       daxPaymentRequestNumber: 1,
       daxValue: 2000,
-      overallStatus: 'testOverallStatus',
-      crossBorderFlag: 'testCrossBorderFlag',
-      valueStillToProcess: 2500 - 2000,
-      prStillToProcess: 2 - 1,
+      overallStatus: 'status',
+      crossBorderFlag: false,
+      valueStillToProcess: 500,
+      prStillToProcess: 1,
       phError: null,
       daxError: null
-    }
-
-    const data = await createData(mockEvent, mockTransaction)
-
-    expect(data).toEqual(expectedData)
+    })
   })
 
-  test('should set valueStillToProcess to undefined when getValue returns null', async () => {
-    const mockEvent = {
-      data: {
-        correlationId: 'testCorrelationId',
-        frn: 1234567890,
-        contractNumber: 'testContractNumber',
-        agreementNumber: 'testAgreementNumber',
-        marketingYear: 2023,
-        invoiceNumber: 'testInvoiceNumber',
-        currency: 'testCurrency',
-        paymentRequestNumber: 2,
-        sourceSystem: 'testSourceSystem'
-      },
-      time: new Date()
-    }
-    const mockTransaction = {}
+  test('passes the event to the dependent functions', async () => {
+    const event = createEvent()
+    const transaction = {}
 
-    getValue.mockReturnValue(null)
-    checkDAXValue.mockResolvedValue(2000)
+    await createData(event, transaction)
 
-    const data = await createData(mockEvent, mockTransaction)
-
-    expect(data.valueStillToProcess).toBeUndefined()
+    expect(getValue).toHaveBeenCalledWith(event)
+    expect(getDeltaAmount).toHaveBeenCalledWith(event, transaction)
+    expect(checkDAXPRN).toHaveBeenCalledWith(event, transaction)
+    expect(checkDAXValue).toHaveBeenCalledWith(event, transaction)
+    expect(getOriginalInvoiceNumber).toHaveBeenCalledWith(event)
+    expect(getOverallStatus).toHaveBeenCalledWith(2500, 2000, 2, 1)
   })
 
-  test('should negate value for providesAccountingValues scheme when event is a fresh upstream event', async () => {
-    const mockEvent = {
-      type: PAYMENT_EXTRACTED,
-      data: {
-        correlationId: 'testCorrelationId',
-        frn: 1234567890,
-        contractNumber: 'testContractNumber',
-        agreementNumber: 'testAgreementNumber',
-        marketingYear: 2023,
-        invoiceNumber: 'testInvoiceNumber',
-        currency: 'testCurrency',
-        paymentRequestNumber: 2,
+  test('swaps the value for a fresh upstream event', async () => {
+    const event = createEvent(
+      {
         sourceSystem: FPTT,
         providesAccountingValues: true
       },
-      time: new Date()
-    }
-    const mockTransaction = {}
+      {
+        type: PAYMENT_EXTRACTED
+      }
+    )
 
-    getValue.mockReturnValue(-2500)
-    checkDAXValue.mockResolvedValue(2000)
-    checkDAXPRN.mockResolvedValue(1)
     swapAbsoluteValue.mockReturnValue(-1)
 
-    const data = await createData(mockEvent, mockTransaction)
+    const result = await createData(event, {})
 
     expect(swapAbsoluteValue).toHaveBeenCalledWith(true)
-    expect(data.value).toBe(2500)
-    expect(data.valueStillToProcess).toBe(500)
+    expect(result.value).toBe(-2500)
   })
 
-  test('should not apply swapAbsoluteValue when event is not a fresh upstream event', async () => {
-    const mockEvent = {
-      type: PAYMENT_ACKNOWLEDGED,
-      data: {
-        correlationId: 'testCorrelationId',
-        frn: 1234567890,
-        contractNumber: 'testContractNumber',
-        agreementNumber: 'testAgreementNumber',
-        marketingYear: 2023,
-        invoiceNumber: 'testInvoiceNumber',
-        currency: 'testCurrency',
-        paymentRequestNumber: 2,
-        sourceSystem: FPTT,
-        providesAccountingValues: true
-      },
-      time: new Date()
-    }
-    const mockTransaction = {}
-
-    getValue.mockReturnValue(2500)
-    checkDAXValue.mockResolvedValue(2000)
-    checkDAXPRN.mockResolvedValue(1)
-
-    const data = await createData(mockEvent, mockTransaction)
-
-    expect(swapAbsoluteValue).toHaveBeenCalledWith(true)
-    expect(data.value).toBe(2500)
-  })
-
-  test('should omit deltaAmount when getDeltaAmount returns null', async () => {
-    const mockEvent = {
-      type: PAYMENT_EXTRACTED,
-      data: {
-        correlationId: 'testCorrelationId',
-        frn: 1234567890,
-        contractNumber: 'testContractNumber',
-        agreementNumber: 'testAgreementNumber',
-        marketingYear: 2023,
-        invoiceNumber: 'testInvoiceNumber',
-        currency: 'testCurrency',
-        paymentRequestNumber: 2,
+  test('does not swap the value for a non-fresh upstream event', async () => {
+    const event = createEvent(
+      {
         sourceSystem: SFI23,
-        providesAccountingValues: true
+        providesAccountingValues: false
       },
-      time: new Date()
-    }
-    const mockTransaction = {}
+      {
+        type: PAYMENT_ACKNOWLEDGED
+      }
+    )
 
-    getValue.mockReturnValue(100)
-    getDeltaAmount.mockResolvedValue(null)
-    checkDAXValue.mockResolvedValue(0)
-    checkDAXPRN.mockResolvedValue(0)
-    swapAbsoluteValue.mockReturnValue(1)
+    swapAbsoluteValue.mockReturnValue(-1)
 
-    const data = await createData(mockEvent, mockTransaction)
+    const result = await createData(event, {})
 
-    expect(data.deltaAmount).toBeUndefined()
+    expect(result.value).toBe(2500)
   })
 
-  test('should call swapAbsoluteValue with undefined when providesAccountingValues is missing', async () => {
-    const mockEvent = {
-      type: PAYMENT_EXTRACTED,
-      data: {
-        correlationId: 'testCorrelationId',
-        frn: 1234567890,
-        contractNumber: 'testContractNumber',
-        agreementNumber: 'testAgreementNumber',
-        marketingYear: 2023,
-        invoiceNumber: 'testInvoiceNumber',
-        currency: 'testCurrency',
-        paymentRequestNumber: 2,
-        sourceSystem: SFI23
-        // providesAccountingValues intentionally omitted
-      },
-      time: new Date()
-    }
-    const mockTransaction = {}
+  test('sets valueStillToProcess to null when value is zero', async () => {
+    getValue.mockResolvedValue(0)
 
-    getValue.mockReturnValue(100)
-    checkDAXValue.mockResolvedValue(0)
-    checkDAXPRN.mockResolvedValue(0)
-    swapAbsoluteValue.mockReturnValue(1)
+    const result = await createData(createEvent(), {})
 
-    const data = await createData(mockEvent, mockTransaction)
+    expect(result.valueStillToProcess).toBeUndefined()
+  })
 
-    expect(swapAbsoluteValue).toHaveBeenCalledWith(undefined)
-    expect(data.value).toBe(100)
+  test('omits nullable fields from the result', async () => {
+    getDeltaAmount.mockResolvedValue(null)
+    getValue.mockResolvedValue(null)
+    getRequestEditorDate.mockReturnValue(null)
+    getRequestEditorReleased.mockReturnValue(null)
+
+    const result = await createData(createEvent(), {})
+
+    expect(result).not.toHaveProperty('deltaAmount')
+    expect(result).not.toHaveProperty('value')
+    expect(result).not.toHaveProperty('valueStillToProcess')
+    expect(result).not.toHaveProperty('receivedInRequestEditor')
+    expect(result).not.toHaveProperty('releasedFromRequestEditor')
+  })
+
+  test('sets valueStillToProcess using the DAX value', async () => {
+    getValue.mockResolvedValue(1000)
+    checkDAXValue.mockResolvedValue(250)
+
+    const result = await createData(createEvent(), {})
+
+    expect(result.valueStillToProcess).toBe(750)
   })
 })

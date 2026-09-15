@@ -1,4 +1,4 @@
-const { PassThrough } = require('stream')
+const { PassThrough } = require('node:stream')
 const QueryStream = require('pg-query-stream')
 const db = require('../data')
 const { saveReportFile } = require('../storage')

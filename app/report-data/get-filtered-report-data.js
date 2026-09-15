@@ -1,6 +1,7 @@
+const { getSourceSystemFromSchemeId } = require('ffc-pay-schemes')
 const db = require('../data')
-const { getSourceSystem } = require('../helpers/get-source-system')
-const { generateSqlQuery, exportQueryToJsonFile } = require('./report-file-generator.js')
+const { generateSqlQuery, exportQueryToJsonFile } = require('./report-file-generator')
+const { UNKNOWN } = require('../constants/unknown')
 
 const generateReportSql = async (sourceSystem, year, paymentRequestNumber, revenueOrCapital, frn, transactionSummary) => {
   const whereClause = {
@@ -37,8 +38,8 @@ const generateReportSql = async (sourceSystem, year, paymentRequestNumber, reven
 }
 
 const getFilteredReportData = async (schemeId, year, paymentRequestNumber, revenueOrCapital, frn, transactionSummary = false) => {
-  const sourceSystem = getSourceSystem(schemeId)
-  if (!sourceSystem) {
+  const sourceSystem = getSourceSystemFromSchemeId(schemeId)
+  if (sourceSystem === UNKNOWN) {
     throw new Error(`Source system not found for schemeId: ${schemeId}`)
   }
 
