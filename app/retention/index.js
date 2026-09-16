@@ -7,7 +7,7 @@ const removeAgreementData = async (retentionData) => {
   const transaction = await db.sequelize.transaction()
   try {
     const { agreementNumber, frn, schemeId } = retentionData
-    const sourceSystem = getSourceSystemFromSchemeId(schemeId)
+    const sourceSystem = getSourceSystemFromSchemeId(Number(schemeId))
     if (sourceSystem === UNKNOWN) {
       throw new Error(`Unknown schemeId: ${schemeId}`)
     }

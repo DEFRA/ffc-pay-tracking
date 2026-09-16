@@ -47,7 +47,7 @@ const generateReportSql = async (schemeId, sourceSystem, year, revenueOrCapital,
 }
 
 const getClaimLevelReportData = async (schemeId, year, revenueOrCapital, frn) => {
-  const sourceSystem = getSourceSystemFromSchemeId(schemeId)
+  const sourceSystem = getSourceSystemFromSchemeId(Number(schemeId))
   if (sourceSystem === UNKNOWN) {
     throw new Error(`Source system not found for schemeId: ${schemeId}`)
   }
