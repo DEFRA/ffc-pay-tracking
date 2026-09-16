@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
     reportDataId: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     correlationId: DataTypes.STRING,
     frn: DataTypes.BIGINT,
-    claimNumber: DataTypes.STRING,
+    contractNumber: DataTypes.STRING,
     agreementNumber: DataTypes.STRING,
     marketingYear: DataTypes.INTEGER,
     originalInvoiceNumber: DataTypes.STRING,

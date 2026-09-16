@@ -1,6 +1,6 @@
 {
   "name": "ffc-pay-tracking",
-  "version": "1.4.9",
+  "version": "1.5.0",
   "description": "Track payments and publish notifications",
   "homepage": "https://github.com/DEFRA/ffc-pay-tracking",
   "main": "app/index.js",
@@ -32,10 +32,11 @@
     "@azure/storage-blob": "12.29.1",
     "@hapi/hapi": "21.4.8",
     "ffc-database": "1.0.27",
-    "ffc-messaging": "2.10.8",
-    "ffc-pay-event-publisher": "1.2.7",
+    "ffc-messaging": "2.10.10",
+    "ffc-pay-event-publisher": "1.2.9",
+    "ffc-pay-schemes": "1.1.0",
     "hapi-pino": "13.0.0",
-    "joi": "18.2.1",
+    "joi": "18.2.9",
     "log-timestamp": "0.3.0",
     "pg-query-stream": "4.9.6",
     "sequelize": "6.37.8"
@@ -50,6 +51,7 @@
     "nodemon": "3.1.14"
   },
   "overrides": {
+    "moment": "2.31.0",
     "uuid": "11.1.1"
   },
   "nodemonConfig": {
