@@ -38,7 +38,7 @@ const generateReportSql = async (sourceSystem, year, paymentRequestNumber, reven
 }
 
 const getFilteredReportData = async (schemeId, year, paymentRequestNumber, revenueOrCapital, frn, transactionSummary = false) => {
-  const sourceSystem = getSourceSystemFromSchemeId(schemeId)
+  const sourceSystem = getSourceSystemFromSchemeId(Number(schemeId))
   if (sourceSystem === UNKNOWN) {
     throw new Error(`Source system not found for schemeId: ${schemeId}`)
   }
