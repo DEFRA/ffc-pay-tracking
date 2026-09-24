@@ -1,10 +1,28 @@
+const ffcPaySchemes = require('ffc-pay-schemes')
+
+jest.spyOn(ffcPaySchemes, 'getSchemeIdFromSourceSystem').mockImplementation((sourceSystem) => {
+  if (sourceSystem === ffcPaySchemes.getSourceSystems().SFI) {
+    return 1
+  }
+  if (sourceSystem === ffcPaySchemes.getSourceSystems().FPTT) {
+    return 18
+  }
+  return undefined
+})
+
+jest.spyOn(ffcPaySchemes, 'isSitiAgri').mockImplementation((schemeId) => {
+  return schemeId === 1
+})
+
 const { getSiblingSplitVariant } = require('../../../../app/payment/get-sibling-split-variant')
-const {
-  SFI,
-  FPTT
-} = require('../../../../app/constants/source-systems')
 
 describe('getSiblingSplitVariant', () => {
+  const { SFI, FPTT } = ffcPaySchemes.getSourceSystems()
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
   test('swaps A to B at index 8 for SITI_AGRI invoices', () => {
     const invoiceNumber = 'S0000001AVXYZ'
     expect(getSiblingSplitVariant(invoiceNumber, SFI)).toBe('S0000001BVXYZ')

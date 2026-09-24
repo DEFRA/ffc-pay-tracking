@@ -2,15 +2,33 @@ const { messageConfig } = require('../../../../app/config')
 const { MessageReceiver } = require('ffc-messaging')
 const { processEventMessage } = require('../../../../app/messaging/process-event-message')
 const { processRetentionMessage } = require('../../../../app/messaging/process-retention-message')
+
+jest.mock('ffc-messaging', () => ({
+  MessageReceiver: jest.fn()
+}))
+
+jest.mock('../../../../app/config', () => ({
+  messageConfig: {
+    eventsSubscription: 'events-subscription',
+    retentionSubscription: 'retention-subscription'
+  }
+}))
+
+jest.mock('../../../../app/messaging/process-event-message', () => ({
+  processEventMessage: jest.fn()
+}))
+
+jest.mock('../../../../app/messaging/process-retention-message', () => ({
+  processRetentionMessage: jest.fn()
+}))
+
 const { start, stop } = require('../../../../app/messaging')
 
-jest.mock('ffc-messaging')
-jest.mock('../../../../app/config')
-jest.mock('../../../../app/messaging/process-event-message')
-jest.mock('../../../../app/messaging/process-retention-message')
-
 describe('Message Receivers Module', () => {
-  let mockEventsSubscribe, mockRetentionSubscribe, mockEventsClose, mockRetentionClose
+  let mockEventsSubscribe
+  let mockRetentionSubscribe
+  let mockEventsClose
+  let mockRetentionClose
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -26,22 +44,21 @@ describe('Message Receivers Module', () => {
           subscribe: mockEventsSubscribe,
           closeConnection: mockEventsClose,
           subscription,
-          action,
+          action
         }
       }
+
       if (subscription === messageConfig.retentionSubscription) {
         return {
           subscribe: mockRetentionSubscribe,
           closeConnection: mockRetentionClose,
           subscription,
-          action,
+          action
         }
       }
+
       return {}
     })
-
-    messageConfig.eventsSubscription = 'events-subscription'
-    messageConfig.retentionSubscription = 'retention-subscription'
   })
 
   describe('start', () => {
@@ -66,8 +83,8 @@ describe('Message Receivers Module', () => {
       await start()
 
       const processingAction = MessageReceiver.mock.calls[0][1]
-
       const fakeMessage = { id: 'event1' }
+
       processingAction(fakeMessage)
 
       expect(processEventMessage).toHaveBeenCalledWith(fakeMessage, expect.any(Object))
@@ -77,8 +94,8 @@ describe('Message Receivers Module', () => {
       await start()
 
       const retentionAction = MessageReceiver.mock.calls[1][1]
-
       const fakeMessage = { id: 'retention1' }
+
       retentionAction(fakeMessage)
 
       expect(processRetentionMessage).toHaveBeenCalledWith(fakeMessage, expect.any(Object))
