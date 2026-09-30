@@ -39,7 +39,7 @@
     "joi": "18.2.9",
     "log-timestamp": "0.3.0",
     "moment": "2.31.0",
-    "pg-query-stream": "4.9.6"
+    "pg-query-stream": "4.17.0"
   },
   "devDependencies": {
     "blipp": "4.0.2",
