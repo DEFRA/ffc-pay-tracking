@@ -1,4 +1,14 @@
-const db = require('../../../../app/data')
+const { createKnexMock } = require('../../../helpers/mock-knex')
+
+const mockDb = createKnexMock(['reportData'])
+
+jest.mock('../../../../app/database', () => ({
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close,
+  ...mockDb.tables
+}))
+
 const { createData } = require('../../../../app/warning/create-data')
 const { BATCH_REJECTED, BATCH_QUARANTINED } = require('../../../../app/constants/warnings')
 const { getWhereFilter } = require('../../../../app/helpers/get-where-filter')
@@ -6,7 +16,6 @@ const { sendUpdateFailureEvent } = require('../../../../app/event/send-update-fa
 const { TRACKING_UPDATE_WARNING_FAILURE } = require('../../../../app/constants/events')
 const { updateWarning } = require('../../../../app/warning/update')
 
-jest.mock('../../../../app/data')
 jest.mock('../../../../app/warning/create-data')
 jest.mock('../../../../app/helpers/get-where-filter')
 jest.mock('../../../../app/event/send-update-failure')
@@ -17,15 +26,8 @@ describe('updateWarning', () => {
   beforeEach(() => {
     jest.clearAllMocks()
 
-    transaction = {
-      commit: jest.fn().mockResolvedValue(),
-      rollback: jest.fn().mockResolvedValue()
-    }
-
-    db.sequelize.transaction.mockResolvedValue(transaction)
-    db.reportData = {
-      update: jest.fn().mockResolvedValue()
-    }
+    transaction = mockDb.trx
+    mockDb.builder.resolves()
   })
 
   test.each([BATCH_REJECTED, BATCH_QUARANTINED])(
@@ -35,9 +37,9 @@ describe('updateWarning', () => {
 
       await updateWarning(event)
 
-      expect(db.sequelize.transaction).not.toHaveBeenCalled()
+      expect(mockDb.transaction).not.toHaveBeenCalled()
       expect(createData).not.toHaveBeenCalled()
-      expect(db.reportData.update).not.toHaveBeenCalled()
+      expect(mockDb.builder.update).not.toHaveBeenCalled()
       expect(transaction.commit).not.toHaveBeenCalled()
     }
   )
@@ -47,7 +49,7 @@ describe('updateWarning', () => {
       type: 'some-type',
       subject: 'subject-file'
     }
-    const dbData = { id: 1 }
+    const dbData = { status: 'x' }
 
     createData.mockReturnValue(dbData)
 
@@ -55,10 +57,9 @@ describe('updateWarning', () => {
 
     expect(createData).toHaveBeenCalledWith(event)
     expect(getWhereFilter).not.toHaveBeenCalled()
-    expect(db.reportData.update).toHaveBeenCalledWith(
-      dbData,
-      { where: { daxFileName: event.subject } }
-    )
+    expect(mockDb.tables.reportData).toHaveBeenCalledWith()
+    expect(mockDb.builder.where).toHaveBeenCalledWith({ daxFileName: event.subject })
+    expect(mockDb.builder.update).toHaveBeenCalledWith(dbData)
     expect(transaction.commit).toHaveBeenCalled()
   })
 
@@ -67,7 +68,7 @@ describe('updateWarning', () => {
       type: 'some-type',
       data: { someData: 'some-value' }
     }
-    const dbData = { id: 1 }
+    const dbData = { status: 'x' }
     const where = { someField: 'some-value' }
 
     createData.mockReturnValue(dbData)
@@ -77,10 +78,9 @@ describe('updateWarning', () => {
 
     expect(createData).toHaveBeenCalledWith(event)
     expect(getWhereFilter).toHaveBeenCalledWith(event)
-    expect(db.reportData.update).toHaveBeenCalledWith(
-      dbData,
-      { where, transaction }
-    )
+    expect(mockDb.tables.reportData).toHaveBeenCalledWith(transaction)
+    expect(mockDb.builder.where).toHaveBeenCalledWith(where)
+    expect(mockDb.builder.update).toHaveBeenCalledWith(dbData)
     expect(transaction.commit).toHaveBeenCalled()
   })
 
@@ -90,14 +90,14 @@ describe('updateWarning', () => {
       data: { someData: 'some-value' }
     }
 
-    createData.mockReturnValue({ id: 1 })
+    createData.mockReturnValue({ status: 'x' })
     getWhereFilter.mockReturnValue({
       someField: null
     })
 
     await updateWarning(event)
 
-    expect(db.reportData.update).not.toHaveBeenCalled()
+    expect(mockDb.builder.update).not.toHaveBeenCalled()
     expect(transaction.commit).toHaveBeenCalled()
   })
 
@@ -108,8 +108,8 @@ describe('updateWarning', () => {
     }
     const error = new Error('update failed')
 
-    createData.mockReturnValue({ id: 1 })
-    db.reportData.update.mockRejectedValue(error)
+    createData.mockReturnValue({ status: 'x' })
+    mockDb.builder.rejects(error)
 
     await expect(updateWarning(event)).rejects.toThrow(error)
 

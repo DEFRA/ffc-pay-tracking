@@ -23,18 +23,10 @@ jest.mock('../../../../app/config', () => ({
   }
 }))
 
-jest.mock('../../../../app/data', () => ({
-  Sequelize: jest.fn().mockImplementation(() => ({
-    define: jest.fn(),
-    authenticate: jest.fn()
-  })),
-  databaseConfig: {
-    database: 'testDatabase',
-    username: 'testUsername',
-    password: 'testPassword',
-    host: 'testHost',
-    dialect: 'testDialect'
-  }
+jest.mock('../../../../app/database', () => ({
+  client: jest.fn(),
+  transaction: jest.fn(),
+  close: jest.fn()
 }))
 
 test('createServer returns a server', async () => {
