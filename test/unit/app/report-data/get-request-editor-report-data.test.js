@@ -1,15 +1,9 @@
 const reportFileGenerator = require('../../../../app/report-data/report-file-generator')
 const { getRequestEditorReportData } = require('../../../../app/report-data/get-request-editor-report-data')
 
-const Sequelize = {
-  Op: {
-    ne: 'ne'
-  }
-}
+const { createKnexMock } = require('../../../helpers/mock-knex')
 
-jest.mock('../../../../app/data/index.js', () => ({
-  Sequelize
-}))
+const mockDb = createKnexMock()
 
 jest.mock('../../../../app/report-data/report-file-generator', () => ({
   generateSqlQuery: jest.fn(),
@@ -28,10 +22,11 @@ describe('getRequestEditorReportData', () => {
   test('should generate SQL with correct where clause and export JSON', async () => {
     const result = await getRequestEditorReportData()
 
-    expect(reportFileGenerator.generateSqlQuery).toHaveBeenCalledWith({
-      routedToRequestEditor: 'Y',
-      receivedInRequestEditor: { [Sequelize.Op.ne]: null }
-    })
+    const applyFilter = reportFileGenerator.generateSqlQuery.mock.calls[0][0]
+    applyFilter(mockDb.builder)
+
+    expect(mockDb.builder.where).toHaveBeenCalledWith('routedToRequestEditor', 'Y')
+    expect(mockDb.builder.whereNotNull).toHaveBeenCalledWith('receivedInRequestEditor')
 
     expect(reportFileGenerator.exportQueryToJsonFile).toHaveBeenCalledWith(mockSql)
     expect(result).toEqual(mockData)

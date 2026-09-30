@@ -1,53 +1,43 @@
-const db = require('../../../../app/data')
-const { removeReportData } = require('../../../../app/retention/remove-report-data')
+const { createKnexMock } = require('../../../helpers/mock-knex')
 
-jest.mock('../../../../app/data', () => ({
-  reportData: {
-    destroy: jest.fn()
-  }
+const mockDb = createKnexMock(['reportData'])
+
+jest.mock('../../../../app/database', () => ({
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close,
+  ...mockDb.tables
 }))
+
+const { removeReportData } = require('../../../../app/retention/remove-report-data')
 
 describe('removeReportData', () => {
   const agreementNumber = 'AGR123'
   const frn = 456789
   const sourceSystem = 'Source system'
-  const transaction = { id: 'transaction-object' }
 
   beforeEach(() => {
     jest.clearAllMocks()
+    mockDb.builder.resolves()
   })
 
-  test('calls db.reportData.destroy with correct parameters', async () => {
-    await removeReportData(agreementNumber, frn, sourceSystem, transaction)
+  test('deletes matching rows inside the transaction', async () => {
+    await removeReportData(agreementNumber, frn, sourceSystem, mockDb.trx)
 
-    expect(db.reportData.destroy).toHaveBeenCalledTimes(1)
-    expect(db.reportData.destroy).toHaveBeenCalledWith({
-      where: {
-        agreementNumber,
-        frn,
-        sourceSystem
-      },
-      transaction
-    })
+    expect(mockDb.tables.reportData).toHaveBeenCalledWith(mockDb.trx)
+    expect(mockDb.builder.where).toHaveBeenCalledWith({ agreementNumber, frn, sourceSystem })
+    expect(mockDb.builder.del).toHaveBeenCalledTimes(1)
   })
 
-  test('calls db.reportData.destroy with undefined transaction if not provided', async () => {
+  test('deletes against the pool if no transaction is provided', async () => {
     await removeReportData(agreementNumber, frn, sourceSystem)
 
-    expect(db.reportData.destroy).toHaveBeenCalledWith({
-      where: {
-        agreementNumber,
-        frn,
-        sourceSystem
-      },
-      transaction: undefined
-    })
+    expect(mockDb.tables.reportData).toHaveBeenCalledWith(undefined)
   })
 
-  test('propagates errors from db.reportData.destroy', async () => {
-    const error = new Error('DB failure')
-    db.reportData.destroy.mockRejectedValue(error)
+  test('propagates errors from the delete', async () => {
+    mockDb.builder.rejects(new Error('DB failure'))
 
-    await expect(removeReportData(agreementNumber, frn, sourceSystem, transaction)).rejects.toThrow('DB failure')
+    await expect(removeReportData(agreementNumber, frn, sourceSystem, mockDb.trx)).rejects.toThrow('DB failure')
   })
 })

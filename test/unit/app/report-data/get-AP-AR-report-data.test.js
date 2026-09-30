@@ -1,22 +1,24 @@
-jest.mock('../../../../app/data')
+const { createKnexMock } = require('../../../helpers/mock-knex')
+
+const mockDb = createKnexMock()
 jest.mock('../../../../app/report-data/report-file-generator.js', () => ({
   generateSqlQuery: jest.fn(),
   exportQueryToJsonFile: jest.fn()
 }))
 
 const { getAPARReportData } = require('../../../../app/report-data/get-AP-AR-report-data')
-const db = require('../../../../app/data')
 const { generateSqlQuery, exportQueryToJsonFile } = require('../../../../app/report-data/report-file-generator.js')
 const { AP, AR } = require('../../../../app/constants/ledgers')
 
 describe('getAPARReportData', () => {
+  const buildFilter = () => {
+    const applyFilter = generateSqlQuery.mock.calls[0][0]
+    applyFilter(mockDb.builder)
+    return mockDb.builder
+  }
+
   beforeEach(() => {
-    db.Sequelize = {
-      Op: {
-        ne: 'NE_OP',
-        between: 'BETWEEN_OP'
-      }
-    }
+    jest.clearAllMocks()
   })
 
   test('should generate SQL and export AP data when start and end dates are provided', async () => {
@@ -29,11 +31,10 @@ describe('getAPARReportData', () => {
     const endDate = '2022-12-31'
     const result = await getAPARReportData(startDate, endDate, AP)
 
-    expect(generateSqlQuery).toHaveBeenCalledWith({
-      apValue: { NE_OP: null },
-      daxFileName: { NE_OP: null },
-      lastUpdated: { BETWEEN_OP: [startDate, endDate] }
-    })
+    const builder = buildFilter()
+    expect(builder.whereNotNull).toHaveBeenCalledWith('apValue')
+    expect(builder.whereNotNull).toHaveBeenCalledWith('daxFileName')
+    expect(builder.whereBetween).toHaveBeenCalledWith('lastUpdated', [startDate, endDate])
     expect(exportQueryToJsonFile).toHaveBeenCalledWith(mockSql)
     expect(result).toEqual(mockData)
   })
@@ -48,11 +49,10 @@ describe('getAPARReportData', () => {
     const endDate = '2022-12-31'
     const result = await getAPARReportData(startDate, endDate, AR)
 
-    expect(generateSqlQuery).toHaveBeenCalledWith({
-      arValue: { NE_OP: null },
-      daxFileName: { NE_OP: null },
-      lastUpdated: { BETWEEN_OP: [startDate, endDate] }
-    })
+    const builder = buildFilter()
+    expect(builder.whereNotNull).toHaveBeenCalledWith('arValue')
+    expect(builder.whereNotNull).toHaveBeenCalledWith('daxFileName')
+    expect(builder.whereBetween).toHaveBeenCalledWith('lastUpdated', [startDate, endDate])
     expect(exportQueryToJsonFile).toHaveBeenCalledWith(mockSql)
     expect(result).toEqual(mockData)
   })
@@ -65,10 +65,10 @@ describe('getAPARReportData', () => {
 
     const result = await getAPARReportData(null, null, AP)
 
-    expect(generateSqlQuery).toHaveBeenCalledWith({
-      apValue: { NE_OP: null },
-      daxFileName: { NE_OP: null }
-    })
+    const builder = buildFilter()
+    expect(builder.whereNotNull).toHaveBeenCalledWith('apValue')
+    expect(builder.whereNotNull).toHaveBeenCalledWith('daxFileName')
+    expect(builder.whereBetween).not.toHaveBeenCalled()
     expect(exportQueryToJsonFile).toHaveBeenCalledWith(mockSql)
     expect(result).toEqual(mockData)
   })

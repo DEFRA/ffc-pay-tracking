@@ -4,10 +4,14 @@ jest.mock('ffc-pay-schemes', () => ({
   getSourceSystemFromSchemeId: mockGetSourceSystemFromSchemeId
 }))
 
-jest.mock('../../../../app/data', () => ({
-  sequelize: {
-    transaction: jest.fn()
-  }
+const { createKnexMock } = require('../../../helpers/mock-knex')
+
+const mockDb = createKnexMock()
+
+jest.mock('../../../../app/database', () => ({
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close
 }))
 
 jest.mock('../../../../app/retention/remove-report-data', () => ({
@@ -15,27 +19,20 @@ jest.mock('../../../../app/retention/remove-report-data', () => ({
 }))
 
 const { removeAgreementData } = require('../../../../app/retention')
-const db = require('../../../../app/data')
 const { removeReportData } = require('../../../../app/retention/remove-report-data')
 const { UNKNOWN } = require('../../../../app/constants/unknown')
 
 describe('removeAgreementData', () => {
+  const transaction = mockDb.trx
+
   const agreementNumber = 'AGR123'
   const frn = 456789
   const schemeId = 6
   const sourceSystem = 'BPS'
 
-  let transaction
-
   beforeEach(() => {
     jest.clearAllMocks()
 
-    transaction = {
-      commit: jest.fn().mockResolvedValue(),
-      rollback: jest.fn().mockResolvedValue()
-    }
-
-    db.sequelize.transaction.mockResolvedValue(transaction)
     mockGetSourceSystemFromSchemeId.mockReturnValue(sourceSystem)
   })
 
@@ -48,7 +45,7 @@ describe('removeAgreementData', () => {
 
     await removeAgreementData(retentionData)
 
-    expect(db.sequelize.transaction).toHaveBeenCalledTimes(1)
+    expect(mockDb.transaction).toHaveBeenCalledTimes(1)
     expect(mockGetSourceSystemFromSchemeId).toHaveBeenCalledWith(schemeId)
     expect(removeReportData).toHaveBeenCalledWith(
       agreementNumber,
