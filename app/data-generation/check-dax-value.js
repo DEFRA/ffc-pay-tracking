@@ -1,4 +1,4 @@
-const db = require('../data')
+const { reportData } = require('../database')
 const { PAYMENT_ACKNOWLEDGED_STATUS, PAYMENT_SETTLED_STATUS } = require('../constants/statuses')
 const { getStatus } = require('./get-status')
 const { getDeltaAmount } = require('./get-delta-amount')
@@ -9,10 +9,7 @@ const checkDAXValue = async (event, transaction) => {
   let currentPRAdded = false
   const where = getDataFilter(event.data)
   delete where.paymentRequestNumber
-  const previousRequests = await db.reportData.findAll({
-    where,
-    transaction
-  })
+  const previousRequests = await reportData(transaction ?? undefined).where(where)
   for (const paymentRequest of previousRequests) {
     if ([PAYMENT_ACKNOWLEDGED_STATUS, PAYMENT_SETTLED_STATUS].includes(paymentRequest.status)) {
       if (paymentRequest.paymentRequestNumber === event.data.paymentRequestNumber) {

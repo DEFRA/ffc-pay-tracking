@@ -1,40 +1,26 @@
 const { getSourceSystemFromSchemeId } = require('ffc-pay-schemes')
-const db = require('../data')
 const { generateSqlQuery, exportQueryToJsonFile } = require('./report-file-generator')
 const { UNKNOWN } = require('../constants/unknown')
 
 const generateReportSql = async (sourceSystem, year, paymentRequestNumber, revenueOrCapital, frn, transactionSummary) => {
-  const whereClause = {
-    sourceSystem,
-    value: {
-      [db.Sequelize.Op.ne]: null
+  const filters = { year, paymentRequestNumber, frn, revenueOrCapital }
+  const summaryColumns = ['batch', 'routedToRequestEditor', 'apValue', 'arValue']
+
+  return generateSqlQuery((query) => {
+    query.where({ sourceSystem }).whereNotNull('value')
+
+    for (const [column, filter] of Object.entries(filters)) {
+      if (filter) {
+        query.where(column, filter)
+      }
     }
-  }
 
-  if (year) {
-    whereClause.year = year
-  }
-
-  if (paymentRequestNumber) {
-    whereClause.paymentRequestNumber = paymentRequestNumber
-  }
-
-  if (frn) {
-    whereClause.frn = frn
-  }
-
-  if (revenueOrCapital) {
-    whereClause.revenueOrCapital = revenueOrCapital
-  }
-
-  if (transactionSummary) {
-    whereClause.batch = { [db.Sequelize.Op.ne]: null }
-    whereClause.routedToRequestEditor = { [db.Sequelize.Op.ne]: null }
-    whereClause.apValue = { [db.Sequelize.Op.ne]: null }
-    whereClause.arValue = { [db.Sequelize.Op.ne]: null }
-  }
-
-  return generateSqlQuery(whereClause)
+    if (transactionSummary) {
+      for (const column of summaryColumns) {
+        query.whereNotNull(column)
+      }
+    }
+  })
 }
 
 const getFilteredReportData = async (schemeId, year, paymentRequestNumber, revenueOrCapital, frn, transactionSummary = false) => {

@@ -1,4 +1,4 @@
-const db = require('../data')
+const { reportData } = require('../database')
 const { getValue } = require('./get-value')
 const { PAYMENT_PROCESSED, PAYMENT_SUBMITTED, PAYMENT_ACKNOWLEDGED, PAYMENT_SETTLED } = require('../constants/events')
 const { getDataFilter } = require('../helpers/get-data-filter')
@@ -13,10 +13,7 @@ const getDeltaAmount = async (event, transaction) => {
     return value
   }
   const where = getDataFilter(event.data, true)
-  const previousRequest = await db.reportData.findOne({
-    where,
-    transaction
-  })
+  const previousRequest = (await reportData(transaction ?? undefined).where(where).first()) ?? null
   const previousValue = previousRequest?.value ?? 0
   return value - previousValue
 }
