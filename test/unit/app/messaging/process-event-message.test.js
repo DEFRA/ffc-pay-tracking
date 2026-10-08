@@ -1,10 +1,20 @@
+jest.mock('../../../../app/config', () => ({
+  messageConfig: {
+    eventsSubscription: { host: 'test', address: 'events', topic: 'events-topic' },
+    retentionSubscription: { host: 'test', address: 'retention', topic: 'retention-topic' }
+  }
+}))
+jest.mock('../../../../app/payment', () => ({
+  updatePayment: jest.fn()
+}))
+jest.mock('../../../../app/warning', () => ({
+  updateWarning: jest.fn()
+}))
+
 const { processEventMessage } = require('../../../../app/messaging/process-event-message')
 const { updatePayment } = require('../../../../app/payment')
 const { updateWarning } = require('../../../../app/warning')
 const { PAYMENT_EVENT_PREFIX, WARNING_EVENT_PREFIX } = require('../../../../app/constants/event-prefixes')
-
-jest.mock('../../../../app/payment')
-jest.mock('../../../../app/warning')
 
 describe('processEventMessage', () => {
   let mockReceiver
