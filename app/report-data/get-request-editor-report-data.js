@@ -1,5 +1,5 @@
-const db = require('../data/index.js')
-const { generateSqlQuery, exportQueryToJsonFile } = require('./report-file-generator.js')
+const db = require('../data')
+const { generateSqlQuery, exportQueryToJsonFile } = require('./report-file-generator')
 
 const generateReportSql = () => {
   const whereClause = {

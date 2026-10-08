@@ -8,7 +8,7 @@ const { TRACKING_UPDATE_WARNING_FAILURE } = require('../constants/events')
 const updateWarning = async (event) => {
   if (![BATCH_REJECTED, BATCH_QUARANTINED].includes(event.type)) {
     const transaction = await db.sequelize.transaction()
-    const dbData = await createData(event)
+    const dbData = createData(event)
     try {
       if (event.subject) {
         await db.reportData.update({ ...dbData }, {

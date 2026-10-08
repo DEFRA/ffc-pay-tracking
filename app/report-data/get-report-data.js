@@ -1,4 +1,4 @@
-const { generateSqlQuery, exportQueryToJsonFile } = require('./report-file-generator.js')
+const { generateSqlQuery, exportQueryToJsonFile } = require('./report-file-generator')
 
 const getReportData = async () => {
   const sql = generateSqlQuery()

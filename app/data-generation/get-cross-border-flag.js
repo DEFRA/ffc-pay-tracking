@@ -1,4 +1,5 @@
-const { BPS } = require('../constants/schemes')
+const { getSchemeIds } = require('ffc-pay-schemes')
+const { BPS } = getSchemeIds()
 
 const getCrossBorderFlag = (event) => {
   if (event.data.schemeId !== BPS) {
