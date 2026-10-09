@@ -1,25 +1,22 @@
 const { PassThrough } = require('stream')
 const QueryStream = require('pg-query-stream')
-const db = require('../../../../app/data')
+const { createKnexMock } = require('../../../helpers/mock-knex')
+
+const mockDb = createKnexMock(['reportData'])
+mockDb.knex.client = {
+  acquireConnection: jest.fn(),
+  releaseConnection: jest.fn()
+}
+
 const storage = require('../../../../app/storage')
 const { generateSqlQuery, exportQueryToJsonFile } = require('../../../../app/report-data/report-file-generator')
 
 jest.mock('pg-query-stream')
-jest.mock('../../../../app/data', () => ({
-  sequelize: {
-    connectionManager: {
-      getConnection: jest.fn(),
-      releaseConnection: jest.fn()
-    },
-    getQueryInterface: () => ({
-      queryGenerator: {
-        getWhereConditions: jest.fn()
-      }
-    })
-  },
-  reportData: {
-    getTableName: () => 'mock_table'
-  }
+jest.mock('../../../../app/database', () => ({
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close,
+  ...mockDb.tables
 }))
 
 jest.mock('../../../../app/storage')
@@ -31,21 +28,24 @@ describe('report-file-generator', () => {
 
   describe('generateSqlQuery', () => {
     beforeEach(() => {
-      db.sequelize.getQueryInterface = () => ({
-        queryGenerator: {
-          getWhereConditions: jest.fn(() => 'id = 1')
-        }
-      })
+      mockDb.builder.toQuery = jest.fn(() => 'select * from "reportData"')
     })
 
-    test('returns base query when whereClause is null', () => {
-      const result = generateSqlQuery(null)
-      expect(result).toBe('SELECT * FROM mock_table')
+    test('returns the bare query when no filter is supplied', () => {
+      const result = generateSqlQuery()
+
+      expect(mockDb.tables.reportData).toHaveBeenCalledWith()
+      expect(result).toBe('select * from "reportData"')
     })
 
-    test('returns query with WHERE clause', () => {
-      const result = generateSqlQuery({ id: 1 })
-      expect(result).toBe('SELECT * FROM mock_table WHERE id = 1')
+    test('applies the filter to the query builder', () => {
+      const applyFilter = jest.fn((query) => query.where('id', 1))
+
+      const result = generateSqlQuery(applyFilter)
+
+      expect(applyFilter).toHaveBeenCalledWith(mockDb.builder)
+      expect(mockDb.builder.where).toHaveBeenCalledWith('id', 1)
+      expect(result).toBe('select * from "reportData"')
     })
   })
 
@@ -60,8 +60,8 @@ describe('report-file-generator', () => {
         query: jest.fn(() => pgStream)
       }
 
-      db.sequelize.connectionManager.getConnection = jest.fn(() => Promise.resolve(mockClient))
-      db.sequelize.connectionManager.releaseConnection = jest.fn(() => Promise.resolve())
+      mockDb.knex.client.acquireConnection.mockResolvedValue(mockClient)
+      mockDb.knex.client.releaseConnection.mockResolvedValue()
 
       storage.saveReportFile.mockImplementation((_filename, stream) => {
         stream.on('data', () => {})
@@ -86,8 +86,8 @@ describe('report-file-generator', () => {
       expect(filename).toMatch(/^test-report-\d{4}-\d{2}-\d{2}T/)
       expect(mockClient.query).toHaveBeenCalledWith(expect.any(QueryStream))
       expect(storage.saveReportFile).toHaveBeenCalled()
-      expect(db.sequelize.connectionManager.getConnection).toHaveBeenCalled()
-      expect(db.sequelize.connectionManager.releaseConnection).toHaveBeenCalled()
+      expect(mockDb.knex.client.acquireConnection).toHaveBeenCalled()
+      expect(mockDb.knex.client.releaseConnection).toHaveBeenCalled()
     })
 
     test('throws error if storage.saveReportFile rejects', async () => {
@@ -100,7 +100,7 @@ describe('report-file-generator', () => {
       })
 
       await expect(exportQueryToJsonFile('SELECT * FROM mock_table', 'fail-report', 100)).rejects.toThrow('Upload failed')
-      expect(db.sequelize.connectionManager.releaseConnection).toHaveBeenCalled()
+      expect(mockDb.knex.client.releaseConnection).toHaveBeenCalled()
     })
   })
 })

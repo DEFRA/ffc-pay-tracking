@@ -1,4 +1,4 @@
-const db = require('../data')
+const { reportData } = require('../database')
 
 const updateExistingRecord = async (newData, invoiceNumber, transaction) => {
   const updateData = {
@@ -21,12 +21,7 @@ const updateExistingRecord = async (newData, invoiceNumber, transaction) => {
       delete updateData[key]
     }
   })
-  await db.reportData.update(updateData, {
-    where: {
-      invoiceNumber
-    },
-    transaction
-  })
+  await reportData(transaction ?? undefined).where({ invoiceNumber }).update(updateData)
 }
 
 module.exports = {
