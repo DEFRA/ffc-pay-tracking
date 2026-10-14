@@ -1,5 +1,6 @@
 const db = require('../database')
-const { pickReportDataColumns } = require('../helpers/pick-report-data-columns')
+const TABLES = require('../constants/tables')
+const { pickColumns } = require('../constants/columns')
 const { createData } = require('./create-data')
 const { getExistingDataFull } = require('../helpers/get-existing-data-full')
 const { isNewSplitInvoiceNumber } = require('./is-new-split-invoice-number')
@@ -43,14 +44,14 @@ const handleExistingData = async (event, dbData, existingData, transaction) => {
 }
 
 const handleNewData = async (event, dbData, transaction) => {
-  await db.reportData(transaction).insert(pickReportDataColumns(dbData))
+  await db.reportData(transaction).insert(pickColumns(dbData, TABLES.reportData))
 }
 
 const handleUpdateExistingData = async (event, dbData, transaction) => {
   const where = getWhereFilter(event)
 
   if (Object.values(where).every(value => value !== null && value !== undefined)) {
-    await db.reportData(transaction).where(where).update(pickReportDataColumns(dbData))
+    await db.reportData(transaction).where(where).update(pickColumns(dbData, TABLES.reportData))
   }
 
   const originalInvoiceNumberLike = getOriginalInvoiceNumberLike(dbData.invoiceNumber, dbData.sourceSystem)
