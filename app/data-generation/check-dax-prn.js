@@ -1,7 +1,6 @@
-const db = require('../data')
+const { reportData } = require('../database')
 const { PAYMENT_ACKNOWLEDGED_STATUS, PAYMENT_SETTLED_STATUS } = require('../constants/statuses')
 const { getStatus } = require('./get-status')
-const { Op } = require('sequelize')
 const { getDataFilter } = require('../helpers/get-data-filter')
 
 const checkDAXPRN = async (event, transaction) => {
@@ -11,15 +10,12 @@ const checkDAXPRN = async (event, transaction) => {
   }
 
   const where = getDataFilter(event.data)
-  where.paymentRequestNumber = {
-    [Op.lte]: event.data.paymentRequestNumber
-  }
+  delete where.paymentRequestNumber
 
-  const previousRequests = await db.reportData.findAll({
-    where,
-    transaction,
-    order: [['paymentRequestNumber', 'DESC']]
-  })
+  const previousRequests = await reportData(transaction ?? undefined)
+    .where(where)
+    .where('paymentRequestNumber', '<=', event.data.paymentRequestNumber)
+    .orderBy('paymentRequestNumber', 'desc')
 
   for (const previousRequest of previousRequests) {
     if ([PAYMENT_ACKNOWLEDGED_STATUS, PAYMENT_SETTLED_STATUS].includes(previousRequest.status)) {

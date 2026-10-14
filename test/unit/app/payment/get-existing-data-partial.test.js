@@ -1,30 +1,56 @@
-const db = require('../../../../app/data')
+const { createKnexMock } = require('../../../helpers/mock-knex')
+
+const mockDb = createKnexMock(['reportData'])
+
+jest.mock('../../../../app/database', () => ({
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close,
+  ...mockDb.tables
+}))
+
 const { getExistingDataPartial } = require('../../../../app/payment/get-existing-data-partial')
 
-jest.mock('../../../../app/data')
-
 describe('getExistingDataPartial', () => {
-  test('should retrieve the existing data from the database', async () => {
-    const mockCorrelationId = 'testCorrelationId'
-    const mockTransaction = {}
-    const mockData = {
-      value: 'testValue',
-      batchExportDate: 'testBatchExportDate',
-      originalInvoiceNumber: 'testOriginalInvoiceNumber',
-      deltaAmount: 'testDeltaAmount'
-    }
+  const mockData = {
+    value: 'testValue',
+    batchExportDate: 'testBatchExportDate',
+    originalInvoiceNumber: 'testOriginalInvoiceNumber',
+    deltaAmount: 'testDeltaAmount'
+  }
 
-    db.reportData.findOne.mockResolvedValue(mockData)
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockDb.builder.resolves(mockData)
+  })
 
-    const data = await getExistingDataPartial(mockCorrelationId, mockTransaction)
+  test('should retrieve the existing data with a row lock inside the transaction', async () => {
+    const data = await getExistingDataPartial('testCorrelationId', mockDb.trx)
 
-    expect(db.reportData.findOne).toHaveBeenCalledWith({
-      transaction: mockTransaction,
-      lock: true,
-      where: {
-        correlationId: mockCorrelationId
-      }
-    })
+    expect(mockDb.tables.reportData).toHaveBeenCalledWith(mockDb.trx)
+    expect(mockDb.builder.where).toHaveBeenCalledWith({ correlationId: 'testCorrelationId' })
+    expect(mockDb.builder.forUpdate).toHaveBeenCalledTimes(1)
+    expect(mockDb.builder.first).toHaveBeenCalledTimes(1)
     expect(data).toEqual(mockData)
+  })
+
+  test('should query the pool when no transaction is supplied', async () => {
+    await getExistingDataPartial('testCorrelationId')
+
+    expect(mockDb.tables.reportData).toHaveBeenCalledWith(undefined)
+  })
+
+  test('should query the pool when the transaction is null', async () => {
+    await getExistingDataPartial('testCorrelationId', null)
+
+    expect(mockDb.tables.reportData).toHaveBeenCalledWith(undefined)
+  })
+
+  test('should return null when no row is found', async () => {
+    mockDb.builder.resolves(undefined)
+
+    const data = await getExistingDataPartial('testCorrelationId', mockDb.trx)
+
+    expect(data).toBeNull()
   })
 })

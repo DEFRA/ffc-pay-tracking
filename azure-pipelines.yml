@@ -1,4 +1,4 @@
-name: '$(Build.SourceBranchName)$(System.PullRequest.SourceBranch)$(Rev:.r)'
+name: "$(Build.SourceBranchName)$(System.PullRequest.SourceBranch)$(Rev:.r)"
 
 trigger:
   - main
@@ -35,7 +35,7 @@ extends:
     prDeployment: ${{ parameters.prDeployment }}
     branchDeployment: ${{ parameters.branchDeployment }}
     sndDeployment: ${{ parameters.sndDeployment }}
-    failOnThreshold: moderate  # Optional: moderate (default), low, high, critical
+    failOnThreshold: moderate # Optional: moderate (default), low, high, critical
     variableGroupName: ffc-pay-tracking-env-var
     pr_params:
       container.processingActive: $(pr_processingActive)
@@ -49,4 +49,3 @@ extends:
       container.processingActive: $(pre_processingActive)
     prd_params:
       container.processingActive: $(prd_processingActive)
-      

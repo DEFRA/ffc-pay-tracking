@@ -1,13 +1,10 @@
-const db = require('../data')
+const { reportData } = require('../database')
 
 const getExistingDataPartial = async (correlationId, transaction) => {
-  return db.reportData.findOne({
-    transaction,
-    lock: true,
-    where: {
-      correlationId
-    }
-  })
+  return (await reportData(transaction ?? undefined)
+    .where({ correlationId })
+    .forUpdate()
+    .first()) ?? null
 }
 
 module.exports = {

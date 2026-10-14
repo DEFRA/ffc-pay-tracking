@@ -1,4 +1,14 @@
-const db = require('../../../../app/data')
+const { createKnexMock } = require('../../../helpers/mock-knex')
+
+const mockDb = createKnexMock(['reportData'])
+
+jest.mock('../../../../app/database', () => ({
+  client: mockDb.knex,
+  transaction: mockDb.transaction,
+  close: mockDb.close,
+  ...mockDb.tables
+}))
+
 const { createData } = require('../../../../app/payment/create-data')
 const { getExistingDataFull } = require('../../../../app/helpers/get-existing-data-full')
 const { isNewSplitInvoiceNumber } = require('../../../../app/payment/is-new-split-invoice-number')
@@ -8,7 +18,6 @@ const { sendUpdateFailureEvent } = require('../../../../app/event/send-update-fa
 const { updateExistingRecord } = require('../../../../app/payment/update-existing-record')
 const { updatePayment } = require('../../../../app/payment/update')
 
-jest.mock('../../../../app/data')
 jest.mock('../../../../app/payment/create-data')
 jest.mock('../../../../app/helpers/get-existing-data-full')
 jest.mock('../../../../app/payment/is-new-split-invoice-number')
@@ -18,31 +27,11 @@ jest.mock('../../../../app/event/send-update-failure')
 jest.mock('../../../../app/payment/update-existing-record')
 
 describe('update from a payment message', () => {
-  let transaction
+  const transaction = mockDb.trx
 
   beforeEach(() => {
-    transaction = {
-      commit: jest.fn(),
-      rollback: jest.fn()
-    }
-
-    db.sequelize.transaction.mockResolvedValue(transaction)
-    db.Sequelize = {
-      Op: {
-        and: 'and',
-        or: 'or',
-        like: 'like',
-        notIn: 'notIn'
-      }
-    }
-
-    db.reportData = {
-      destroy: jest.fn(),
-      update: jest.fn(),
-      create: jest.fn(),
-      findAll: jest.fn(),
-      findOne: jest.fn()
-    }
+    jest.clearAllMocks()
+    mockDb.builder.resolves()
   })
 
   afterEach(() => {
@@ -60,7 +49,8 @@ describe('update from a payment message', () => {
 
     expect(createData).toHaveBeenCalledWith(event, transaction)
     expect(getExistingDataFull).toHaveBeenCalledWith(event.data, transaction)
-    expect(db.reportData.create).toHaveBeenCalledWith({ ...dbData }, { transaction })
+    expect(mockDb.tables.reportData).toHaveBeenCalledWith(transaction)
+    expect(mockDb.builder.insert).toHaveBeenCalledWith(dbData)
     expect(transaction.commit).toHaveBeenCalled()
   })
 
@@ -95,7 +85,9 @@ describe('update from a payment message', () => {
 
     await updatePayment(event)
 
-    expect(db.reportData.update).toHaveBeenCalledWith({ ...dbData }, { where, transaction })
+    expect(mockDb.tables.reportData).toHaveBeenCalledWith(transaction)
+    expect(mockDb.builder.where).toHaveBeenCalledWith(where)
+    expect(mockDb.builder.update).toHaveBeenCalledWith(dbData)
     expect(transaction.commit).toHaveBeenCalled()
   })
 
@@ -110,22 +102,17 @@ describe('update from a payment message', () => {
     getExistingDataFull.mockResolvedValue(existingData)
     isNewSplitInvoiceNumber.mockReturnValue(false)
     getWhereFilter.mockReturnValue(where)
-    db.reportData.findOne.mockResolvedValue(originalRecord)
+    mockDb.builder.resolves(originalRecord)
     updateExistingRecord.mockResolvedValue()
 
     await updatePayment(event)
 
-    expect(db.reportData.update).toHaveBeenCalledWith({ ...dbData }, { where, transaction })
-    expect(db.reportData.findOne).toHaveBeenCalledTimes(1)
-
-    const findOneArg = db.reportData.findOne.mock.calls[0][0]
-    expect(findOneArg).toHaveProperty('where')
-    expect(findOneArg.where[db.Sequelize.Op.and]).toEqual(expect.arrayContaining([
-      expect.objectContaining({}),
-      expect.objectContaining({ invoiceNumber: expect.objectContaining({ [db.Sequelize.Op.like]: 'INV123456%' }) }),
-      expect.objectContaining({ invoiceNumber: expect.objectContaining({ [db.Sequelize.Op.notIn]: ['INV123456AV01', 'INV123456BV01'] }) })
-    ]))
-
+    expect(mockDb.tables.reportData).toHaveBeenCalledWith(transaction)
+    expect(mockDb.builder.where).toHaveBeenCalledWith(where)
+    expect(mockDb.builder.update).toHaveBeenCalledWith(dbData)
+    expect(mockDb.builder.first).toHaveBeenCalledTimes(1)
+    expect(mockDb.builder.where).toHaveBeenCalledWith('invoiceNumber', 'like', 'INV123456%')
+    expect(mockDb.builder.whereNotIn).toHaveBeenCalledWith('invoiceNumber', ['INV123456AV01', 'INV123456BV01'])
     expect(updateExistingRecord).toHaveBeenCalledWith(dbData, 'INV123456V001', transaction)
     expect(transaction.commit).toHaveBeenCalled()
   })
@@ -141,22 +128,54 @@ describe('update from a payment message', () => {
     getExistingDataFull.mockResolvedValue(existingData)
     isNewSplitInvoiceNumber.mockReturnValue(false)
     getWhereFilter.mockReturnValue(where)
-    db.reportData.findOne.mockResolvedValue(originalRecord)
+    mockDb.builder.resolves(originalRecord)
     updateExistingRecord.mockResolvedValue()
 
     await updatePayment(event)
 
-    expect(db.reportData.findOne).toHaveBeenCalledTimes(1)
-
-    const findOneArg = db.reportData.findOne.mock.calls[0][0]
-    expect(findOneArg.where[db.Sequelize.Op.and]).toEqual(expect.arrayContaining([
-      expect.objectContaining({}),
-      expect.objectContaining({ invoiceNumber: expect.objectContaining({ [db.Sequelize.Op.like]: 'INV123456%' }) }),
-      expect.objectContaining({ invoiceNumber: expect.objectContaining({ [db.Sequelize.Op.notIn]: ['INV123456BV01', 'INV123456AV01'] }) })
-    ]))
-
+    expect(mockDb.builder.first).toHaveBeenCalledTimes(1)
+    expect(mockDb.builder.where).toHaveBeenCalledWith('invoiceNumber', 'like', 'INV123456%')
+    expect(mockDb.builder.whereNotIn).toHaveBeenCalledWith('invoiceNumber', ['INV123456BV01', 'INV123456AV01'])
     expect(updateExistingRecord).toHaveBeenCalledWith(dbData, 'INV123456V001', transaction)
     expect(transaction.commit).toHaveBeenCalled()
+  })
+
+  test('should only write columns that exist on the table', async () => {
+    const event = { data: { someData: 'someValue' } }
+    createData.mockResolvedValue({ invoiceNumber: 'INV1', type: 'not-a-column' })
+    getExistingDataFull.mockResolvedValue(null)
+
+    await updatePayment(event)
+
+    expect(mockDb.builder.insert).toHaveBeenCalledWith({ invoiceNumber: 'INV1' })
+  })
+
+  test('should not update the original record when none is found', async () => {
+    const event = { data: { invoiceNumber: 'INV123456AV01' } }
+    const dbData = { invoiceNumber: 'INV123456AV01', sourceSystem: 'FPTT', value: 100 }
+
+    createData.mockResolvedValue(dbData)
+    getExistingDataFull.mockResolvedValue({ invoiceNumber: 'INV123456V001' })
+    isNewSplitInvoiceNumber.mockReturnValue(false)
+    getWhereFilter.mockReturnValue({ invoiceNumber: 'INV123456AV01' })
+    mockDb.builder.resolves(undefined)
+
+    await updatePayment(event)
+
+    expect(updateExistingRecord).not.toHaveBeenCalled()
+    expect(transaction.commit).toHaveBeenCalled()
+  })
+
+  test('should skip the update when the where filter has null values', async () => {
+    const event = { data: { invoiceNumber: 'INV123456V001' } }
+    createData.mockResolvedValue({ invoiceNumber: 'INV123456V001', sourceSystem: 'FPTT' })
+    getExistingDataFull.mockResolvedValue({ invoiceNumber: 'INV123456V001' })
+    isNewSplitInvoiceNumber.mockReturnValue(false)
+    getWhereFilter.mockReturnValue({ invoiceNumber: null })
+
+    await updatePayment(event)
+
+    expect(mockDb.builder.update).not.toHaveBeenCalled()
   })
 
   test('should rollback transaction on error', async () => {

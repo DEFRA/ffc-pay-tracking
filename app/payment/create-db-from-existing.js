@@ -1,4 +1,6 @@
-const db = require('../data')
+const { reportData } = require('../database')
+const TABLES = require('../constants/tables')
+const { pickColumns } = require('../constants/columns')
 
 const createDBFromExisting = async (data, existingData, transaction) => {
   data.value = existingData.value
@@ -11,7 +13,7 @@ const createDBFromExisting = async (data, existingData, transaction) => {
   data.deltaAmount = existingData.deltaAmount
   data.enriched = existingData.enriched
   data.ledgerSplit = 'Y'
-  return db.reportData.create({ ...data }, { transaction })
+  return reportData(transaction ?? undefined).insert(pickColumns(data, TABLES.reportData))
 }
 
 module.exports = {
