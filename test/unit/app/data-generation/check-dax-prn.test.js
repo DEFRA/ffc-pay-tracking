@@ -28,7 +28,7 @@ describe('check PRN imported to DAX', () => {
     event = { data: { paymentRequestNumber: 3 } }
     transaction = mockDb.trx
     jest.clearAllMocks()
-    getDataFilter.mockReturnValue({ filter: 'filterValue' })
+    getDataFilter.mockReturnValue({ paymentRequestNumber: 3, filter: 'filterValue' })
   })
 
   const cases = [

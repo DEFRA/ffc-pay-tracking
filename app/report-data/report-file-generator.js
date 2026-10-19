@@ -31,11 +31,16 @@ const streamRowsAsJsonArray = (pgStream, outputStream) => new Promise((resolve, 
 
 const createStreamingQuery = (sql, client, batchSize = 5000) => client.query(new QueryStream(sql, [], { batchSize }))
 
-const getDbClient = async () =>
-  db.client.client.acquireConnection()
+// db.client is the knex instance and knex.client is its pg client, which owns the connection pool.
+const getDbClient = async () => {
+  const knex = db.client
+  return knex.client.acquireConnection()
+}
 
-const releaseDbClient = async (client) =>
-  db.client.client.releaseConnection(client)
+const releaseDbClient = async (client) => {
+  const knex = db.client
+  return knex.client.releaseConnection(client)
+}
 
 const exportQueryToJsonFile = async (sql, fileIdentifier = undefined, batchSize = 5000) => {
   const client = await getDbClient()

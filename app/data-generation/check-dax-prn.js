@@ -9,12 +9,11 @@ const checkDAXPRN = async (event, transaction) => {
     return event.data.paymentRequestNumber
   }
 
-  const where = getDataFilter(event.data)
-  delete where.paymentRequestNumber
+  const { paymentRequestNumber, ...where } = getDataFilter(event.data)
 
   const previousRequests = await reportData(transaction ?? undefined)
     .where(where)
-    .where('paymentRequestNumber', '<=', event.data.paymentRequestNumber)
+    .where('paymentRequestNumber', '<=', paymentRequestNumber)
     .orderBy('paymentRequestNumber', 'desc')
 
   for (const previousRequest of previousRequests) {
