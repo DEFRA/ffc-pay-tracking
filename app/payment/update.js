@@ -1,4 +1,6 @@
-const db = require('../data')
+const db = require('../database')
+const TABLES = require('../constants/tables')
+const { pickColumns } = require('../constants/columns')
 const { createData } = require('./create-data')
 const { getExistingDataFull } = require('../helpers/get-existing-data-full')
 const { isNewSplitInvoiceNumber } = require('./is-new-split-invoice-number')
@@ -11,7 +13,7 @@ const { getOriginalInvoiceNumberLike } = require('./get-original-invoice-number-
 const { getSiblingSplitVariant } = require('./get-sibling-split-variant')
 
 const updatePayment = async (event) => {
-  const transaction = await db.sequelize.transaction()
+  const transaction = await db.transaction()
 
   try {
     const dbData = await createData(event, transaction)
@@ -42,14 +44,14 @@ const handleExistingData = async (event, dbData, existingData, transaction) => {
 }
 
 const handleNewData = async (event, dbData, transaction) => {
-  await db.reportData.create({ ...dbData }, { transaction })
+  await db.reportData(transaction).insert(pickColumns(dbData, TABLES.reportData))
 }
 
 const handleUpdateExistingData = async (event, dbData, transaction) => {
   const where = getWhereFilter(event)
 
   if (Object.values(where).every(value => value !== null && value !== undefined)) {
-    await db.reportData.update({ ...dbData }, { where, transaction })
+    await db.reportData(transaction).where(where).update(pickColumns(dbData, TABLES.reportData))
   }
 
   const originalInvoiceNumberLike = getOriginalInvoiceNumberLike(dbData.invoiceNumber, dbData.sourceSystem)
@@ -64,14 +66,11 @@ const handleUpdateExistingData = async (event, dbData, transaction) => {
     if (sibling) {
       excludeList.push(sibling)
     }
-    const originalWhere = {
-      [db.Sequelize.Op.and]: [
-        baseWhere,
-        { invoiceNumber: { [db.Sequelize.Op.like]: originalInvoiceNumberLike } },
-        { invoiceNumber: { [db.Sequelize.Op.notIn]: excludeList } }
-      ]
-    }
-    const originalRecord = await db.reportData.findOne({ where: originalWhere, transaction })
+    const originalRecord = (await db.reportData(transaction)
+      .where(baseWhere)
+      .where('invoiceNumber', 'like', originalInvoiceNumberLike)
+      .whereNotIn('invoiceNumber', excludeList)
+      .first()) ?? null
     if (originalRecord) {
       await updateExistingRecord(dbData, originalRecord.invoiceNumber, transaction)
     }

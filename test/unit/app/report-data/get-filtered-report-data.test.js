@@ -2,16 +2,12 @@ const mockGetSourceSystemFromSchemeId = jest.fn()
 const mockGenerateSqlQuery = jest.fn()
 const mockExportQueryToJsonFile = jest.fn()
 
+const { createKnexMock } = require('../../../helpers/mock-knex')
+
+const mockDb = createKnexMock()
+
 jest.mock('ffc-pay-schemes', () => ({
   getSourceSystemFromSchemeId: mockGetSourceSystemFromSchemeId
-}))
-
-jest.mock('../../../../app/data', () => ({
-  Sequelize: {
-    Op: {
-      ne: Symbol('ne')
-    }
-  }
 }))
 
 jest.mock('../../../../app/report-data/report-file-generator', () => ({
@@ -25,6 +21,11 @@ const { UNKNOWN } = require('../../../../app/constants/unknown')
 describe('getFilteredReportData', () => {
   const schemeId = 6
   const sourceSystem = 'BPS'
+
+  const applyFilter = () => {
+    mockGenerateSqlQuery.mock.calls[0][0](mockDb.builder)
+    return mockDb.builder
+  }
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -42,19 +43,15 @@ describe('getFilteredReportData', () => {
       1234567890
     )
 
-    const whereClause = mockGenerateSqlQuery.mock.calls[0][0]
+    const builder = applyFilter()
 
     expect(mockGetSourceSystemFromSchemeId).toHaveBeenCalledWith(schemeId)
-    expect(whereClause).toMatchObject({
-      sourceSystem,
-      year: 2023,
-      paymentRequestNumber: 4,
-      revenueOrCapital: 'Revenue',
-      frn: 1234567890
-    })
-    expect(whereClause.value).toEqual({
-      [Object.getOwnPropertySymbols(whereClause.value)[0]]: null
-    })
+    expect(builder.where).toHaveBeenCalledWith({ sourceSystem })
+    expect(builder.whereNotNull).toHaveBeenCalledWith('value')
+    expect(builder.where).toHaveBeenCalledWith('year', 2023)
+    expect(builder.where).toHaveBeenCalledWith('paymentRequestNumber', 4)
+    expect(builder.where).toHaveBeenCalledWith('revenueOrCapital', 'Revenue')
+    expect(builder.where).toHaveBeenCalledWith('frn', 1234567890)
     expect(mockExportQueryToJsonFile).toHaveBeenCalledWith(
       'generated SQL',
       sourceSystem
@@ -65,37 +62,30 @@ describe('getFilteredReportData', () => {
   test('omits optional filters when they are not provided', async () => {
     await getFilteredReportData(schemeId)
 
-    const whereClause = mockGenerateSqlQuery.mock.calls[0][0]
+    const builder = applyFilter()
 
-    expect(whereClause).toMatchObject({
-      sourceSystem
-    })
-    expect(whereClause).not.toHaveProperty('year')
-    expect(whereClause).not.toHaveProperty('paymentRequestNumber')
-    expect(whereClause).not.toHaveProperty('revenueOrCapital')
-    expect(whereClause).not.toHaveProperty('frn')
+    expect(builder.where).toHaveBeenCalledTimes(1)
+    expect(builder.where).toHaveBeenCalledWith({ sourceSystem })
   })
 
   test('adds transaction summary filters when requested', async () => {
     await getFilteredReportData(schemeId, undefined, undefined, undefined, undefined, true)
 
-    const whereClause = mockGenerateSqlQuery.mock.calls[0][0]
+    const builder = applyFilter()
 
-    expect(whereClause).toHaveProperty('batch')
-    expect(whereClause).toHaveProperty('routedToRequestEditor')
-    expect(whereClause).toHaveProperty('apValue')
-    expect(whereClause).toHaveProperty('arValue')
+    expect(builder.whereNotNull).toHaveBeenCalledWith('batch')
+    expect(builder.whereNotNull).toHaveBeenCalledWith('routedToRequestEditor')
+    expect(builder.whereNotNull).toHaveBeenCalledWith('apValue')
+    expect(builder.whereNotNull).toHaveBeenCalledWith('arValue')
   })
 
   test('does not add transaction summary filters by default', async () => {
     await getFilteredReportData(schemeId)
 
-    const whereClause = mockGenerateSqlQuery.mock.calls[0][0]
+    const builder = applyFilter()
 
-    expect(whereClause).not.toHaveProperty('batch')
-    expect(whereClause).not.toHaveProperty('routedToRequestEditor')
-    expect(whereClause).not.toHaveProperty('apValue')
-    expect(whereClause).not.toHaveProperty('arValue')
+    expect(builder.whereNotNull).toHaveBeenCalledTimes(1)
+    expect(builder.whereNotNull).toHaveBeenCalledWith('value')
   })
 
   test('throws when the scheme has no source system', async () => {

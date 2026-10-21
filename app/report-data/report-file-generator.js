@@ -1,6 +1,6 @@
 const { PassThrough } = require('node:stream')
 const QueryStream = require('pg-query-stream')
-const db = require('../data')
+const db = require('../database')
 const { saveReportFile } = require('../storage')
 
 const generateUniqueFilename = (prefix = 'default', ext = 'json') => {
@@ -31,11 +31,16 @@ const streamRowsAsJsonArray = (pgStream, outputStream) => new Promise((resolve, 
 
 const createStreamingQuery = (sql, client, batchSize = 5000) => client.query(new QueryStream(sql, [], { batchSize }))
 
-const getDbClient = async () =>
-  db.sequelize.connectionManager.getConnection()
+// db.client is the knex instance and knex.client is its pg client, which owns the connection pool.
+const getDbClient = async () => {
+  const knex = db.client
+  return knex.client.acquireConnection()
+}
 
-const releaseDbClient = async (client) =>
-  db.sequelize.connectionManager.releaseConnection(client)
+const releaseDbClient = async (client) => {
+  const knex = db.client
+  return knex.client.releaseConnection(client)
+}
 
 const exportQueryToJsonFile = async (sql, fileIdentifier = undefined, batchSize = 5000) => {
   const client = await getDbClient()
@@ -57,17 +62,14 @@ const exportQueryToJsonFile = async (sql, fileIdentifier = undefined, batchSize 
   }
 }
 
-const generateSqlQuery = (whereClause = null) => {
-  const tableName = db.reportData.getTableName()
-  const baseQuery = `SELECT * FROM ${tableName}`
+const generateSqlQuery = (applyFilter = null) => {
+  const query = db.reportData()
 
-  if (!whereClause) {
-    return baseQuery
+  if (applyFilter) {
+    applyFilter(query)
   }
 
-  const queryGenerator = db.sequelize.getQueryInterface().queryGenerator
-  const whereSql = queryGenerator.getWhereConditions(whereClause, tableName)
-  return `${baseQuery} WHERE ${whereSql}`
+  return query.toQuery()
 }
 
 module.exports = { generateSqlQuery, exportQueryToJsonFile }
