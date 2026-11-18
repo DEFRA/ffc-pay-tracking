@@ -55,7 +55,8 @@
     "ffc-pay-event-publisher": {
       "@azure/identity": "$@azure/identity",
       "joi": "$joi"
-    }
+    },
+    "@opentelemetry/instrumentation-http": "0.222.0"
   },
   "nodemonConfig": {
     "ignore": [
