@@ -9,7 +9,10 @@ const getDeltaAmount = async (event, transaction) => {
   }
   const requestNumber = event.data.paymentRequestNumber
   const value = await getValue(event)
-  if (requestNumber === 0 || value === null) {
+  if (value == null) {
+    return null
+  }
+  if (requestNumber === 0) {
     return value
   }
   const where = getDataFilter(event.data, true)

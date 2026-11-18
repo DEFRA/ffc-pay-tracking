@@ -62,6 +62,16 @@ describe('check delta amount', () => {
     expect(result).toBeNull()
   })
 
+  test('getDeltaAmount returns null when no existing record holds a value', async () => {
+    getValue.mockReturnValue(undefined)
+    const event = { data: { paymentRequestNumber: 1, sourceSystem: 'system1', frn: 'frn1', agreementNumber: 'agreement1' } }
+
+    const result = await getDeltaAmount(event, {})
+
+    expect(result).toBeNull()
+    expect(mockDb.builder.first).not.toHaveBeenCalled()
+  })
+
   test('getDeltaAmount calculates delta amount', async () => {
     const event = { data: { paymentRequestNumber: 2, sourceSystem: 'system1', frn: 'frn1', agreementNumber: 'agreement1' } }
     const transaction = {}
