@@ -1,0 +1,252 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog 
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog" 
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" 
+    xmlns:pro="http://www.liquibase.org/xml/ns/pro" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd 
+                        http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.9.xsd 
+                        http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+  <changeSet author="Sam Plackett" id="1">
+    <tagDatabase tag="v1.15.0" />
+  </changeSet>
+
+  <changeSet author="Sam Plackett" id="2">
+    <sql>
+      UPDATE public."reportData"
+      SET "value" = 1561898,
+        "deltaAmount" = -8494
+      WHERE "reportDataId" = 1556256;
+
+      UPDATE public."reportData"
+      SET "value" = 7371601,
+        "deltaAmount" = -115748
+      WHERE "reportDataId" = 1676889;
+
+      UPDATE public."reportData"
+      SET "value" = 7483949,
+        "deltaAmount" = 112348
+      WHERE "reportDataId" = 1677252;
+
+      UPDATE public."reportData"
+      SET "value" = 1207514,
+        "deltaAmount" = -6573
+      WHERE "reportDataId" = 1583527;
+
+      UPDATE public."reportData"
+      SET "value" = 884076,
+        "deltaAmount" = -3458
+      WHERE "reportDataId" = 1587589;
+
+      UPDATE public."reportData"
+      SET "value" = 715783,
+        "deltaAmount" = 147304
+      WHERE "reportDataId" = 1739340;
+
+      UPDATE public."reportData"
+      SET "value" = 183577,
+        "deltaAmount" = -86871
+      WHERE "reportDataId" = 1556254;
+
+      UPDATE public."reportData"
+      SET "value" = 291826,
+        "deltaAmount" = -7324
+      WHERE "reportDataId" = 1583529;  
+
+      UPDATE public."reportData"
+      SET "value" = 790597,
+        "deltaAmount" = -13654
+      WHERE "reportDataId" = 1583528;
+  
+      UPDATE public."reportData"
+      SET "value" = 15811218,
+        "deltaAmount" = -68771
+      WHERE "reportDataId" = 1556255;
+
+      UPDATE public."reportData"
+      SET "value" = 7500214,
+        "deltaAmount" = -800735
+      WHERE "reportDataId" = 1699301;
+
+      UPDATE public."reportData"
+      SET "value" = 7910333,
+        "deltaAmount" = 410119
+      WHERE "reportDataId" = 1701302;
+
+      UPDATE public."reportData"
+      SET "value" = 4821719,
+        "deltaAmount" = -219147
+      WHERE "reportDataId" = 1563707;
+
+      UPDATE public."reportData"
+      SET "value" = 974045,
+        "deltaAmount" = -140718
+      WHERE "reportDataId" = 1587593;
+
+      UPDATE public."reportData"
+      SET "value" = 3061806,
+        "deltaAmount" = -94890
+      WHERE "reportDataId" = 1645576;
+
+      UPDATE public."reportData"
+      SET "value" = 1334161,
+        "deltaAmount" = -11241
+      WHERE "reportDataId" = 1716756;
+
+      UPDATE public."reportData"
+      SET "value" = 902104,
+        "deltaAmount" = -3494
+      WHERE "reportDataId" = 1587590;
+
+      UPDATE public."reportData"
+      SET "value" = 369082,
+        "deltaAmount" = -292578
+      WHERE "reportDataId" = 1592642;
+  
+      UPDATE public."reportData"
+      SET "value" = 652667,
+        "deltaAmount" = 283585
+      WHERE "reportDataId" = 1592759;
+
+      UPDATE public."reportData"
+      SET "value" = 15094048,
+        "deltaAmount" = 54286
+      WHERE "reportDataId" = 1296812;
+
+      UPDATE public."reportData"
+      SET "value" = 5113358,
+        "deltaAmount" = 53217
+      WHERE "reportDataId" = 1715333;
+
+      UPDATE public."reportData"
+      SET "value" = 5239323,
+        "deltaAmount" = 125965
+      WHERE "reportDataId" = 1716755;
+
+      UPDATE public."reportData"
+      SET "value" = 25780806,
+        "deltaAmount" = -168554
+      WHERE "reportDataId" = 1556316;
+
+      UPDATE public."reportData"
+      SET "value" = 25660410,
+        "deltaAmount" = -120396
+      WHERE "reportDataId" = 1563473;
+
+      UPDATE public."reportData"
+      SET "value" = 25949360,
+        "deltaAmount" = 288950
+      WHERE "reportDataId" = 1563485;
+
+      UPDATE public."reportData"
+      SET "value" = 1066213,
+        "deltaAmount" = -62652
+      WHERE "reportDataId" = 1587591;
+
+      UPDATE public."reportData"
+      SET "value" = 3918723,
+        "deltaAmount" = -1108
+      WHERE "reportDataId" = 1583526;
+
+      UPDATE public."reportData"
+      SET "value" = 3124141,
+        "deltaAmount" = -96827
+      WHERE "reportDataId" = 1645577;
+
+      UPDATE public."reportData"
+      SET "value" = 3971965,
+        "deltaAmount" = 23921
+      WHERE "reportDataId" = 1587598;
+
+      UPDATE public."reportData"
+      SET "value" = 3971965,
+        "deltaAmount" = 0
+      WHERE "reportDataId" = 1587601;
+
+      UPDATE public."reportData"
+      SET "value" = 146678,
+        "deltaAmount" = -502
+      WHERE "reportDataId" = 1583525;
+
+      UPDATE public."reportData"
+      SET "value" = 545702,
+        "deltaAmount" = 545702
+      WHERE "reportDataId" = 3097211;
+
+      UPDATE public."reportData"
+      SET "value" = 1846210,
+        "deltaAmount" = -8452
+      WHERE "reportDataId" = 1583522;
+
+      UPDATE public."reportData"
+      SET "value" = 151374,
+        "deltaAmount" = -7967
+      WHERE "reportDataId" = 1583521;
+
+      UPDATE public."reportData"
+      SET "value" = 9952080,
+        "deltaAmount" = -22982
+      WHERE "reportDataId" = 1556253;
+
+      UPDATE public."reportData"
+      SET "value" = 5061422,
+        "deltaAmount" = -32456
+      WHERE "reportDataId" = 1339180;
+
+      UPDATE public."reportData"
+      SET "value" = 1094231,
+        "deltaAmount" = -6
+      WHERE "reportDataId" = 1583523;
+
+      UPDATE public."reportData"
+      SET "value" = 931419,
+        "deltaAmount" = -3607
+      WHERE "reportDataId" = 1587588;
+
+      UPDATE public."reportData"
+      SET "value" = 2666696,
+        "deltaAmount" = -6
+      WHERE "reportDataId" = 1587599;
+
+      UPDATE public."reportData"
+      SET "value" = 2141297,
+        "deltaAmount" = -66226
+      WHERE "reportDataId" = 1556252;
+
+      UPDATE public."reportData"
+      SET "value" = 1174670,
+        "deltaAmount" = -58676
+      WHERE "reportDataId" = 1587594;
+
+      UPDATE public."reportData"
+      SET "value" = 4481594,
+        "deltaAmount" = -33314
+      WHERE "reportDataId" = 1587595;
+
+      UPDATE public."reportData"
+      SET "value" = 1111434,
+        "deltaAmount" = -57682
+      WHERE "reportDataId" = 1587592;
+
+      UPDATE public."reportData"
+      SET "value" = 4092989,
+        "deltaAmount" = -274099
+      WHERE "reportDataId" = 1587596;
+
+      UPDATE public."reportData"
+      SET "value" = 7869860,
+        "deltaAmount" = -59078
+      WHERE "reportDataId" = 1556251;
+
+      UPDATE public."reportData"
+      SET "value" = 2126553,
+        "deltaAmount" = -3376
+      WHERE "reportDataId" = 1583524;
+
+      UPDATE public."reportData"
+      SET "value" = 920232,
+        "deltaAmount" = -3563
+      WHERE "reportDataId" = 1592643;
+    </sql>
+  </changeSet>
+</databaseChangeLog>
